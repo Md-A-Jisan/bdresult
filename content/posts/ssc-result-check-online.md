@@ -5,6 +5,7 @@ date: 2026-11-01T10:00:00.000Z
 category: result
 description: মাত্র কয়েক ধাপে এসএসসি রেজাল্ট অনলাইন ও এসএমএসের মাধ্যমে দেখার সহজ
   নিয়ম জানুন।
+image: /uploads/ssc-result-online-guide-in-bengali.png
 tags:
   - ssc
   - result
