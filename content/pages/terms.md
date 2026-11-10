@@ -1,6 +1,6 @@
 ---
 title: শর্তাবলী
-slug: /terms/
+slug: bdresult.me/terms/
 description: bdresult.me ব্যবহারের শর্তাবলী।
 ---
 bdresult.me-তে আপনাকে স্বাগতম!
