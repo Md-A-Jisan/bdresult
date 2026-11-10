@@ -2,7 +2,7 @@ backend:
   name: github
   repo: Md-A-Jisan/bdresult   # <- change this
   branch: main
-  base_url: https://bdresult-auth.YOUR_SUBDOMAIN.workers.dev   # <- your Cloudflare Worker URL
+  base_url: https://bdresult-auth.antoraisu.workers.dev   # <- your Cloudflare Worker URL
   auth_endpoint: auth
 publish_mode: editorial_workflow   # draft -> review -> publish
 media_folder: static/uploads
