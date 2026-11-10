@@ -1,6 +1,6 @@
 ---
 title: ডিসক্লেইমার
-slug: /disclaimer/
+slug: https://bdresult.me/disclaimer/
 description: bdresult.me এর ডিসক্লেইমার।
 ---
 bdresult.me-তে আপনাকে স্বাগতম!
