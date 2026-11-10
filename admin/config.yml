@@ -1,0 +1,75 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/bdresult   # <- change this
+  branch: main
+  base_url: https://bdresult-auth.YOUR_SUBDOMAIN.workers.dev   # <- your Cloudflare Worker URL
+  auth_endpoint: auth
+publish_mode: editorial_workflow   # draft -> review -> publish
+media_folder: static/uploads
+public_folder: /uploads
+locale: en
+collections:
+  - name: posts
+    label: "Posts"
+    folder: content/posts
+    create: true
+    extension: md
+    slug: "{{fields.slug}}"
+    summary: "{{title}} ({{category}})"
+    sortable_fields: [date, title, category]
+    fields:
+      - {label: Title, name: title, widget: string}
+      - {label: "Slug (English, e.g. ssc-result-2026)", name: slug, widget: string, pattern: ['^[a-z0-9-]+$', 'Only a-z 0-9 and -']}
+      - {label: Publish Date, name: date, widget: datetime, hint: "Future date = scheduled (goes live on next build)"}
+      - {label: Last Updated, name: updated, widget: datetime, required: false}
+      - {label: Category, name: category, widget: select, options: [result, admission, routine, notice, scholarship, job-circular, syllabus, study-tips]}
+      - {label: "SEO Meta Description (140-160 chars)", name: description, widget: text}
+      - {label: Featured Image, name: image, widget: image, required: false}
+      - {label: Tags, name: tags, widget: list, required: false}
+      - {label: Draft, name: draft, widget: boolean, default: false, required: false}
+      - label: FAQ (shows in Google as rich result)
+        name: faq
+        widget: list
+        required: false
+        fields: [{label: Question, name: q, widget: string}, {label: Answer, name: a, widget: text}]
+      - {label: Body, name: body, widget: markdown}
+  - name: pages
+    label: "Pages"
+    folder: content/pages
+    create: true
+    extension: md
+    slug: "{{fields.slug}}"
+    fields:
+      - {label: Title, name: title, widget: string}
+      - {label: Slug, name: slug, widget: string}
+      - {label: Meta Description, name: description, widget: text}
+      - {label: Body, name: body, widget: markdown}
+  - name: settings
+    label: "Settings & Ads"
+    files:
+      - label: "Site Settings, Ads, Analytics"
+        name: settings
+        file: content/settings.json
+        format: json
+        fields:
+          - {label: Site Name, name: name, widget: string}
+          - {label: URL, name: url, widget: string}
+          - {label: Tagline, name: tagline, widget: string}
+          - {label: Home Description, name: description, widget: text}
+          - {label: Email, name: email, widget: string}
+          - {label: Google Search Console Verification Code, name: googleVerification, widget: string, required: false}
+          - {label: "Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX)", name: gaId, widget: string, required: false, hint: "Only paste the ID. The tracking code is added automatically on every page."}
+          - {label: "Other Tracking Code (Cloudflare Web Analytics, Clarity, Meta Pixel etc. - full <script>)", name: analytics, widget: text, required: false}
+          - label: Ads
+            name: ads
+            widget: object
+            fields:
+              - {label: "Head Script (AdSense auto ads)", name: head, widget: text, required: false}
+              - {label: Header Banner, name: header, widget: text, required: false}
+              - {label: In-Content (after 2nd paragraph), name: incontent, widget: text, required: false}
+              - {label: Sidebar, name: sidebar, widget: text, required: false}
+              - {label: Footer, name: footer, widget: text, required: false}
+          - label: Categories
+            name: categories
+            widget: list
+            fields: [{label: Slug, name: slug, widget: string}, {label: Name, name: name, widget: string}, {label: Description, name: desc, widget: text}]

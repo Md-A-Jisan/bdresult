@@ -1,0 +1,59 @@
+{
+ "name": "bdresult",
+ "url": "https://bdresult.me",
+ "tagline": "বাংলাদেশের শিক্ষা সংক্রান্ত সব তথ্য এক জায়গায়",
+ "description": "bdresult.me - SSC, HSC, ভর্তি, রুটিন, নোটিশ, বৃত্তি ও চাকরির সর্বশেষ শিক্ষা তথ্য।",
+ "email": "info@bdresult.me",
+ "googleVerification": "",
+ "gaId": "",
+ "analytics": "",
+ "ads": {
+  "head": "",
+  "header": "",
+  "incontent": "",
+  "sidebar": "",
+  "footer": ""
+ },
+ "categories": [
+  {
+   "slug": "result",
+   "name": "রেজাল্ট",
+   "desc": "SSC, HSC, JSC, ডিগ্রি ও বিশ্ববিদ্যালয়ের ফলাফল।"
+  },
+  {
+   "slug": "admission",
+   "name": "ভর্তি",
+   "desc": "স্কুল, কলেজ ও বিশ্ববিদ্যালয় ভর্তি তথ্য।"
+  },
+  {
+   "slug": "routine",
+   "name": "রুটিন",
+   "desc": "পরীক্ষার রুটিন ও সময়সূচি।"
+  },
+  {
+   "slug": "notice",
+   "name": "নোটিশ",
+   "desc": "শিক্ষা বোর্ড ও মন্ত্রণালয়ের নোটিশ।"
+  },
+  {
+   "slug": "scholarship",
+   "name": "বৃত্তি",
+   "desc": "দেশি ও বিদেশি স্কলারশিপ তথ্য।"
+  },
+  {
+   "slug": "job-circular",
+   "name": "চাকরির সার্কুলার",
+   "desc": "শিক্ষা সংক্রান্ত চাকরির বিজ্ঞপ্তি।"
+  },
+  {
+   "slug": "syllabus",
+   "name": "সিলেবাস",
+   "desc": "সিলেবাস, সাজেশন ও পাঠ্যবই।"
+  },
+  {
+   "slug": "study-tips",
+   "name": "পড়াশোনার টিপস",
+   "desc": "পড়াশোনা ও ক্যারিয়ার গাইডলাইন।"
+  }
+ ]
+}
