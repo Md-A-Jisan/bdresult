@@ -1,6 +1,6 @@
 ---
 title: প্রাইভেসি পলিসি
-slug: /privacy-policy/
+slug: bdresult.me/privacy-policy/
 description: bdresult.me এর প্রাইভেসি পলিসি।
 ---
 bdresult.me-তে আপনাকে স্বাগতম। আমাদের ওয়েবসাইটের দর্শকদের ব্যক্তিগত তথ্যের গোপনীয়তা ও নিরাপত্তা আমাদের কাছে গুরুত্বপূর্ণ।
