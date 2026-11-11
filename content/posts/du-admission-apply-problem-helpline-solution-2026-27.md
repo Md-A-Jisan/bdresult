@@ -7,7 +7,7 @@ updated: 2026-11-11T17:54:00.000+06:00
 category: admission
 description: ঢাবি ভর্তি আবেদন করতে গিয়ে সমস্যা হচ্ছে? ২০২৬-২৭ সেশনের হেল্পলাইন
   নম্বর, ইমেইল, OTP-পেমেন্ট-ছবি আপলোডের সমাধান ও আবেদনের সঠিক নিয়ম এক পোস্টে।
-image: /uploads/du-admission-2026-27-banner.png
+image: /uploads/du-admission-2026-27-banner.webp
 tags:
   - ঢাবি ভর্তি আবেদনে সমস্যা
   - ঢাবি ভর্তি হেল্পলাইন নম্বর
