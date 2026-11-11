@@ -6,7 +6,7 @@ updated: 2026-11-11T15:55:00.000+06:00
 category: result
 description: এসএসসি রেজাল্ট কিভাবে দেখবেন? অনলাইনে মার্কশিটসহ ও এসএমএসে ফল জানার
   সঠিক নিয়ম, বোর্ড কোড, সমস্যার সমাধান ও পুনর্নিরীক্ষণের তথ্য এক পোস্টে।
-image: /uploads/ssc-result-guide_-online-and-sms.png
+image: /uploads/ssc-result-guide_-online-and-sms.webp
 tags:
   - এসএসসি রেজাল্ট কিভাবে দেখবেন
   - SSC Result
