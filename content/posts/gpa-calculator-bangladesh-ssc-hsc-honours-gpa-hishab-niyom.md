@@ -50,9 +50,6 @@ faq:
 
 নিচের ক্যালকুলেটরে নম্বর বা গ্রেড দিলেই জিপিএ বের হয়ে যাবে। **SSC/HSC ট্যাবে** ৪র্থ বিষয়ের বোনাসসহ জিপিএ এবং **Honours ট্যাবে** ক্রেডিটভিত্তিক CGPA হিসাব হবে। হিসাবের নিয়ম বুঝতে চাইলে এর নিচের অংশগুলো পড়ে নিন।
 
-<!-- এখানে gpa-calculator-bangladesh.html ক্যালকুলেটরটি embed করুন (নিচে iframe বা সরাসরি কোড) -->
-<iframe src="/gpa-calculator-bangladesh.html" title="জিপিএ ক্যালকুলেটর বাংলাদেশ" width="100%" height="900" style="border:0;max-width:760px;display:block;margin:0 auto" loading="lazy"></iframe>
-
 ## আগে জানুন: GPA আর CGPA কী?
 
 - **GPA (Grade Point Average):** সব বিষয়ের গ্রেড পয়েন্টের গড়। SSC ও HSC-তে ৫.০০ স্কেলে হিসাব হয়।
