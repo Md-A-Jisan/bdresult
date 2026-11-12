@@ -2,16 +2,16 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font:17px/1.8 "Noto Sans Bengali",system-ui,sans-serif;color:var(--t);background:#fff;overflow-x:hidden}
-a{color:var(--g);text-decoration:none}a:hover{color:var(--g2)}
+a{color:var(--g);text-decoration:none}a:hover{color:#047857}
 img,video,iframe{max-width:100%;height:auto}img{border-radius:8px}
 .w{max-width:1100px;margin:auto;padding:0 14px}
 header{background:var(--g);color:#fff}
-header a,header a:visited{color:#fff}
+header a,header a:visited,header a:hover{color:#fff}
 .hd{display:flex;gap:10px;align-items:center;padding:10px 14px;position:relative}
-.logo{font-size:24px;font-weight:700;white-space:nowrap}.logo small{color:var(--g2);font-size:15px}
+.logo{font-size:24px;font-weight:700;white-space:nowrap}.logo small{color:#6ee7b7;font-size:15px}
 #q{flex:1;min-width:0;max-width:320px;margin-left:auto;padding:8px 14px;border-radius:20px;border:0;font:inherit;font-size:15px}
 #res{position:absolute;left:14px;right:14px;top:100%;background:#fff;z-index:9;border-radius:8px;box-shadow:0 4px 14px #0003}
-#res a{display:block;padding:9px 14px;color:var(--g)}
+#res a,#res a:hover{display:block;padding:9px 14px;color:var(--g)}
 nav.w{display:flex;gap:6px;overflow-x:auto;white-space:nowrap;padding-bottom:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 nav.w::-webkit-scrollbar{display:none}
 nav.w a{flex:none;padding:5px 13px;border-radius:16px;font-size:15px;background:#ffffff1f}
@@ -24,7 +24,7 @@ main{padding:16px 14px;overflow-wrap:anywhere}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px}
 .card{border:1px solid #d1fae5;border-radius:10px;overflow:hidden;background:#fff}.card img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0}
 .card>div{padding:10px 12px}.card h3{font-size:16px;line-height:1.6;margin:4px 0}.card time,.meta{font-size:13px;color:#6b7280}.tag{font-size:12px;background:var(--l);padding:1px 8px;border-radius:10px}
-.sec{border-bottom:2px solid var(--g);padding-bottom:4px;margin-top:28px;font-size:20px}.sec a{color:var(--g)}
+.sec:first-child{margin-top:0}.sec{border-bottom:2px solid var(--g);padding-bottom:4px;margin-top:28px;font-size:20px}.sec a{color:var(--g)}
 .box{background:var(--l);padding:4px 16px 10px;border-radius:10px;margin-bottom:16px}.box h2{font-size:18px;color:var(--g)}.box ul{padding-left:18px;margin:0}
 .bc{font-size:14px;margin-bottom:8px}
 .post{min-width:0;overflow-wrap:anywhere}.post h1{color:var(--g);line-height:1.5;font-size:26px}.post h2{color:var(--g);border-left:4px solid var(--g2);padding-left:10px;font-size:21px;line-height:1.5}.post h3{font-size:18px}
@@ -33,5 +33,5 @@ main{padding:16px 14px;overflow-wrap:anywhere}
 .faq details{border:1px solid #d1fae5;border-radius:8px;padding:8px 12px;margin:8px 0}.faq summary{cursor:pointer;font-weight:600}
 .ad{text-align:center;margin:12px auto;max-width:100%;overflow:hidden}
 .cf input,.cf textarea{display:block;width:100%;margin:8px 0;padding:10px;border:1px solid #9ca3af;border-radius:6px;font:inherit}.cf button{background:var(--g);color:#fff;border:0;padding:10px 24px;border-radius:6px;font:inherit}
-footer{background:var(--g);color:#d1fae5;text-align:center;padding:14px 0;margin-top:30px;font-size:15px}footer a,footer a:visited{color:#fff}
+footer{background:var(--g);color:#d1fae5;text-align:center;padding:14px 0;margin-top:30px;font-size:15px}footer a,footer a:visited{color:#fff}footer a:hover{color:#6ee7b7}
 @media(max-width:480px){body{font-size:16px}.logo{font-size:21px}.post h1{font-size:23px}}
