@@ -347,13 +347,14 @@ tbody tr:hover{background:var(--g100)}
         let teacherCount = 0;
         let staffCount = 0;
         const hasId = (p) => p && p.EmpId && p.EmpId !== "-";
-        const normName = (p) => String(p.FullName || p.FullNameBn || "").toUpperCase().replace(/[^A-Z0-9\u0980-\u09FF]/g, "");
+        const norm = (v) => String(v || "").toUpperCase().replace(/[^A-Z0-9\u0980-\u09FF]/g, "");
+        const names = (p) => [norm(p.FullName), norm(p.FullNameBn)].filter(Boolean);
         const hasMob = (p) => p && p.MobileNo && p.MobileNo !== "-";
         const samePerson = (a, b) => {
-            if (hasId(a) && hasId(b)) return a.EmpId === b.EmpId;            // দুজনেরই EmpId থাকলে শুধু সেটাই বিচার
-            if (!normName(a) || normName(a) !== normName(b)) return false;   // নাম না মিললে আলাদা
-            if (hasMob(a) && hasMob(b)) return a.MobileNo === b.MobileNo;     // নাম মিললে মোবাইলও মিলতে হবে
-            return true;
+            if (hasId(a) && hasId(b)) return a.EmpId === b.EmpId;               // দুজনেরই EmpId থাকলে শুধু সেটাই বিচার
+            if (hasMob(a) && hasMob(b)) return norm(a.MobileNo) === norm(b.MobileNo); // মোবাইল মিললে এক, না মিললে আলাদা
+            const nb = names(b);
+            return names(a).some(n => nb.includes(n));                          // মোবাইল না থাকলে বাংলা/ইংরেজি যেকোনো নাম মিললে এক
         };
         const headList = [];
         const addHead = (h) => {
