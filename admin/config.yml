@@ -22,7 +22,14 @@ collections:
       - {label: "Slug (English, e.g. ssc-result-2026)", name: slug, widget: string, pattern: ['^[a-z0-9-]+$', 'Only a-z 0-9 and -']}
       - {label: Publish Date, name: date, widget: datetime, hint: "Future date = scheduled (goes live on next build)"}
       - {label: Last Updated, name: updated, widget: datetime, required: false}
-      - {label: Category, name: category, widget: select, options: [result, admission, routine, notice, scholarship, job-circular, syllabus, study-tips]}
+      - label: Category
+        name: category
+        widget: relation
+        collection: settings
+        file: settings
+        search_fields: ["categories.*.name"]
+        display_fields: ["categories.*.name"]
+        value_field: "categories.*.slug"
       - {label: "SEO Meta Description (140-160 chars)", name: description, widget: text}
       - {label: Featured Image, name: image, widget: image, required: false}
       - {label: Tags, name: tags, widget: list, required: false}
