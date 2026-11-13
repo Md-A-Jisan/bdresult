@@ -33,7 +33,9 @@ w(url.slice(1)+'index.html',layout({title:`${p.title} | ${S.name}`,desc:p.descri
 pages.forEach(x=>w(`${x.slug}/index.html`,layout({title:`${x.title} | ${S.name}`,desc:x.description||x.title,p:`/${x.slug}/`,body:`<article class="post">${crumbs([['হোম','/'],[x.title,'#']])}<h1>${esc(x.title)}</h1>${x.html}</article>`})));
 w('404.html',layout({title:'পেজ পাওয়া যায়নি',desc:'404',p:'/404.html',noindex:1,body:'<h1>৪০৪ - পেজ পাওয়া যায়নি</h1><p><a href="/">হোমে ফিরে যান</a></p>'}));
 // sitemap, robots, rss, search
-const urls=['/',...cats.map(c=>`/category/${c.slug}/`),...pages.map(x=>`/${x.slug}/`),...posts.map(p=>`/${p.slug}/`)];
+const skip=['uploads','admin','assets'];
+const tools=fs.existsSync('static')?fs.readdirSync('static',{withFileTypes:true}).flatMap(d=>d.isDirectory()?(!skip.includes(d.name)&&fs.existsSync(`static/${d.name}/index.html`)?[`/${d.name}/`]:[]):(d.name.endsWith('.html')&&!['404.html','index.html'].includes(d.name)?[`/${d.name.slice(0,-5)}`]:[])):[];
+const urls=['/',...cats.map(c=>`/category/${c.slug}/`),...tools,...pages.map(x=>`/${x.slug}/`),...posts.map(p=>`/${p.slug}/`)];
 w('sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u=>{const p=posts.find(x=>`/${x.slug}/`===u);return `<url><loc>${U+u}</loc>${p?`<lastmod>${new Date(p.updated||p.date).toISOString().slice(0,10)}</lastmod>`:''}</url>`}).join('')}</urlset>`);
 w('robots.txt',`User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ${U}/sitemap.xml\n`);
 w('rss.xml',`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${esc(S.name)}</title><link>${U}</link><description>${esc(S.description)}</description>${posts.slice(0,30).map(p=>`<item><title>${esc(p.title)}</title><link>${U}/${p.slug}/</link><guid>${U}/${p.slug}/</guid><pubDate>${p.date.toUTCString()}</pubDate><description>${esc(p.description)}</description></item>`).join('')}</channel></rss>`);
