@@ -1,9 +1,9 @@
 ---
 title: " ফিলিপনগর হাই স্কুল (Philipnagar High School)"
 slug: philipnagar-high-school
-date: 2026-11-13T17:48:00.000+06:00
-updated: 2026-11-13T17:49:00.000+06:00
-category: study-tips
+date: 2026-11-13T18:13:00.000+06:00
+updated: 2026-11-13T18:13:00.000+06:00
+category: institution-review
 description: ফিলিপনগর হাই স্কুল (Philipnagar High School) কুষ্টিয়ার দৌলতপুর
   উপজেলার একটি ঐতিহ্যবাহী মাধ্যমিক শিক্ষাপ্রতিষ্ঠান। ১৯৫৩ সালে প্রতিষ্ঠিত এই
   বিদ্যালয়ের ইতিহাস, শিক্ষক, শিক্ষার্থী, শিক্ষা কার্যক্রম, পরীক্ষার ফলাফল,
