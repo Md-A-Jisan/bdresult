@@ -186,20 +186,20 @@ tbody tr:hover{background:var(--g100)}
     <div class="inner">
       <label for="eiinInput">প্রতিষ্ঠানের ৬ ডিজিটের EIIN নম্বর লিখে সার্চ করুন</label>
       <div class="searchbox">
-        <input type="text" id="eiinInput" value="117483" maxlength="6" inputmode="numeric" placeholder="যেমন: 117483, 117509" onkeydown="if(event.key==='Enter') fetchAllEmisData()">
+        <input type="text" id="eiinInput" value="" maxlength="6" inputmode="numeric" placeholder="যেমন: 117483, 117509" onkeydown="if(event.key==='Enter') fetchAllEmisData()">
         <button class="btn btn-solid" onclick="fetchAllEmisData()"><svg class="ic"><use href="#i-search"/></svg>তালিকা আনুন</button>
       </div>
     </div>
   </section>
 
-  <section id="instituteHeader" class="inst">
+  <section id="instituteHeader" class="inst hidden">
     <div>
       <div class="badges">
         <span id="instCategoryBadge" class="pill pill-solid">মাধ্যমিক বিদ্যালয়</span>
         <span id="instMpoBadge" class="pill pill-soft">এমপিওভুক্ত / বেসরকারি</span>
-        <span class="pill pill-eiin">EIIN: <span id="displayEiin">117483</span></span>
+        <span class="pill pill-eiin">EIIN: <span id="displayEiin"></span></span>
       </div>
-      <h2 id="instituteNameBn">ফিলিপনগর মাধ্যমিক বিদ্যালয়</h2>
+      <h2 id="instituteNameBn"></h2>
     </div>
     <div class="stats">
       <div class="stat"><b id="statTotal">0</b><span>মোট জনবল</span></div>
@@ -213,7 +213,7 @@ tbody tr:hover{background:var(--g100)}
     <div id="headCards" class="head-grid"></div>
   </section>
 
-  <section id="toolbarSection" class="toolbar no-print">
+  <section id="toolbarSection" class="toolbar no-print hidden">
     <div class="seg" role="group" aria-label="তালিকা ফিল্টার">
       <button onclick="setRoleFilter('ALL')" id="tabAll" class="active">সকল</button>
       <button onclick="setRoleFilter('TEACHER')" id="tabTeacher">শুধু শিক্ষক</button>
@@ -236,7 +236,7 @@ tbody tr:hover{background:var(--g100)}
 
   <div id="statusBox" class="hidden"></div>
 
-  <div id="tableWrapper" class="table-wrap">
+  <div id="tableWrapper" class="table-wrap hidden">
     <table>
       <thead>
         <tr>
@@ -271,32 +271,6 @@ tbody tr:hover{background:var(--g100)}
      * যেমন: const WORKER_URL = "https://emis-proxy.yourname.workers.dev";
      */
     const WORKER_URL = "emis-proxy.shejanmahmudshuvo558.workers.dev";
-
-    // আপনার দেওয়া ফিলিপনগর মাধ্যমিক বিদ্যালয়ের আসল JSON ডেটা (ডিফল্ট প্রি-লোডেড)
-    const INITIAL_SAMPLE_DATA = [
-        {"Id":156627,"EmpId":"100291737","FullName":"MD. ASADUZZAMAN","FullNameBn":"মোঃ আসাদুজ্জামান","MobileNo":"01719624724","Image":"-","DesignationNameBn":"প্রধান শিক্ষক","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"K518194","Email":"s117483@yahoo.com","DateofBirth":"'28-Jun-1980'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":376420,"EmpId":"100291659","FullName":"SULTAN AHMED","FullNameBn":"সুলতান আহমদ","MobileNo":"01718374503","Image":"-","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"সমাজ বিজ্ঞান","IndexNo":"K286328","Email":"Not@vailable.com","DateofBirth":"'21-Jan-1969'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":367290,"EmpId":"100291662","FullName":"MD. HABIBUR RAHMAN","FullNameBn":"মোঃ হাবিবুর রহমান","MobileNo":"01753249901","Image":"-","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"ইসলাম ধর্ম","IndexNo":"K285148","Email":"Not@vailable.com","DateofBirth":"'01-Mar-1971'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":383639,"EmpId":"100291670","FullName":"MD. HASEM UDDIN","FullNameBn":"মোঃ হাসেম উদ্দিন","MobileNo":"01720458827","Image":"-","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"বাংলা","IndexNo":"K288704","Email":"Not@vailable.com","DateofBirth":"'28-Jun-1971'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":361476,"EmpId":"100376782","FullName":"MST. NAZNIN FERDOUS","FullNameBn":"MST. NAZNIN FERDOUS","MobileNo":"01740613292","Image":"-","DesignationNameBn":"কম্পিউটার শিক্ষক","DistrictName":"-","SubjectName":"কম্পিউটার শিক্ষা","IndexNo":"K1022212","Email":"Not@vailable.com","DateofBirth":"'21-Oct-1974'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":432351,"EmpId":"100491427","FullName":"MD. MOSHIUR RAHMAN","FullNameBn":"MD. MOSHIUR RAHMAN","MobileNo":"01716590445","Image":"-","DesignationNameBn":"শরীরচর্চা শিক্ষক","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"N1112568","Email":"Not@vailable.com","DateofBirth":"'01-May-1981'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":412776,"EmpId":"100468776","FullName":"MD. ASADUZZAMAN","FullNameBn":"MD. ASADUZZAMAN","MobileNo":"01710746382","Image":"-","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"রসায়ন","IndexNo":"N1077021","Email":"Not@vailable.com","DateofBirth":"'01-Jan-1983'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":459089,"EmpId":"100520606","FullName":"MD. SHAHED RONI","FullNameBn":"MD. SHAHED RONI","MobileNo":"01716209314","Image":"-","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"গ্রন্থাগার ও তথ্য বিজ্ঞান","IndexNo":"N1129805","Email":"shahedroni84@gmail.com","DateofBirth":"'20-Feb-1984'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":407579,"EmpId":"100464960","FullName":"MD. SHORIFUL ISLAM","FullNameBn":"MD. SHORIFUL ISLAM","MobileNo":"01737079992","Image":"-","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"গণিত","IndexNo":"N1075092","Email":"shorifulislambsc85@gmail.com","DateofBirth":"'11-Feb-1985'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":480036,"EmpId":"100537328","FullName":"TAMANNA FERDOUS","FullNameBn":"তামান্না ফেরদৌস","MobileNo":"01730690549","Image":"-","DesignationNameBn":"","DistrictName":"-","SubjectName":"BENGALI","IndexNo":"N1140144","Email":"Not@vailable.com","DateofBirth":"'22-Dec-1986'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":791124,"EmpId":"101448394","FullName":"MOST. NASRIN SULTANA","FullNameBn":"মোসাঃ নাসরিন সুলতানা","MobileNo":"01763547276","Image":"<a class='thumb cboxElement' href='/EMIS/upload/HRM/EmpCollRegisImage/00129/00129660_qgxivsb4ejwa4.jpg' target='_blank'><img class='cboxPhoto zoom' src='/EMIS/upload/HRM/EmpCollRegisImage/00129/00129660_qgxivsb4ejwa4.jpg' height='60' width='50'></a>","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"ইংরেজি","IndexNo":"N56820889","Email":"nasrinruby488@gmail.com","DateofBirth":"'06-Jul-1992'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":931839,"EmpId":"101742893","FullName":"MD. ABU HUSAIN","FullNameBn":"মোঃ আবু হোসাইন","MobileNo":"01754666163","Image":"<a class='thumb cboxElement' href='/EMIS/upload/HRM/EmpCollRegisImage/00273/00273935_r2s6l2oqc5nzu.jpg' target='_blank'><img class='cboxPhoto zoom' src='/EMIS/upload/HRM/EmpCollRegisImage/00273/00273935_r2s6l2oqc5nzu.jpg' height='60' width='50'></a>","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"ইংরেজি","IndexNo":"N56873661","Email":"jonyhussain01@gmail.com","DateofBirth":"'10-Feb-1993'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":480037,"EmpId":"100537329","FullName":"MST. IVA AKTER","FullNameBn":"মোসাঃ ইভা আক্তার","MobileNo":"01779850206","Image":"-","DesignationNameBn":"সহকারী শিক্ষক (এসইসি-সামাজিক বিজ্ঞান)","DistrictName":"-","SubjectName":"ভূগোল","IndexNo":"N1140145","Email":"Not@vailable.com","DateofBirth":"'20-Sep-1990'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":1004013,"EmpId":"101898711","FullName":"AMENA AKTER NISHI","FullNameBn":"আমেনা আক্তার নিশি","MobileNo":"01935705616","Image":"<a class='thumb cboxElement' href='/EMIS/upload/HRM/EmpCollRegisImage/00348/00348388_sz5zpn2s6qymu.jpg' target='_blank'><img class='cboxPhoto zoom' src='/EMIS/upload/HRM/EmpCollRegisImage/00348/00348388_sz5zpn2s6qymu.jpg' height='60' width='50'></a>","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"ইসলাম ধর্ম","IndexNo":"N56916168","Email":"nishiduis97@gmail.com","DateofBirth":"'16-Feb-1997'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":996601,"EmpId":"101883845","FullName":"MILTON AHMED","FullNameBn":"মিল্টন আহমেদ","MobileNo":"01568841126","Image":"<a class='thumb cboxElement' href='/EMIS/upload/HRM/EmpCollRegisImage/00343/00343334_wwy46mfvm342e.jpg' target='_blank'><img class='cboxPhoto zoom' src='/EMIS/upload/HRM/EmpCollRegisImage/00343/00343334_wwy46mfvm342e.jpg' height='60' width='50'></a>","DesignationNameBn":"সহকারী শিক্ষক","DistrictName":"-","SubjectName":"জীববিজ্ঞান","IndexNo":"N56913570","Email":"ahmedmilton93@gmail.com","DateofBirth":"'22-Nov-1998'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":384397,"EmpId":"100291687","FullName":"MD. MAMUN-OR-RASHID","FullNameBn":"মোঃ মামুন-অর-রশীদ","MobileNo":"01716108707","Image":"-","DesignationNameBn":"তৃতীয় শ্রেণীর কর্মচারী","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"K292403","Email":"Not@vailable.com","DateofBirth":"'15-Oct-1978'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":919882,"EmpId":"101718464","FullName":"MD. SAGOR ALI","FullNameBn":"মোঃ সাগর আলী","MobileNo":"01316831822","Image":"<a class='thumb cboxElement' href='/EMIS/upload/HRM/UserImage/00155/00155090_ct7c3naqy3zhq.jpg' target='_blank'><img class='cboxPhoto zoom' src='/EMIS/upload/HRM/UserImage/00155/00155090_ct7c3naqy3zhq.jpg' height='60' width='50'></a>","DesignationNameBn":"কম্পিউটার ল্যাব অপারেটর","DistrictName":"-","SubjectName":"তথ্য ও যোগাযোগ প্রযুক্তি","IndexNo":"N56872514","Email":"mdsagorali.kst34@gmail.com","DateofBirth":"'31-Dec-1999'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":379092,"EmpId":"100291690","FullName":"MD. HAFIZUR RAHMAN","FullNameBn":"মোঃ হাফিজুর রহমান","MobileNo":"01763001557","Image":"-","DesignationNameBn":"নিরাপত্তাকর্মী","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"K292509","Email":"Not@vailable.com","DateofBirth":"'20-Feb-1968'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":382610,"EmpId":"100291699","FullName":"MST. SHAHARA KHATUN","FullNameBn":"মোসাঃ সাহারা খাতুন","MobileNo":"01735565760","Image":"-","DesignationNameBn":"চতুর্থ শ্রেণীর কর্মচারী","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"K292511","Email":"Not@vailable.com","DateofBirth":"'20-Sep-1970'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":384584,"EmpId":"100291696","FullName":"MST. MORZINA KHATUN","FullNameBn":"মোসাঃ মর্জিনা খাতুন","MobileNo":"01747489557","Image":"-","DesignationNameBn":"চতুর্থ শ্রেণীর কর্মচারী","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"K292510","Email":"Not@vailable.com","DateofBirth":"'06-Oct-1970'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":764972,"EmpId":"101394693","FullName":"MD. SOBUJ ALI","FullNameBn":"মোঃ সবুজ আলী","MobileNo":"01931882713","Image":"<a class='thumb cboxElement' href='/EMIS/upload/HRM/UserImage/00056/00056104_kod647lhvi56w.jpg' target='_blank'><img class='cboxPhoto zoom' src='/EMIS/upload/HRM/UserImage/00056/00056104_kod647lhvi56w.jpg' height='60' width='50'></a>","DesignationNameBn":"অফিস সহায়ক (এমএলএসএস)","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"N56812752","Email":"sobujali28292@gmail.com","DateofBirth":"'28-Feb-1992'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"},
-        {"Id":382104,"EmpId":"100291702","FullName":"MD TOEFAZZAL HOSSAIN","FullNameBn":"MD TOEFAZZAL HOSSAIN","MobileNo":"01794074924","Image":"-","DesignationNameBn":"চতুর্থ শ্রেণীর কর্মচারী","DistrictName":"-","SubjectName":"প্রযোজ্য নয়","IndexNo":"K292526","Email":"Not@vailable.com","DateofBirth":"'21-Jun-1967'","InstituteManagementTypeId":2,"InstituteInstituteCategoryId":1,"InstituteInstituteNameInBangla":"ফিলিপনগর মাধ্যমিক বিদ্যালয়","DesignationType":0,"PresentDesignationType":0,"JoiningDate":"NULL","PresentJoiningDate":"NULL","OSDJoiningDate":"NULL","OthersJoiningDate":"NULL","BCSBatchEn":"-","BCSBatchBn":"-"}
-    ];
 
     const ic = (n) => `<svg class="ic"><use href="#i-${n}"/></svg>`;
     let allEmployees = [];
@@ -355,6 +329,7 @@ tbody tr:hover{background:var(--g100)}
     // ৫. পুরো তালিকা প্রসেস ও রেন্ডার করা
     function processAndRender(eiin, dataArray, extraHeads = []) {
         allEmployees = Array.isArray(dataArray) ? dataArray : [];
+        ["instituteHeader","toolbarSection","tableWrapper"].forEach(id => document.getElementById(id).classList.remove("hidden"));
         document.getElementById("displayEiin").innerText = eiin;
 
         if (allEmployees.length > 0) {
@@ -538,13 +513,6 @@ tbody tr:hover{background:var(--g100)}
             return;
         }
 
-        // যদি ইউজার 117483 দেয় এবং WORKER_URL না থাকে, তবে সাথে সাথে প্রি-লোডেড ডেটা দেখাবে
-        if (eiin === "117483" && !WORKER_URL) {
-            document.getElementById("statusBox").classList.add("hidden");
-            processAndRender("117483", INITIAL_SAMPLE_DATA);
-            return;
-        }
-
         document.getElementById("statusBox").classList.add("hidden");
         document.getElementById("loader").classList.remove("hidden");
 
@@ -610,10 +578,6 @@ tbody tr:hover{background:var(--g100)}
         link.remove();
     }
 
-    // পেজ ওপেন হওয়ার সাথে সাথে ডিফল্ট ডেটা রেন্ডার করা
-    window.addEventListener("DOMContentLoaded", () => {
-        processAndRender("117483", INITIAL_SAMPLE_DATA);
-    });
 </script>
 </body>
 </html>
