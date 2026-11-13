@@ -112,6 +112,14 @@ tbody tr:hover{background:var(--g100)}
 .contact a:hover{text-decoration:underline}
 .empty{padding:40px;text-align:center;color:var(--muted);font-weight:600}
 
+
+/* footer disclaimer */
+.disclaimer{margin:0 32px 32px;padding:16px 18px;background:var(--g50);border:1px solid var(--line);border-left:4px solid var(--g700);border-radius:10px;font-size:13.5px;line-height:1.75;color:var(--muted)}
+.disclaimer strong{display:block;color:var(--g900);font-size:14.5px;margin-bottom:4px}
+.disclaimer ul{margin:6px 0 0 18px;padding:0}
+.disclaimer li{margin:2px 0}
+.disclaimer a{color:var(--g700);font-weight:600}
+
 /* modal */
 .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,42,31,.78);cursor:pointer}
 .modal-card{background:#fff;border-radius:14px;padding:16px;max-width:380px;width:100%;text-align:center;cursor:default}
@@ -123,6 +131,7 @@ tbody tr:hover{background:var(--g100)}
   body{padding:0}.app{border-radius:0;border:0}
   .searchband,.inst,.heads,.toolbar{padding-left:18px;padding-right:18px}
   .table-wrap{margin:18px}
+  .disclaimer{margin:0 18px 24px}
   .inst h2{font-size:25px}
   .stats{width:100%}.stat{flex:1;min-width:0;padding:12px 8px}
   .head-grid{grid-template-columns:1fr}
@@ -253,6 +262,17 @@ tbody tr:hover{background:var(--g100)}
       <tbody id="teacherTableBody"></tbody>
     </table>
   </div>
+
+  <footer class="disclaimer" role="note">
+    <strong>⚠ সতর্কতা ও দাবিত্যাগ (Disclaimer)</strong>
+    এই ওয়েবসাইটে প্রদর্শিত তথ্য বাংলাদেশ সরকারের EMIS পোর্টালের সর্বসাধারণের জন্য উন্মুক্ত তথ্য থেকে সংগ্রহ করা হয়েছে। এটি কোনো সরকারি বা অফিসিয়াল ওয়েবসাইট নয় এবং কোনো সরকারি প্রতিষ্ঠানের সাথে সম্পর্কিতও নয়।
+    <ul>
+      <li>তথ্যের সঠিকতা, সম্পূর্ণতা বা হালনাগাদ থাকার কোনো নিশ্চয়তা দেওয়া হয় না। সঠিক তথ্যের জন্য সংশ্লিষ্ট প্রতিষ্ঠান বা EMIS পোর্টালে যাচাই করুন।</li>
+      <li>এই তথ্য কেবল তথ্যগত ও জানার উদ্দেশ্যে ব্যবহারযোগ্য। হয়রানি, প্রতারণা, স্প্যামিং, বিরক্তিকর কল/মেসেজ, ব্যক্তিগত তথ্যের অপব্যবহার বা কোনো বেআইনি কাজে ব্যবহার সম্পূর্ণ নিষিদ্ধ।</li>
+      <li>কেউ এই তথ্য অপব্যবহার করলে তার দায়ভার সম্পূর্ণ ব্যবহারকারীর নিজের; ওয়েবসাইটের নির্মাতা/পরিচালক এর জন্য কোনোভাবেই দায়ী থাকবেন না।</li>
+      <li>কোনো তথ্য সংশোধন বা সরিয়ে নেওয়ার প্রয়োজন হলে মূল উৎস EMIS পোর্টালে হালনাগাদ করুন।</li>
+    </ul>
+  </footer>
 </div>
 
 <!-- Image Zoom Modal -->
