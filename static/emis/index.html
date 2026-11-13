@@ -346,15 +346,29 @@ tbody tr:hover{background:var(--g100)}
         // শিক্ষক ও কর্মচারীর সংখ্যা গণনা
         let teacherCount = 0;
         let staffCount = 0;
-        const headList = [...extraHeads];
+        const hasId = (p) => p && p.EmpId && p.EmpId !== "-";
+        const normName = (p) => String(p.FullName || p.FullNameBn || "").toUpperCase().replace(/[^A-Z0-9\u0980-\u09FF]/g, "");
+        const hasMob = (p) => p && p.MobileNo && p.MobileNo !== "-";
+        const samePerson = (a, b) => {
+            if (hasId(a) && hasId(b)) return a.EmpId === b.EmpId;            // দুজনেরই EmpId থাকলে শুধু সেটাই বিচার
+            if (!normName(a) || normName(a) !== normName(b)) return false;   // নাম না মিললে আলাদা
+            if (hasMob(a) && hasMob(b)) return a.MobileNo === b.MobileNo;     // নাম মিললে মোবাইলও মিলতে হবে
+            return true;
+        };
+        const headList = [];
+        const addHead = (h) => {
+            if (!h) return;
+            const i = headList.findIndex(x => samePerson(x, h));
+            if (i === -1) headList.push(h);
+            else if (!hasId(headList[i]) && hasId(h)) headList[i] = h; // একই ব্যক্তির পূর্ণাঙ্গ রেকর্ড রাখা
+        };
+        extraHeads.forEach(addHead);
 
         allEmployees.forEach(emp => {
             const info = normalizeDesignation(emp);
             if (info.isStaff) staffCount++;
             else teacherCount++;
-            if (info.isHead && !headList.some(h => h.EmpId === emp.EmpId)) {
-                headList.push(emp);
-            }
+            if (info.isHead) addHead(emp);
         });
 
         document.getElementById("statTotal").innerText = allEmployees.length;
