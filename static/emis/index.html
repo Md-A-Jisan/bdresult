@@ -270,7 +270,7 @@ tbody tr:hover{background:var(--g100)}
      * আপনার Cloudflare Worker Proxy লিংক এখানে বসাবেন:
      * যেমন: const WORKER_URL = "https://emis-proxy.yourname.workers.dev";
      */
-    const WORKER_URL = "emis-proxy.shejanmahmudshuvo558.workers.dev";
+    const WORKER_URL = "https://emis-proxy.shejanmahmudshuvo558.workers.dev";
 
     const ic = (n) => `<svg class="ic"><use href="#i-${n}"/></svg>`;
     let allEmployees = [];
@@ -490,7 +490,8 @@ tbody tr:hover{background:var(--g100)}
     // ১০. লাইভ EMIS API কল (Cloudflare Worker বা ব্রাউজার থেকে)
     async function callEmisEndpoint(eiin, endpoint) {
         if (WORKER_URL) {
-            const res = await fetch(`${WORKER_URL}?eiin=${encodeURIComponent(eiin)}&endpoint=${encodeURIComponent(endpoint)}`);
+            const base = /^https?:\/\//i.test(WORKER_URL) ? WORKER_URL : `https://${WORKER_URL}`;
+            const res = await fetch(`${base}?eiin=${encodeURIComponent(eiin)}&endpoint=${encodeURIComponent(endpoint)}`);
             if (!res.ok) throw new Error("Worker request failed");
             return await res.json();
         }
