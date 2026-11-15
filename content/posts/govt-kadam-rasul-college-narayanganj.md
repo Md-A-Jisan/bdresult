@@ -6,6 +6,7 @@ updated: 2026-11-15T17:54:00.000+06:00
 category: institution-review
 description: সরকারি কদম রসুল কলেজ, বন্দর, নারায়ণগঞ্জের প্রতিষ্ঠার ইতিহাস, EIIN,
   শিক্ষাক্রম, অনার্স বিভাগ, ক্যাম্পাস, সহশিক্ষা কার্যক্রম ও ভর্তি তথ্য জানুন।
+image: /uploads/7.webp
 tags:
   - Kadam Rasul College
   - EIIN 112401
