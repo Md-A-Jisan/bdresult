@@ -11,7 +11,7 @@ def expect(name, sql, args=(), should_fail=False):
     good = (err is not None) == should_fail
     ok += good; fail += (not good)
     print(("PASS" if good else "FAIL"), name, "" if good else f"-> {err}")
-db.execute("INSERT INTO districts(id,division_id,slug,name_en,name_bn) VALUES (1,3,'narayanganj','Narayanganj','নারায়ণগঞ্জ')")
+assert db.execute('SELECT count(*) FROM districts').fetchone()[0] == 64   # district id 1 comes from migration 0003
 base = "INSERT INTO institutions(eiin,slug,name_en,name_norm,type_id,district_id,{x}) VALUES (?,?, 'X','x',2,1,{v})"
 ins = lambda eiin, slug, x="address", v="'a'": db.execute(base.format(x=x, v=v), (eiin, slug))
 expect("valid institution", base.format(x="address", v="'a'"), ("123456","college-one"))
@@ -52,5 +52,5 @@ print("PASS" if u > "2000-01-01" else "FAIL", "updated_at trigger", u); ok += u 
 expect("cascade delete clears results", "DELETE FROM institutions WHERE id=1")
 n = db.execute("SELECT count(*) FROM institution_results").fetchone()[0]
 print("PASS" if n == 0 else "FAIL", "cascade removed results", n); ok += n == 0; fail += n != 0
-print("seed counts:", [db.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in ("institution_types","divisions","education_boards")])
+print("seed counts:", [db.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in ("institution_types","divisions","districts","education_boards")])
 print(f"\n{ok} passed, {fail} failed"); sys.exit(1 if fail else 0)

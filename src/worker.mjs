@@ -2,6 +2,8 @@
 // in wrangler.jsonc "run_worker_first". Routes not implemented yet fall through to the static 404 page.
 import { getSession, login, callback, logout } from './lib/auth.mjs';
 import { loginPage, dashboardPage, loadStats, CONSOLE_HEADERS } from './lib/console.mjs';
+import { institutionRoutes } from './lib/console-routes.mjs';
+import { notFoundPage } from './lib/institution-views.mjs';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -41,6 +43,13 @@ export default {
         const user = await getSession(request, env);
         if (!user) return html(loginPage());
         return html(dashboardPage(user, await loadStats(env.DB)));
+      }
+      if (p.startsWith('/console/')) {
+        const user = await getSession(request, env);
+        if (!user) return m === 'GET' ? Response.redirect(`${url.origin}/console/`, 302) : json({ error: 'unauthorized' }, 401);
+        const res = await institutionRoutes(request, env, user, url);
+        if (res) return res;
+        return html(notFoundPage(user), 404);
       }
     } catch {
       return json({ error: 'server_error' }, 500);
