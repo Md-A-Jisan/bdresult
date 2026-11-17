@@ -13,9 +13,15 @@
       "/institution/*",
       "/districts/*",
       "/upazilas/*",
+      "/console",
       "/console/*",
       "/sitemap-institutions.xml"
     ]
+  },
+  // Public identifiers only. Secrets (GITHUB_CLIENT_SECRET, SESSION_SECRET) live in .dev.vars locally / Cloudflare secrets online.
+  "vars": {
+    "GITHUB_CLIENT_ID": "Ov23liUynHfPmOw426aM",
+    "OWNER_GITHUB_LOGIN": "Md-A-Jisan"
   },
   // DEVELOPMENT database (bdresult-db). Production (bdresult-prod) is bound only at the final approved merge,
   // because every branch build uses this same file and a preview must never write to live data.

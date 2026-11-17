@@ -1,0 +1,3 @@
+# Copy to .dev.vars (never commit .dev.vars). Generate SESSION_SECRET: see docs.
+GITHUB_CLIENT_SECRET=paste-the-github-client-secret-here
+SESSION_SECRET=paste-a-long-random-string-of-at-least-32-characters
