@@ -1,8 +1,30 @@
 {
   "name": "bdresult",
+  "main": "src/worker.mjs",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
-  }
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Static pages stay served directly by Cloudflare. The Worker only runs for these dynamic routes.
+    "run_worker_first": [
+      "/api/*",
+      "/institutions/*",
+      "/institution/*",
+      "/districts/*",
+      "/upazilas/*",
+      "/console/*",
+      "/sitemap-institutions.xml"
+    ]
+  },
+  // DEVELOPMENT database (bdresult-db). Production (bdresult-prod) is bound only at the final approved merge,
+  // because every branch build uses this same file and a preview must never write to live data.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bdresult-db",
+      "database_id": "c44b2fba-19bc-4df8-b4fa-7b03c7371dcc",
+      "migrations_dir": "migrations"
+    }
+  ]
 }
