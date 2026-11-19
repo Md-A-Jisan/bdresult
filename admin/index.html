@@ -1,0 +1,935 @@
+﻿<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>bdresult.me — 21-Module Education Intelligence Admin Dashboard</title>
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    :root{--bg:#f8fafc;--card:#ffffff;--bdr:#e2e8f0;--txt:#0f172a;--mut:#64748b;--pri:#064e3b;--pri2:#047857}
+    *{box-sizing:border-box}
+    body{margin:0;font:14px/1.6 "Noto Sans Bengali",system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh}
+    aside{width:265px;background:#0f172a;color:#e2e8f0;flex-shrink:0;display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow-y:auto}
+    .brand{padding:14px 16px;font-size:17px;font-weight:700;border-bottom:1px solid #1e293b;color:#fff;display:flex;justify-content:space-between;align-items:center}
+    .brand small{color:#34d399;font-size:12px}
+    .nav-grp{padding:8px 14px 2px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8}
+    .nav-btn{display:block;width:100%;text-align:left;padding:7px 16px;background:0;border:0;color:#cbd5e1;font:inherit;font-size:13px;cursor:pointer;border-left:3px solid transparent}
+    .nav-btn:hover,.nav-btn.active{background:#1e293b;color:#fff;border-left-color:#10b981}
+    main{flex:1;min-width:0;display:flex;flex-direction:column}
+    .topbar{background:var(--card);border-bottom:1px solid var(--bdr);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .content{padding:20px;max-width:1350px;width:100%}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+    .kpi{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:14px}
+    .kpi small{color:var(--mut);font-size:12px;display:block}
+    .kpi strong{font-size:22px;color:var(--pri)}
+    .panel{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:16px;margin-bottom:18px}
+    .panel h2{margin:0 0 12px;font-size:16px;color:var(--pri);border-bottom:1px solid var(--bdr);padding-bottom:8px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    label{display:block;font-size:12px;font-weight:600;color:#334155;margin-bottom:4px}
+    input,select,textarea{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font:inherit}
+    .btn{background:var(--pri);color:#fff;border:0;padding:7px 14px;border-radius:6px;font:inherit;font-weight:600;cursor:pointer;display:inline-block;text-decoration:none}
+    .btn:hover{background:var(--pri2)}
+    .btn-sec{background:#e2e8f0;color:#0f172a}
+    .btn-danger{background:#b91c1c;color:#fff}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{border-bottom:1px solid var(--bdr);padding:8px 10px;text-align:left}
+    th{background:#f1f5f9;font-weight:600}
+    .pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+    .pill-ok{background:#dcfce7;color:#166534}
+    .pill-warn{background:#fef9c3;color:#854d0e}
+    .hidden{display:none!important}
+    @media(max-width:800px){body{flex-direction:column}aside{width:100%;height:auto;position:static}}
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand"><span>bdresult<small>.me</small></span><span style="font-size:11px;background:#064e3b;padding:2px 7px;border-radius:4px">21 Modules</span></div>
+    <div class="nav-grp">ডিরেক্টরি ও প্রতিষ্ঠান</div>
+    <button class="nav-btn active" onclick="showTab('m1',this)">1. Dashboard Overview</button>
+    <button class="nav-btn" onclick="showTab('m2',this)">2. Institution Management</button>
+    <button class="nav-btn" onclick="showTab('m3',this)">3. Add Institution</button>
+    <button class="nav-btn" onclick="showTab('m4',this)">4. Institution Categories</button>
+    <div class="nav-grp">লোকেশন হায়ারার্কি</div>
+    <button class="nav-btn" onclick="showTab('m5',this)">5. Division Management</button>
+    <button class="nav-btn" onclick="showTab('m6',this)">6. District Management</button>
+    <button class="nav-btn" onclick="showTab('m7',this)">7. Upazila Management</button>
+    <div class="nav-grp">ফলাফল ও রিভিউ</div>
+    <button class="nav-btn" onclick="showTab('m8',this)">8. Institution Results</button>
+    <button class="nav-btn" onclick="showTab('m9',this)">9. Institution Reviews</button>
+    <div class="nav-grp">কনটেন্ট ও পাবলিশিং</div>
+    <button class="nav-btn" onclick="showTab('m10',this)">10. Posts and Articles</button>
+    <button class="nav-btn" onclick="showTab('m11',this)">11. Admission Information</button>
+    <button class="nav-btn" onclick="showTab('m12',this)">12. Education News</button>
+    <button class="nav-btn" onclick="openLegacyCms()">↳ Legacy Decap CMS</button>
+    <div class="nav-grp">ডাটা ইমপোর্ট ও ট্রাস্ট</div>
+    <button class="nav-btn" onclick="showTab('m13',this)">13. Data Import (CSV/Mapper)</button>
+    <button class="nav-btn" onclick="showTab('m14',this)">14. Verification Queue</button>
+    <button class="nav-btn" onclick="showTab('m15',this)">15. Correction Requests</button>
+    <div class="nav-grp">মিডিয়া, এসইও ও সিস্টেম</div>
+    <button class="nav-btn" onclick="showTab('m16',this)">16. Media Library</button>
+    <button class="nav-btn" onclick="showTab('m17',this)">17. SEO Management</button>
+    <button class="nav-btn" onclick="showTab('m18',this)">18. Sitemap Management</button>
+    <button class="nav-btn" onclick="showTab('m19',this)">19. Admin Users and Roles</button>
+    <button class="nav-btn" onclick="showTab('m20',this)">20. Activity Logs</button>
+    <button class="nav-btn" onclick="showTab('m21',this)">21. System Settings</button>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div><strong id="adminStatus">লগইন স্ট্যাটাস চেক করা হচ্ছে...</strong></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn" onclick="oauthLogin()">GitHub OAuth Login</button>
+        <input id="manualToken" type="password" placeholder="GitHub Token..." style="width:170px;padding:6px 8px">
+        <button class="btn btn-sec" onclick="saveManualToken()">Save</button>
+        <a href="/institutions/" target="_blank" class="btn btn-sec">পাবলিক ডিরেক্টরি ↗</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- 1. DASHBOARD OVERVIEW -->
+      <section id="tab-m1" class="tab-pane">
+        <div class="kpi-grid">
+          <div class="kpi"><small>মোট শিক্ষাপ্রতিষ্ঠান</small><strong id="k-total">0</strong></div>
+          <div class="kpi"><small>ভেরিফাইড প্রতিষ্ঠান</small><strong id="k-verified">0</strong></div>
+          <div class="kpi"><small>পেন্ডিং ভেরিফিকেশন</small><strong id="k-pending">0</strong></div>
+          <div class="kpi"><small>প্রকাশিত আর্টিকেল</small><strong id="k-posts">0</strong></div>
+          <div class="kpi"><small>ড্রাফট পোস্ট</small><strong id="k-drafts">0</strong></div>
+          <div class="kpi"><small>পেন্ডিং সংশোধন অনুরোধ</small><strong id="k-corr">0</strong></div>
+        </div>
+        <div class="form-grid">
+          <div class="panel"><h2>ক্যাটাগরি অনুযায়ী প্রতিষ্ঠান</h2><table id="tbl-by-cat"><thead><tr><th>ক্যাটাগরি</th><th>সংখ্যা</th></tr></thead><tbody></tbody></table></div>
+          <div class="panel"><h2>জেলা অনুযায়ী প্রতিষ্ঠান</h2><table id="tbl-by-dist"><thead><tr><th>জেলা</th><th>সংখ্যা</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="panel">
+          <h2>সাম্প্রতিক অ্যাডমিন অ্যাক্টিভিটি</h2>
+          <table id="tbl-recent-logs"><thead><tr><th>সময়</th><th>অ্যাকশন</th><th>মডিউল</th><th>আইডি</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- 2. INSTITUTION MANAGEMENT (WITH BULK ACTIONS) -->
+      <section id="tab-m2" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Institution Management (Search, Filter & Bulk Actions)</h2>
+          <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+            <input id="instSearch" placeholder="নাম বা EIIN দিয়ে খুঁজুন..." oninput="loadInstitutions()" style="max-width:260px">
+            <select id="instStatusFilter" onchange="loadInstitutions()" style="max-width:180px">
+              <option value="">সকল স্ট্যাটাস</option>
+              <option value="verified">Verified</option>
+              <option value="pending_review">Pending Review</option>
+              <option value="unverified">Unverified</option>
+            </select>
+            <button class="btn" onclick="bulkInstAction('verify_publish')">✓ সিলেক্টেডগুলো Verify & Publish করুন</button>
+            <button class="btn btn-sec" onclick="bulkInstAction('unpublish')">Draft/Unpublish করুন</button>
+          </div>
+          <table>
+            <thead><tr><th><input type="checkbox" onclick="toggleAllInst(this)"></th><th>EIIN / ID</th><th>নাম</th><th>ক্যাটাগরি</th><th>অবস্থান</th><th>স্কোর</th><th>স্ট্যাটাস</th><th>পাবলিশড</th><th>অ্যাকশন</th></tr></thead>
+            <tbody id="tbl-inst-list"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3. ADD INSTITUTION -->
+      <section id="tab-m3" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Add / Edit Institution</h2>
+          <form id="formInst" onsubmit="return saveInstitution(event)">
+            <input type="hidden" name="id">
+            <div class="form-grid">
+              <div><label>বাংলা নাম *</label><input name="name_bn" required></div>
+              <div><label>ইংরেজি নাম *</label><input name="name_en" required></div>
+              <div><label>EIIN নম্বর (ইউনিক)</label><input name="eiin"></div>
+              <div><label>URL Slug</label><input name="slug"></div>
+              <div><label>ক্যাটাগরি *</label><select name="institution_type_id" id="sel_type" required></select></div>
+              <div><label>বিভাগ *</label><select name="division_id" id="sel_div" onchange="filterDistrictsByDivision()" required></select></div>
+              <div><label>জেলা *</label><select name="district_id" id="sel_dist" onchange="filterUpazilasByDistrict()" required></select></div>
+              <div><label>উপজেলা *</label><select name="upazila_id" id="sel_upz" required></select></div>
+              <div><label>প্রতিষ্ঠার সাল</label><input type="number" name="established_year"></div>
+              <div><label>ব্যবস্থাপনা</label><select name="management_type"><option value="government">সরকারি</option><option value="mpo">এমপিওভুক্ত</option><option value="non_government">বেসরকারি</option><option value="private">প্রাইভেট</option><option value="autonomous">স্বায়ত্তশাসিত</option></select></div>
+              <div><label>শিক্ষা বোর্ড</label><input name="education_board" placeholder="Dhaka / Jashore"></div>
+              <div><label>শিক্ষা স্তর (কমা দিয়ে)</label><input name="education_levels" placeholder="মাধ্যমিক, উচ্চ মাধ্যমিক"></div>
+              <div><label>বিভাগ/গ্রুপ (কমা দিয়ে)</label><input name="academic_groups" placeholder="বিজ্ঞান, মানবিক, ব্যবসায় শিক্ষা"></div>
+              <div><label>কোর্স/প্রোগ্রাম (কমা দিয়ে)</label><input name="programs_offered" placeholder="HSC, Honours"></div>
+              <div><label>সুযোগ-সুবিধা (কমা দিয়ে)</label><input name="facilities_json" placeholder="বিজ্ঞানাগার, গ্রন্থাগার, কম্পিউটার ল্যাব"></div>
+              <div><label>পূর্ণ ঠিকানা (বাংলা)</label><input name="address_bn"></div>
+              <div><label>পোস্ট কোড</label><input name="postal_code"></div>
+              <div><label>Latitude</label><input type="number" step="any" name="latitude"></div>
+              <div><label>Longitude</label><input type="number" step="any" name="longitude"></div>
+              <div><label>অফিশিয়াল ওয়েবসাইট</label><input name="official_website"></div>
+              <div><label>তথ্যসূত্র (Source Name) *</label><input name="source_name" required placeholder="BANBEIS / Education Board"></div>
+              <div><label>তথ্যসূত্র লিংক (Source URL)</label><input name="source_url"></div>
+              <div><label>ভেরিফিকেশন স্ট্যাটাস</label><select name="verification_status"><option value="verified">Verified</option><option value="pending_review">Pending Review</option><option value="unverified">Unverified</option></select></div>
+              <div><label>পাবলিশ স্ট্যাটাস</label><select name="is_published"><option value="1">Published</option><option value="0">Draft (Noindex)</option></select></div>
+            </div>
+            <div style="margin-top:10px"><label>পরিচিতি (Overview)</label><textarea name="overview_bn" rows="2"></textarea></div>
+            <div style="margin-top:10px"><label>ভর্তি তথ্য (Admission Info)</label><textarea name="admission_info_bn" rows="2"></textarea></div>
+            <div style="margin-top:10px"><label>ইতিহাস (History)</label><textarea name="history_bn" rows="2"></textarea></div>
+            <div class="form-grid" style="margin-top:10px">
+              <div><label>Custom SEO Title</label><input name="seo_title"></div>
+              <div><label>Custom Meta Description</label><input name="seo_description"></div>
+            </div>
+            <div style="margin-top:14px"><button type="submit" class="btn">ডাটাবেসে সেভ করুন</button> <span id="instSaveMsg"></span></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 4. INSTITUTION CATEGORIES -->
+      <section id="tab-m4" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Institution Categories Management</h2>
+          <form onsubmit="return saveCategory(event)" class="form-grid" style="margin-bottom:14px">
+            <div><label>Slug *</label><input name="slug" required placeholder="polytechnic"></div>
+            <div><label>বাংলা নাম *</label><input name="name_bn" required></div>
+            <div><label>ইংরেজি নাম *</label><input name="name_en" required></div>
+            <div><label>বিবরণ</label><input name="description_bn"></div>
+            <div style="align-self:end"><button class="btn" type="submit">ক্যাটাগরি সেভ করুন</button></div>
+          </form>
+          <table id="tbl-types-ref"><thead><tr><th>ID</th><th>Slug</th><th>বাংলা নাম</th><th>ইংরেজি নাম</th><th>ডিরেক্টরি লিংক</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- 5. DIVISION MANAGEMENT -->
+      <section id="tab-m5" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Division Management (৮টি বিভাগ)</h2>
+          <form onsubmit="return saveLocationLevel(event,'division')" class="form-grid" style="margin-bottom:14px">
+            <div><label>বাংলা নাম *</label><input name="name_bn" required></div>
+            <div><label>ইংরেজি নাম *</label><input name="name_en" required></div>
+            <div><label>BBS Code</label><input name="bbs_code"></div>
+            <div style="align-self:end"><button class="btn" type="submit">বিভাগ সেভ করুন</button></div>
+          </form>
+          <table id="tbl-divs"><thead><tr><th>ID</th><th>Slug</th><th>বাংলা নাম</th><th>ইংরেজি নাম</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- 6. DISTRICT MANAGEMENT -->
+      <section id="tab-m6" class="tab-pane hidden">
+        <div class="panel">
+          <h2>District Management (৬৪টি জেলা)</h2>
+          <form onsubmit="return saveLocationLevel(event,'district')" class="form-grid" style="margin-bottom:14px">
+            <div><label>বিভাগ *</label><select name="division_id" id="dist_div_sel" required></select></div>
+            <div><label>জেলার বাংলা নাম *</label><input name="name_bn" required></div>
+            <div><label>জেলার ইংরেজি নাম *</label><input name="name_en" required></div>
+            <div><label>জেলা ডিরেক্টরি পরিচিতি (SEO Intro)</label><input name="intro_bn"></div>
+            <div style="align-self:end"><button class="btn" type="submit">জেলা সেভ করুন</button></div>
+          </form>
+          <table id="tbl-dists"><thead><tr><th>ID</th><th>Slug</th><th>বাংলা নাম</th><th>ইংরেজি নাম</th><th>লিংক</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- 7. UPAZILA MANAGEMENT -->
+      <section id="tab-m7" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Upazila Management</h2>
+          <form onsubmit="return saveLocationLevel(event,'upazila')" class="form-grid" style="margin-bottom:14px">
+            <div><label>জেলা *</label><select name="district_id" id="upz_dist_sel" required></select></div>
+            <div><label>উপজেলার বাংলা নাম *</label><input name="name_bn" required></div>
+            <div><label>উপজেলার ইংরেজি নাম (Unique Slug) *</label><input name="name_en" required></div>
+            <div><label>উপজেলা পরিচিতি</label><input name="intro_bn"></div>
+            <div style="align-self:end"><button class="btn" type="submit">উপজেলা সেভ করুন</button></div>
+          </form>
+          <table id="tbl-upzs"><thead><tr><th>ID</th><th>Slug</th><th>বাংলা নাম</th><th>ইংরেজি নাম</th><th>লিংক</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- 8. INSTITUTION RESULTS -->
+      <section id="tab-m8" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Institution Results (Pass Rate & GPA-5 Rate Auto-Calculator)</h2>
+          <form onsubmit="return saveResult(event)" class="form-grid">
+            <div><label>Institution ID *</label><input type="number" name="institution_id" required></div>
+            <div><label>Exam Type *</label><select name="exam_type"><option value="SSC">SSC</option><option value="HSC">HSC</option><option value="Dakhil">Dakhil</option><option value="Alim">Alim</option></select></div>
+            <div><label>Year *</label><input type="number" name="exam_year" required value="2026"></div>
+            <div><label>Board *</label><input name="education_board" required placeholder="Dhaka / Jashore"></div>
+            <div><label>Appeared Students *</label><input type="number" name="appeared_students" required></div>
+            <div><label>Passed Students *</label><input type="number" name="passed_students" required></div>
+            <div><label>GPA-5 Students *</label><input type="number" name="gpa5_students" required value="0"></div>
+            <div><label>Source *</label><input name="source_name" required value="Board Result Gazette"></div>
+            <div style="align-self:end"><button class="btn" type="submit">ফলাফল সেভ করুন</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <h2>সংরক্ষিত ফলাফল তালিকা</h2>
+          <table><thead><tr><th>প্রতিষ্ঠান</th><th>পরীক্ষা</th><th>সাল</th><th>অংশগ্রহণ</th><th>পাস</th><th>জিপিএ-৫</th><th>পাসের হার</th><th>জিপিএ-৫ হার</th></tr></thead><tbody id="tbl-results"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 9. INSTITUTION REVIEWS & MODERATION -->
+      <section id="tab-m9" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Write Editorial Review (সম্পাদকীয় বিশ্লেষণ)</h2>
+          <form onsubmit="return saveReview(event)">
+            <div class="form-grid">
+              <div><label>Institution ID *</label><input type="number" name="institution_id" required></div>
+              <div><label>শিরোনাম *</label><input name="title_bn" required></div>
+            </div>
+            <div style="margin-top:8px"><label>একাডেমিক ফলাফল বিশ্লেষণ</label><textarea name="academic_analysis_bn" rows="2"></textarea></div>
+            <div style="margin-top:8px"><label>অবকাঠামো ও সুযোগ-সুবিধা</label><textarea name="facilities_analysis_bn" rows="2"></textarea></div>
+            <div class="form-grid" style="margin-top:8px">
+              <div><label>ইতিবাচক দিকসমূহ (প্রতি লাইনে একটি)</label><textarea name="strengths" rows="3"></textarea></div>
+              <div><label>সীমাবদ্ধতাসমূহ (প্রতি লাইনে একটি)</label><textarea name="limitations" rows="3"></textarea></div>
+            </div>
+            <div style="margin-top:8px"><label>সার্বিক মূল্যায়ন *</label><textarea name="overall_assessment_bn" rows="2" required></textarea></div>
+            <div style="margin-top:10px"><button class="btn" type="submit">প্রকাশ করুন</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <h2>সকল রিভিউ ও পাঠক মতামত মডারেশন কিউ</h2>
+          <table><thead><tr><th>প্রতিষ্ঠান</th><th>ধরন</th><th>লেখক</th><th>মতামত/শিরোনাম</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody id="tbl-reviews"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 10. POSTS AND ARTICLES -->
+      <section id="tab-m10" class="tab-pane hidden">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h2 style="margin:0;border:0">Posts & Articles (With Revision History & Legacy Sync)</h2>
+            <button class="btn btn-sec" onclick="syncLegacyPosts()">↻ পুরনো ৯টি Markdown পোস্ট D1-এ সিঙ্ক করুন</button>
+          </div>
+          <form onsubmit="return savePost(event)">
+            <div class="form-grid">
+              <div><label>শিরোনাম (বাংলা) *</label><input name="title_bn" required></div>
+              <div><label>Slug (ইংরেজি) *</label><input name="slug" required></div>
+              <div><label>পোস্টের ধরন</label>
+                <select name="post_type">
+                  <option value="education_guide">Education Guide</option>
+                  <option value="institution_review">Institution Review</option>
+                  <option value="exam_info">Exam Information</option>
+                  <option value="scholarship_info">Scholarship Information</option>
+                  <option value="academic_resource">Academic Resources</option>
+                  <option value="result_analysis">Result Analysis</option>
+                  <option value="education_statistics">Educational Statistics</option>
+                </select>
+              </div>
+              <div><label>সংশ্লিষ্ট প্রতিষ্ঠান ID (ঐচ্ছিক)</label><input type="number" name="institution_id"></div>
+              <div><label>Featured Image Path</label><input name="featured_image" placeholder="/uploads/banner.webp"></div>
+              <div><label>Image Alt Text</label><input name="featured_image_alt"></div>
+              <div><label>SEO Meta Description</label><input name="meta_description"></div>
+              <div><label>স্ট্যাটাস</label><select name="status"><option value="published">Published</option><option value="draft">Draft</option><option value="scheduled">Scheduled</option></select></div>
+            </div>
+            <div style="margin-top:10px"><label>কনটেন্ট (HTML / Markdown) *</label><textarea name="content_markdown" rows="5" required></textarea></div>
+            <div style="margin-top:10px"><button class="btn" type="submit">পোস্ট সেভ করুন</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <h2>সকল পোস্ট তালিকা</h2>
+          <table><thead><tr><th>ID</th><th>শিরোনাম</th><th>Slug</th><th>ধরন</th><th>স্ট্যাটাস</th><th>উৎস</th></tr></thead><tbody id="tbl-posts-all"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 11. ADMISSION INFORMATION -->
+      <section id="tab-m11" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Admission Information & Notices</h2>
+          <form onsubmit="return saveTypedPost(event,'admission_notice')">
+            <div class="form-grid">
+              <div><label>ভর্তি বিজ্ঞপ্তির শিরোনাম *</label><input name="title_bn" required></div>
+              <div><label>URL Slug *</label><input name="slug" required placeholder="xi-class-admission-2026"></div>
+              <div><label>প্রতিষ্ঠান ID (থাকলে)</label><input type="number" name="institution_id"></div>
+              <div><label>মেটা ডেসক্রিপশন</label><input name="meta_description"></div>
+            </div>
+            <div style="margin-top:10px"><label>ভর্তি নির্দেশিকা ও বিস্তারিত তথ্য *</label><textarea name="content_markdown" rows="4" required></textarea></div>
+            <div style="margin-top:10px"><button class="btn" type="submit">ভর্তি তথ্য প্রকাশ করুন</button></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 12. EDUCATION NEWS -->
+      <section id="tab-m12" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Education News Publishing</h2>
+          <form onsubmit="return saveTypedPost(event,'education_news')">
+            <div class="form-grid">
+              <div><label>সংবাদের শিরোনাম *</label><input name="title_bn" required></div>
+              <div><label>URL Slug *</label><input name="slug" required></div>
+              <div><label>মেটা ডেসক্রিপশন</label><input name="meta_description"></div>
+            </div>
+            <div style="margin-top:10px"><label>সংবাদের বিস্তারিত *</label><textarea name="content_markdown" rows="4" required></textarea></div>
+            <div style="margin-top:10px"><button class="btn" type="submit">সংবাদ প্রকাশ করুন</button></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 13. DATA IMPORT (CSV UPLOAD, COLUMN MAPPER, ERROR REPORT & ROLLBACK) -->
+      <section id="tab-m13" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Advanced CSV Bulk Import (File Upload, Column Mapping, Error Report & Rollback)</h2>
+          <div class="form-grid" style="margin-bottom:12px">
+            <div><label>১. CSV ফাইল নির্বাচন করুন</label><input type="file" id="csvFileInput" accept=".csv" onchange="handleCsvFileSelect(event)"></div>
+            <div><label>অথবা নিচে CSV টেক্সট পেস্ট করুন</label><button class="btn btn-sec" onclick="parseCsvText()">কলাম লোড ও ম্যাপ করুন</button></div>
+          </div>
+          <textarea id="csvInput" rows="4" placeholder="eiin,name_bn,name_en,institution_type_id,division_id,district_id,upazila_id,established_year,education_board,address_bn&#10;117535,আল্লারদর্গা মাধ্যমিক বিদ্যালয়,Allardarga Secondary School,1,4,3,2,1968,Jashore,দৌলতপুর, কুষ্টিয়া"></textarea>
+          <div id="colMapperBox" class="form-grid" style="margin-top:12px"></div>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-sec" onclick="runCsvImport('preview')">২. ডাটা ভ্যালিডেশন ও ডুপ্লিকেট প্রিভিউ</button>
+            <button class="btn" onclick="runCsvImport('commit')">৩. বৈধ রেকর্ডগুলো ইমপোর্ট করুন (Unpublished Queue)</button>
+            <button id="btnDownloadErrors" class="btn btn-danger hidden" onclick="downloadErrorCsv()">⬇ ত্রুটিপূর্ণ রেকর্ডের CSV ডাউনলোড করুন</button>
+          </div>
+          <pre id="importReport" style="background:#0f172a;color:#34d399;padding:12px;border-radius:6px;margin-top:12px;overflow-x:auto"></pre>
+        </div>
+        <div class="panel">
+          <h2>ইমপোর্ট লগ ও ওয়ান-ক্লিক রোলব্যাক (Import History & Rollback)</h2>
+          <table><thead><tr><th>Job ID</th><th>ফাইল</th><th>মোট</th><th>বৈধ</th><th>ডুপ্লিকেট</th><th>এরর</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody id="tbl-import-jobs"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 14. VERIFICATION QUEUE -->
+      <section id="tab-m14" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Verification Queue (অযাচাইকৃত ও ইমপোর্টকৃত প্রতিষ্ঠান)</h2>
+          <p>নিচের প্রতিষ্ঠানগুলো যাচাই করে এক ক্লিকে পাবলিশ করুন।</p>
+          <table><thead><tr><th>ID / EIIN</th><th>নাম</th><th>অবস্থান</th><th>স্কোর</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody id="tbl-verif-queue"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 15. CORRECTION REQUESTS -->
+      <section id="tab-m15" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Public Correction Requests</h2>
+          <table><thead><tr><th>প্রতিষ্ঠান</th><th>প্রেরক</th><th>ফিল্ড</th><th>প্রস্তাবিত তথ্য</th><th>প্রমাণ/সূত্র</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody id="tbl-corrections"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 16. MEDIA LIBRARY -->
+      <section id="tab-m16" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Media Library & Alt-Text Registry</h2>
+          <form onsubmit="return saveMedia(event)" class="form-grid" style="margin-bottom:14px">
+            <div><label>File Name *</label><input name="file_name" required placeholder="banner.webp"></div>
+            <div><label>File Path *</label><input name="file_path" required placeholder="/uploads/banner.webp"></div>
+            <div><label> বাংলা Alt Text (SEO) *</label><input name="alt_text_bn" required></div>
+            <div style="align-self:end"><button class="btn" type="submit">মিডিয়া নিবন্ধন করুন</button></div>
+          </form>
+          <table><thead><tr><th>Path</th><th>File Name</th><th>Alt Text (BN)</th><th>Preview</th></tr></thead><tbody id="tbl-media"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 17. SEO MANAGEMENT -->
+      <section id="tab-m17" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Technical SEO & Indexing Quality Guard</h2>
+          <p>যেসব প্রতিষ্ঠানের তথ্য ৫০%-এর কম বা অযাচাইকৃত, সেগুলো স্বয়ংক্রিয়ভাবে <code>noindex</code> অবস্থায় রাখা হয়েছে যাতে গুগল পেনাল্টি না হয়।</p>
+          <table><thead><tr><th>ID</th><th>প্রতিষ্ঠান</th><th>Completeness Score</th><th>Verification</th><th>Indexing Status</th></tr></thead><tbody id="tbl-seo-audit"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 18. SITEMAP MANAGEMENT -->
+      <section id="tab-m18" class="tab-pane hidden">
+        <div class="panel">
+          <h2>XML Sitemap Management</h2>
+          <ul>
+            <li><strong>Primary Static Sitemap (Posts, Pages, Categories):</strong> <a href="/sitemap.xml" target="_blank">/sitemap.xml</a></li>
+            <li><strong>Dynamic Verified Institutions & Locations Sitemap:</strong> <a href="/sitemap-institutions.xml" target="_blank">/sitemap-institutions.xml</a></li>
+            <li><strong>Robots.txt Configuration:</strong> <a href="/robots.txt" target="_blank">/robots.txt</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 19. ADMIN USERS AND ROLES -->
+      <section id="tab-m19" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Admin Users & Role-Based Access Control (RBAC)</h2>
+          <form onsubmit="return saveAdminUser(event)" class="form-grid" style="margin-bottom:14px">
+            <div><label>GitHub Username *</label><input name="github_username" required></div>
+            <div><label>Display Name *</label><input name="display_name" required></div>
+            <div><label>Role</label><select name="role"><option value="editor">Editor</option><option value="verifier">Verifier</option><option value="contributor">Contributor</option><option value="super_admin">Super Admin</option></select></div>
+            <div style="align-self:end"><button class="btn" type="submit">ইউজার সেভ করুন</button></div>
+          </form>
+          <table><thead><tr><th>ID</th><th>GitHub Username</th><th>Name</th><th>Role</th></tr></thead><tbody id="tbl-users"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 20. ACTIVITY LOGS -->
+      <section id="tab-m20" class="tab-pane hidden">
+        <div class="panel">
+          <h2>Complete Admin Activity & Security Audit Logs</h2>
+          <table><thead><tr><th>সময়</th><th>অ্যাডমিন ID</th><th>অ্যাকশন</th><th>মডিউল</th><th>রেকর্ড ID</th><th>পরিবর্তন (JSON)</th></tr></thead><tbody id="tbl-all-logs"></tbody></table>
+        </div>
+      </section>
+
+      <!-- 21. SYSTEM SETTINGS -->
+      <section id="tab-m21" class="tab-pane hidden">
+        <div class="panel">
+          <h2>System Settings & Ranking Methodology Configuration</h2>
+          <form onsubmit="return saveSettings(event)">
+            <div class="form-grid">
+              <div><label>SEO Title Suffix</label><input name="site_title_suffix" id="set_suffix" value="| bdresult.me"></div>
+              <div><label>Minimum Completeness Score for Google Indexing</label><input type="number" name="min_completeness_for_index" id="set_min_score" value="50"></div>
+            </div>
+            <div style="margin-top:10px"><label>Public Ranking & Comparison Methodology (স্বচ্ছ র‍্যাঙ্কিং নীতিমালা)</label><textarea name="ranking_methodology_bn" id="set_method" rows="3"></textarea></div>
+            <div style="margin-top:12px"><button class="btn" type="submit">সেটিংস সেভ করুন</button></div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const OAUTH_WORKER = 'https://bdresult-auth.antoraisu.workers.dev';
+    let REF = { types: [], divisions: [], districts: [], upazilas: [], post_categories: [] };
+    let LAST_IMPORT_ERRORS = [];
+
+    function getToken() {
+      const direct = localStorage.getItem('bdr_admin_token');
+      if (direct) return direct;
+      try {
+        const decap = JSON.parse(localStorage.getItem('netlify-cms-user') || localStorage.getItem('decap-cms-user') || '{}');
+        if (decap && decap.token) return decap.token;
+      } catch {}
+      return '';
+    }
+
+    function saveManualToken() {
+      const t = document.getElementById('manualToken').value.trim();
+      if (t) { localStorage.setItem('bdr_admin_token', t); initDashboard(); }
+    }
+
+    function oauthLogin() {
+      const w = window.open(OAUTH_WORKER + '/auth', 'github_oauth', 'width=600,height=700');
+      window.addEventListener('message', (e) => {
+        if (typeof e.data === 'string' && e.data.startsWith('authorization:github:success:')) {
+          try {
+            const parsed = JSON.parse(e.data.replace('authorization:github:success:', ''));
+            if (parsed.token) {
+              localStorage.setItem('bdr_admin_token', parsed.token);
+              if (w) w.close();
+              initDashboard();
+            }
+          } catch {}
+        }
+      });
+    }
+
+    async function api(path, method = 'GET', body = null) {
+      const headers = { 'Authorization': 'Bearer ' + getToken() };
+      if (body) headers['Content-Type'] = 'application/json';
+      const r = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'API Error');
+      return j;
+    }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + id).classList.remove('hidden');
+      if (btn) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      if (id === 'm2') loadInstitutions();
+      if (id === 'm8') loadResults();
+      if (id === 'm9') loadReviews();
+      if (id === 'm10') loadPosts();
+      if (id === 'm14') loadVerificationQueue();
+      if (id === 'm15') loadCorrections();
+      if (id === 'm16') loadMedia();
+      if (id === 'm17') loadSeoAudit();
+      if (id === 'm19') loadUsers();
+    }
+
+    function openLegacyCms() {
+      const win = window.open('', '_blank');
+      win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Decap CMS</title></head><body><script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"><\/script></body></html>');
+    }
+
+    async function initDashboard() {
+      const st = document.getElementById('adminStatus');
+      try {
+        const d = await api('/api/admin/overview');
+        st.textContent = `লগইনকৃত: ${d.admin.display_name} (@${d.admin.github_username} — ${d.admin.role})`;
+        st.style.color = '#064e3b';
+
+        document.getElementById('k-total').textContent = d.stats.total_institutions;
+        document.getElementById('k-verified').textContent = d.stats.verified_institutions;
+        document.getElementById('k-pending').textContent = d.stats.pending_verification;
+        document.getElementById('k-posts').textContent = d.stats.published_posts;
+        document.getElementById('k-drafts').textContent = d.stats.draft_posts;
+        document.getElementById('k-corr').textContent = d.stats.pending_corrections;
+
+        document.querySelector('#tbl-by-cat tbody').innerHTML = d.by_category.map(c => `<tr><td>${c.name_bn}</td><td><strong>${c.count}</strong></td></tr>`).join('');
+        document.querySelector('#tbl-by-dist tbody').innerHTML = d.by_district.map(x => `<tr><td>${x.name_bn}</td><td><strong>${x.count}</strong></td></tr>`).join('');
+        document.querySelector('#tbl-recent-logs tbody').innerHTML = d.recent_logs.slice(0, 10).map(l => `<tr><td>${l.created_at}</td><td>${l.action_type}</td><td>${l.entity_type}</td><td>${l.entity_id}</td></tr>`).join('');
+        document.getElementById('tbl-all-logs').innerHTML = d.recent_logs.map(l => `<tr><td>${l.created_at}</td><td>#${l.admin_user_id}</td><td>${l.action_type}</td><td>${l.entity_type}</td><td>${l.entity_id}</td><td><code>${l.changes_json}</code></td></tr>`).join('');
+
+        document.getElementById('tbl-import-jobs').innerHTML = (d.import_jobs || []).map(j => `
+          <tr>
+            <td>#${j.id}</td><td>${j.file_name}</td><td>${j.total_rows}</td><td>${j.valid_rows}</td><td>${j.duplicate_rows}</td><td>${j.error_rows}</td><td>${j.status}</td>
+            <td>${j.status === 'completed' ? `<button class="btn btn-danger" onclick="rollbackImport(${j.id})">Rollback</button>` : '-'}</td>
+          </tr>
+        `).join('');
+
+        REF = d.reference;
+        document.getElementById('sel_type').innerHTML = REF.types.map(t => `<option value="${t.id}">${t.name_bn}</option>`).join('');
+        document.getElementById('sel_div').innerHTML = REF.divisions.map(v => `<option value="${v.id}">${v.name_bn}</option>`).join('');
+        document.getElementById('dist_div_sel').innerHTML = REF.divisions.map(v => `<option value="${v.id}">${v.name_bn}</option>`).join('');
+        document.getElementById('sel_dist').innerHTML = REF.districts.map(x => `<option value="${x.id}">${x.name_bn}</option>`).join('');
+        document.getElementById('upz_dist_sel').innerHTML = REF.districts.map(x => `<option value="${x.id}">${x.name_bn}</option>`).join('');
+        filterDistrictsByDivision();
+
+        document.querySelector('#tbl-types-ref tbody').innerHTML = REF.types.map(t => `<tr><td>${t.id}</td><td>${t.slug}</td><td>${t.name_bn}</td><td>${t.name_en}</td><td><a href="/institutions/${t.slug}/" target="_blank">/institutions/${t.slug}/</a></td></tr>`).join('');
+        document.querySelector('#tbl-divs tbody').innerHTML = REF.divisions.map(v => `<tr><td>${v.id}</td><td>${v.slug}</td><td>${v.name_bn}</td><td>${v.name_en}</td></tr>`).join('');
+        document.querySelector('#tbl-dists tbody').innerHTML = REF.districts.map(x => `<tr><td>${x.id}</td><td>${x.slug}</td><td>${x.name_bn}</td><td>${x.name_en}</td><td><a href="/districts/${x.slug}/" target="_blank">/districts/${x.slug}/</a></td></tr>`).join('');
+        document.querySelector('#tbl-upzs tbody').innerHTML = REF.upazilas.map(u => `<tr><td>${u.id}</td><td>${u.slug}</td><td>${u.name_bn}</td><td>${u.name_en}</td><td><a href="/upazilas/${u.slug}/" target="_blank">/upazilas/${u.slug}/</a></td></tr>`).join('');
+
+        (d.settings || []).forEach(s => {
+          if (s.setting_key === 'site_title_suffix') document.getElementById('set_suffix').value = s.setting_value;
+          if (s.setting_key === 'min_completeness_for_index') document.getElementById('set_min_score').value = s.setting_value;
+          if (s.setting_key === 'ranking_methodology_bn') document.getElementById('set_method').value = s.setting_value;
+        });
+      } catch {
+        st.textContent = 'লগইন প্রয়োজন: উপরের GitHub OAuth Login বাটনে ক্লিক করুন।';
+        st.style.color = '#b91c1c';
+      }
+    }
+
+    async function loadInstitutions() {
+      const q = document.getElementById('instSearch').value;
+      const status = document.getElementById('instStatusFilter').value;
+      const d = await api(`/api/admin/institutions?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}`);
+      document.getElementById('tbl-inst-list').innerHTML = d.institutions.map(i => `
+        <tr>
+          <td><input type="checkbox" class="inst-chk" value="${i.id}"></td>
+          <td><strong>${i.eiin || i.internal_code}</strong> (#${i.id})</td>
+          <td><a href="/institution/${i.slug}/" target="_blank"><strong>${i.name_bn}</strong></a><br><small>${i.name_en}</small></td>
+          <td>${i.type_bn || ''}</td>
+          <td>${i.upazila_bn || ''}, ${i.district_bn || ''}</td>
+          <td>${i.completeness_score}%</td>
+          <td><span class="pill ${i.verification_status === 'verified' ? 'pill-ok' : 'pill-warn'}">${i.verification_status}</span></td>
+          <td>${i.is_published ? '✓ হ্যাঁ' : 'না'}</td>
+          <td><button class="btn btn-sec" onclick='editInst(${JSON.stringify(i).replace(/'/g,"&#39;")})'>Edit</button></td>
+        </tr>
+      `).join('');
+    }
+
+        function filterDistrictsByDivision(selectedDistId = null) {
+      const divId = Number(document.getElementById('sel_div').value);
+      const filteredDists = REF.districts.filter(d => Number(d.division_id) === divId);
+      const distSel = document.getElementById('sel_dist');
+      distSel.innerHTML = filteredDists.length
+        ? filteredDists.map(x => `<option value="${x.id}">${x.name_bn}</option>`).join('')
+        : '<option value="">-- কোনো জেলা পাওয়া যায়নি --</option>';
+      if (selectedDistId) distSel.value = selectedDistId;
+      filterUpazilasByDistrict();
+    }
+
+    function filterUpazilasByDistrict(selectedUpzId = null) {
+      const distId = Number(document.getElementById('sel_dist').value);
+      const filteredUpzs = REF.upazilas.filter(u => Number(u.district_id) === distId);
+      const upzSel = document.getElementById('sel_upz');
+      upzSel.innerHTML = filteredUpzs.length
+        ? filteredUpzs.map(u => `<option value="${u.id}">${u.name_bn}</option>`).join('')
+        : '<option value="">-- এই জেলায় উপজেলা যুক্ত নেই (মডিউল ৭ থেকে যোগ করুন) --</option>';
+      if (selectedUpzId) upzSel.value = selectedUpzId;
+    }
+
+    function toggleAllInst(master) {
+      document.querySelectorAll('.inst-chk').forEach(c => c.checked = master.checked);
+    }
+
+    async function bulkInstAction(action) {
+      const ids = Array.from(document.querySelectorAll('.inst-chk:checked')).map(c => c.value);
+      if (!ids.length) return alert('অন্তত একটি প্রতিষ্ঠান সিলেক্ট করুন।');
+      await api('/api/admin/institutions/bulk', 'POST', { ids, action });
+      loadInstitutions();
+      initDashboard();
+    }
+
+    function editInst(i) {
+      showTab('m3', document.querySelectorAll('.nav-btn')[2]);
+      const f = document.getElementById('formInst');
+      f.id.value = i.id;
+      f.name_bn.value = i.name_bn || '';
+      f.name_en.value = i.name_en || '';
+      f.eiin.value = i.eiin || '';
+      f.slug.value = i.slug || '';
+      f.institution_type_id.value = i.institution_type_id;
+      f.division_id.value = i.division_id; filterDistrictsByDivision(i.district_id); filterUpazilasByDistrict(i.upazila_id);
+      f.established_year.value = i.established_year || '';
+      f.management_type.value = i.management_type || 'unknown';
+      f.education_board.value = i.education_board || '';
+      f.official_website.value = i.official_website || '';
+      f.address_bn.value = i.address_bn || '';
+      f.postal_code.value = i.postal_code || '';
+      f.latitude.value = i.latitude || '';
+      f.longitude.value = i.longitude || '';
+      f.verification_status.value = i.verification_status || 'unverified';
+      f.is_published.value = i.is_published ? '1' : '0';
+      f.overview_bn.value = i.overview_bn || '';
+      f.admission_info_bn.value = i.admission_info_bn || '';
+      f.history_bn.value = i.history_bn || '';
+      f.seo_title.value = i.seo_title || '';
+      f.seo_description.value = i.seo_description || '';
+    }
+
+    async function saveInstitution(e) {
+      e.preventDefault();
+      const f = e.target;
+      const msg = document.getElementById('instSaveMsg');
+      try {
+        const payload = Object.fromEntries(new FormData(f).entries());
+        payload.is_published = payload.is_published === '1';
+        const res = await api('/api/admin/institutions', 'POST', payload);
+        msg.textContent = `✓ সেভ হয়েছে! /institution/${res.slug}/`;
+        msg.style.color = '#064e3b';
+        f.reset(); f.id.value = '';
+        initDashboard();
+      } catch (err) {
+        msg.textContent = 'ত্রুটি: ' + err.message;
+        msg.style.color = '#b91c1c';
+      }
+      return false;
+    }
+
+    async function saveCategory(e) {
+      e.preventDefault();
+      await api('/api/admin/categories', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      e.target.reset(); initDashboard();
+      return false;
+    }
+
+    async function saveLocationLevel(e, level) {
+      e.preventDefault();
+      const payload = Object.fromEntries(new FormData(e.target).entries());
+      payload.level = level;
+      await api('/api/admin/locations', 'POST', payload);
+      e.target.reset(); initDashboard();
+      return false;
+    }
+
+    async function loadResults() {
+      const d = await api('/api/admin/results');
+      document.getElementById('tbl-results').innerHTML = d.results.map(r => `
+        <tr><td>${r.institution_name} (${r.eiin || ''})</td><td>${r.exam_type}</td><td>${r.exam_year}</td><td>${r.appeared_students}</td><td>${r.passed_students}</td><td>${r.gpa5_students}</td><td><strong>${r.pass_rate}%</strong></td><td>${r.gpa5_rate}%</td></tr>
+      `).join('');
+    }
+
+    async function saveResult(e) {
+      e.preventDefault();
+      const res = await api('/api/admin/results', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      alert(`ফলাফল সেভ হয়েছে! পাসের হার: ${res.pass_rate}%, জিপিএ-৫ হার: ${res.gpa5_rate}%`);
+      loadResults();
+      return false;
+    }
+
+    async function loadReviews() {
+      const d = await api('/api/admin/reviews');
+      document.getElementById('tbl-reviews').innerHTML = d.reviews.map(r => `
+        <tr>
+          <td><a href="/institution/${r.institution_slug}/" target="_blank">${r.institution_name}</a></td>
+          <td>${r.review_type}</td>
+          <td>${r.author_name} (${r.author_role || ''})</td>
+          <td><strong>${r.title_bn || ''}</strong><br>${r.overall_assessment_bn || ''}</td>
+          <td><span class="pill ${r.moderation_status === 'approved' ? 'pill-ok' : 'pill-warn'}">${r.moderation_status}</span></td>
+          <td>
+            <button class="btn" onclick="moderateReview(${r.id},'approved')">Approve</button>
+            <button class="btn btn-sec" onclick="moderateReview(${r.id},'rejected')">Reject</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function moderateReview(id, moderation_status) {
+      await api('/api/admin/reviews', 'POST', { action: 'moderate', id, moderation_status });
+      loadReviews();
+    }
+
+    async function saveReview(e) {
+      e.preventDefault();
+      await api('/api/admin/reviews', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      alert('সম্পাদকীয় বিশ্লেষণ প্রকাশিত হয়েছে!');
+      e.target.reset(); loadReviews();
+      return false;
+    }
+
+    async function loadPosts() {
+      const d = await api('/api/admin/posts');
+      document.getElementById('tbl-posts-all').innerHTML = d.posts.map(p => `
+        <tr><td>#${p.id}</td><td><a href="/${p.slug}/" target="_blank"><strong>${p.title_bn}</strong></a></td><td>/${p.slug}/</td><td>${p.post_type}</td><td>${p.status}</td><td>${p.is_legacy_markdown ? 'Markdown File' : 'D1 Database'}</td></tr>
+      `).join('');
+    }
+
+    async function syncLegacyPosts() {
+      const res = await api('/api/admin/posts/sync-legacy', 'POST', {});
+      alert(`${res.synced} টি পুরনো মার্কডাউন পোস্ট সফলভাবে D1 ডাটাবেসে সিঙ্ক হয়েছে!`);
+      loadPosts(); initDashboard();
+    }
+
+    async function savePost(e) {
+      e.preventDefault();
+      await api('/api/admin/posts', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      alert('পোস্ট সেভ ও রিভিশন লগ সংরক্ষিত হয়েছে!');
+      e.target.reset(); loadPosts(); initDashboard();
+      return false;
+    }
+
+    async function saveTypedPost(e, post_type) {
+      e.preventDefault();
+      const payload = Object.fromEntries(new FormData(e.target).entries());
+      payload.post_type = post_type;
+      payload.status = 'published';
+      await api('/api/admin/posts', 'POST', payload);
+      alert('সফলভাবে প্রকাশিত হয়েছে!');
+      e.target.reset(); initDashboard();
+      return false;
+    }
+
+    function handleCsvFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('csvInput').value = ev.target.result;
+        parseCsvText();
+      };
+      reader.readAsText(file);
+    }
+
+    const TARGET_FIELDS = ['eiin','name_bn','name_en','institution_type_id','division_id','district_id','upazila_id','established_year','education_board','address_bn'];
+
+    function parseCsvText() {
+      const raw = document.getElementById('csvInput').value.trim();
+      if (!raw) return;
+      const headers = raw.split(/\r?\n/)[0].split(',').map(h => h.trim());
+      document.getElementById('colMapperBox').innerHTML = TARGET_FIELDS.map(tf => `
+        <div>
+          <label>DB ফিল্ড: <code>${tf}</code></label>
+          <select class="col-map-sel" data-target="${tf}">
+            <option value="">-- কলাম ম্যাপ করুন --</option>
+            ${headers.map(h => `<option value="${h}" ${h.toLowerCase() === tf ? 'selected' : ''}>${h}</option>`).join('')}
+          </select>
+        </div>
+      `).join('');
+    }
+
+    async function runCsvImport(mode) {
+      const raw = document.getElementById('csvInput').value.trim();
+      if (!raw) return;
+      const lines = raw.split(/\r?\n/).filter(Boolean);
+      const headers = lines[0].split(',').map(h => h.trim());
+
+      const mapping = {};
+      document.querySelectorAll('.col-map-sel').forEach(sel => {
+        if (sel.value) mapping[sel.dataset.target] = headers.indexOf(sel.value);
+      });
+
+      const records = lines.slice(1).map(line => {
+        const cols = line.split(',');
+        const obj = {};
+        if (Object.keys(mapping).length > 0) {
+          for (const [target, idx] of Object.entries(mapping)) {
+            if (idx >= 0) obj[target] = (cols[idx] || '').trim();
+          }
+        } else {
+          headers.forEach((h, i) => obj[h] = (cols[i] || '').trim());
+        }
+        return obj;
+      });
+
+      const res = await api('/api/admin/import', 'POST', { mode, records });
+      document.getElementById('importReport').textContent = JSON.stringify(res, null, 2);
+      LAST_IMPORT_ERRORS = [...(res.duplicates || []), ...(res.errors || [])];
+      document.getElementById('btnDownloadErrors').classList.toggle('hidden', LAST_IMPORT_ERRORS.length === 0);
+      if (mode === 'commit') initDashboard();
+    }
+
+    function downloadErrorCsv() {
+      if (!LAST_IMPORT_ERRORS.length) return;
+      const csv = 'row,eiin,reason\n' + LAST_IMPORT_ERRORS.map(e => `${e.row},"${e.eiin || ''}","${e.reason || ''}"`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'bdresult-import-errors.csv';
+      a.click();
+    }
+
+    async function rollbackImport(jobId) {
+      if (!confirm('আপনি কি নিশ্চিত যে এই ব্যাচের ইমপোর্টকৃত প্রতিষ্ঠানগুলো রোলব্যাক করতে চান?')) return;
+      await api('/api/admin/import/rollback', 'POST', { job_id: jobId });
+      initDashboard();
+    }
+
+    async function loadVerificationQueue() {
+      const d = await api('/api/admin/institutions?status=pending_review');
+      document.getElementById('tbl-verif-queue').innerHTML = d.institutions.map(i => `
+        <tr>
+          <td>#${i.id} (${i.eiin || 'No EIIN'})</td>
+          <td><strong>${i.name_bn}</strong><br><small>${i.name_en}</small></td>
+          <td>${i.district_bn || ''}</td>
+          <td>${i.completeness_score}%</td>
+          <td>${i.verification_status}</td>
+          <td><button class="btn" onclick="quickVerify(${i.id})">✓ Verify & Publish</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function quickVerify(id) {
+      await api('/api/admin/institutions/bulk', 'POST', { ids: [id], action: 'verify_publish' });
+      loadVerificationQueue(); initDashboard();
+    }
+
+    async function loadCorrections() {
+      const d = await api('/api/admin/corrections');
+      document.getElementById('tbl-corrections').innerHTML = d.corrections.map(c => `
+        <tr>
+          <td><a href="/institution/${c.institution_slug}/" target="_blank">${c.institution_name}</a></td>
+          <td>${c.requester_name} (${c.requester_relation})</td>
+          <td><strong>${c.field_name}</strong></td>
+          <td>${c.proposed_value}</td>
+          <td>${c.evidence_description}</td>
+          <td>${c.status}</td>
+          <td>
+            <button class="btn" onclick="updateCorr(${c.id},'approved')">Approve</button>
+            <button class="btn btn-sec" onclick="updateCorr(${c.id},'rejected')">Reject</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateCorr(id, status) {
+      await api('/api/admin/corrections', 'POST', { id, status });
+      loadCorrections(); initDashboard();
+    }
+
+    async function loadMedia() {
+      const d = await api('/api/admin/media');
+      document.getElementById('tbl-media').innerHTML = d.media.map(m => `
+        <tr><td><code>${m.file_path}</code></td><td>${m.file_name}</td><td>${m.alt_text_bn}</td><td><img src="${m.file_path}" style="height:36px;border-radius:4px"></td></tr>
+      `).join('');
+    }
+
+    async function saveMedia(e) {
+      e.preventDefault();
+      await api('/api/admin/media', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      e.target.reset(); loadMedia();
+      return false;
+    }
+
+    async function loadSeoAudit() {
+      const d = await api('/api/admin/seo-audit');
+      document.getElementById('tbl-seo-audit').innerHTML = d.noindex_guarded.map(i => `
+        <tr><td>#${i.id}</td><td><a href="/institution/${i.slug}/" target="_blank">${i.name_bn}</a></td><td>${i.completeness_score}%</td><td>${i.verification_status}</td><td><span class="pill pill-warn">Protected (noindex)</span></td></tr>
+      `).join('');
+    }
+
+    async function loadUsers() {
+      const d = await api('/api/admin/users');
+      document.getElementById('tbl-users').innerHTML = d.users.map(u => `<tr><td>${u.id}</td><td>@${u.github_username}</td><td>${u.display_name}</td><td>${u.role}</td></tr>`).join('');
+    }
+
+    async function saveAdminUser(e) {
+      e.preventDefault();
+      await api('/api/admin/users', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      loadUsers();
+      return false;
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      await api('/api/admin/settings', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+      alert('সিস্টেম সেটিংস আপডেট হয়েছে!');
+      return false;
+    }
+
+    initDashboard();
+  </script>
+</body>
+</html>
