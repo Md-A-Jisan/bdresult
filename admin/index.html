@@ -713,6 +713,12 @@
       box.appendChild(div);
     }
 
+        const jsonArrToComma = (v) => {
+      if (!v) return '';
+      if (Array.isArray(v)) return v.join(', ');
+      try { const p = JSON.parse(v); return Array.isArray(p) ? p.join(', ') : String(v); } catch { return String(v); }
+    };
+
     async function editInst(i) {
       showTab('m3', document.querySelectorAll('.nav-btn')[2]);
       const f = document.getElementById('formInst');
@@ -725,7 +731,20 @@
       f.division_id.value = i.division_id; filterDistrictsByDivision(i.district_id); filterUpazilasByDistrict(i.upazila_id);
       f.established_year.value = i.established_year || '';
       f.management_type.value = i.management_type || 'unknown'; f.gender_type.value = i.gender_type || 'co-education'; try { const sr = await api('/api/admin/institution-sources?id=' + i.id); const box = document.getElementById('sourcesContainer'); box.innerHTML = ''; if (sr.sources && sr.sources.length) { sr.sources.forEach(s => addSourceRow(s.source_name, s.source_url || '', s.covered_fields || '')); } else { addSourceRow(); } } catch {}
-      f.education_board.value = i.education_board || '';
+            f.education_board.value = i.education_board || '';
+      if (f.education_levels) f.education_levels.value = jsonArrToComma(i.education_levels_json || i.education_levels);
+      if (f.groups_streams) f.groups_streams.value = jsonArrToComma(i.groups_streams_json || i.groups_streams);
+      if (f.programs_courses) f.programs_courses.value = jsonArrToComma(i.programs_courses_json || i.programs_courses);
+      if (f.facilities) f.facilities.value = jsonArrToComma(i.facilities_json || i.facilities);
+      if (f.established_year) f.established_year.value = i.established_year || '';
+      if (f.address_bn) f.address_bn.value = i.address_bn || '';
+      if (f.post_code) f.post_code.value = i.post_code || '';
+      if (f.latitude) f.latitude.value = i.latitude ?? '';
+      if (f.longitude) f.longitude.value = i.longitude ?? '';
+      if (f.official_website) f.official_website.value = i.official_website || '';
+      if (f.overview_text) f.overview_text.value = i.overview_text || '';
+      if (f.admission_info) f.admission_info.value = i.admission_info || '';
+      if (f.history_text) f.history_text.value = i.history_text || '';
       f.official_website.value = i.official_website || '';
       f.address_bn.value = i.address_bn || '';
       f.postal_code.value = i.postal_code || '';
@@ -1019,6 +1038,7 @@
   </script>
 </body>
 </html>
+
 
 
 
