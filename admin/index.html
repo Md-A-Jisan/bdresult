@@ -722,53 +722,33 @@
     async function editInst(i) {
       showTab('m3', document.querySelectorAll('.nav-btn')[2]);
       const f = document.getElementById('formInst');
+      const toList = (v) => {
+        if (!v) return '';
+        if (Array.isArray(v)) return v.join(', ');
+        try { const p = JSON.parse(v); return Array.isArray(p) ? p.join(', ') : String(v); } catch { return String(v); }
+      };
       f.id.value = i.id;
       f.name_bn.value = i.name_bn || '';
       f.name_en.value = i.name_en || '';
       f.eiin.value = i.eiin || '';
       f.slug.value = i.slug || '';
       f.institution_type_id.value = i.institution_type_id;
-      f.division_id.value = i.division_id; filterDistrictsByDivision(i.district_id); filterUpazilasByDistrict(i.upazila_id);
+      f.division_id.value = i.division_id;
+      filterDistrictsByDivision(i.district_id);
+      filterUpazilasByDistrict(i.upazila_id);
       f.established_year.value = i.established_year || '';
-      f.management_type.value = i.management_type || 'unknown'; f.gender_type.value = i.gender_type || 'co-education'; try { const sr = await api('/api/admin/institution-sources?id=' + i.id); const box = document.getElementById('sourcesContainer'); box.innerHTML = ''; if (sr.sources && sr.sources.length) { sr.sources.forEach(s => addSourceRow(s.source_name, s.source_url || '', s.covered_fields || '')); } else { addSourceRow(); } } catch {}
-                  const toComma = (val) => {
-        if (!val) return '';
-        if (Array.isArray(val)) return val.join(', ');
-        try { const arr = JSON.parse(val); return Array.isArray(arr) ? arr.join(', ') : String(val); } catch { return String(val); }
-      };
-      const setVal = (name, val) => { const el = f.querySelector(`[name="${name}"]`); if (el) el.value = val ?? ''; };
-      setVal('education_board', i.education_board);
-      setVal('education_levels', toComma(i.education_levels_json || i.education_levels));
-      setVal('groups_streams', toComma(i.groups_streams_json || i.groups_streams));
-      setVal('programs_courses', toComma(i.programs_courses_json || i.programs_courses));
-      setVal('facilities', toComma(i.facilities_json || i.facilities));
-      setVal('established_year', i.established_year);
-      setVal('address_bn', i.address_bn);
-      setVal('post_code', i.post_code);
-      setVal('latitude', i.latitude);
-      setVal('longitude', i.longitude);
-      setVal('official_website', i.official_website);
-      setVal('overview_text', i.overview_text);
-      setVal('admission_info', i.admission_info);
-      setVal('history_text', i.history_text);
-      if (f.education_levels) f.education_levels.value = jsonArrToComma(i.education_levels_json || i.education_levels);
-      if (f.groups_streams) f.groups_streams.value = jsonArrToComma(i.groups_streams_json || i.groups_streams);
-      if (f.programs_courses) f.programs_courses.value = jsonArrToComma(i.programs_courses_json || i.programs_courses);
-      if (f.facilities) f.facilities.value = jsonArrToComma(i.facilities_json || i.facilities);
-      if (f.established_year) f.established_year.value = i.established_year || '';
-      if (f.address_bn) f.address_bn.value = i.address_bn || '';
-      if (f.post_code) f.post_code.value = i.post_code || '';
-      if (f.latitude) f.latitude.value = i.latitude ?? '';
-      if (f.longitude) f.longitude.value = i.longitude ?? '';
-      if (f.official_website) f.official_website.value = i.official_website || '';
-      if (f.overview_text) f.overview_text.value = i.overview_text || '';
-      if (f.admission_info) f.admission_info.value = i.admission_info || '';
-      if (f.history_text) f.history_text.value = i.history_text || '';
+      f.management_type.value = i.management_type || 'unknown';
+      f.gender_type.value = i.gender_type || 'co-education';
+      f.education_board.value = i.education_board || '';
+      f.education_levels.value = toList(i.education_levels);
+      f.academic_groups.value = toList(i.academic_groups);
+      f.programs_offered.value = toList(i.programs_offered);
+      f.facilities_json.value = toList(i.facilities_json);
       f.official_website.value = i.official_website || '';
       f.address_bn.value = i.address_bn || '';
       f.postal_code.value = i.postal_code || '';
-      f.latitude.value = i.latitude || '';
-      f.longitude.value = i.longitude || '';
+      f.latitude.value = i.latitude ?? '';
+      f.longitude.value = i.longitude ?? '';
       f.verification_status.value = i.verification_status || 'unverified';
       f.is_published.value = i.is_published ? '1' : '0';
       f.overview_bn.value = i.overview_bn || '';
@@ -776,6 +756,16 @@
       f.history_bn.value = i.history_bn || '';
       f.seo_title.value = i.seo_title || '';
       f.seo_description.value = i.seo_description || '';
+      try {
+        const sr = await api('/api/admin/institution-sources?id=' + i.id);
+        const box = document.getElementById('sourcesContainer');
+        box.innerHTML = '';
+        if (sr.sources && sr.sources.length) {
+          sr.sources.forEach(x => addSourceRow(x.source_name || '', x.source_url || '', x.covered_fields || ''));
+        } else {
+          addSourceRow();
+        }
+      } catch (err) { /* sources load failed: keep existing row */ }
     }
 
     async function saveInstitution(e) {
@@ -1057,10 +1047,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
