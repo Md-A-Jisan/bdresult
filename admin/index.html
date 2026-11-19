@@ -163,7 +163,7 @@
               <div><label>জেলা *</label><select name="district_id" id="sel_dist" onchange="filterUpazilasByDistrict()" required></select></div>
               <div><label>উপজেলা *</label><select name="upazila_id" id="sel_upz" required></select></div>
               <div><label>প্রতিষ্ঠার সাল</label><input type="number" name="established_year"></div>
-              <div><label>ব্যবস্থাপনা</label><select name="management_type"><option value="government">সরকারি</option><option value="mpo">এমপিওভুক্ত</option><option value="non_government">বেসরকারি</option><option value="private">প্রাইভেট</option><option value="autonomous">স্বায়ত্তশাসিত</option></select></div>
+              <div><label>ব্যবস্থাপনা</label><select name="management_type"><option value="government">সরকারি</option><option value="mpo">এমপিওভুক্ত</option><option value="non_government">বেসরকারি</option><option value="private">প্রাইভেট</option><option value="autonomous">স্বায়ত্তশাসিত</option></select></div>`r`n              <div><label>শিক্ষার্থীর ধরন *</label><select name="gender_type"><option value="co-education">সহশিক্ষা (Co-education)</option><option value="boys">বালক (Boys)</option><option value="girls">বালিকা (Girls)</option><option value="unknown">উল্লেখ নেই</option></select></div>
               <div><label>শিক্ষা বোর্ড</label><input name="education_board" placeholder="Dhaka / Jashore"></div>
               <div><label>শিক্ষা স্তর (কমা দিয়ে)</label><input name="education_levels" placeholder="মাধ্যমিক, উচ্চ মাধ্যমিক"></div>
               <div><label>বিভাগ/গ্রুপ (কমা দিয়ে)</label><input name="academic_groups" placeholder="বিজ্ঞান, মানবিক, ব্যবসায় শিক্ষা"></div>
@@ -174,8 +174,21 @@
               <div><label>Latitude</label><input type="number" step="any" name="latitude"></div>
               <div><label>Longitude</label><input type="number" step="any" name="longitude"></div>
               <div><label>অফিশিয়াল ওয়েবসাইট</label><input name="official_website"></div>
-              <div><label>তথ্যসূত্র (Source Name) *</label><input name="source_name" required placeholder="BANBEIS / Education Board"></div>
-              <div><label>তথ্যসূত্র লিংক (Source URL)</label><input name="source_url"></div>
+            </div>
+            <div style="margin-top:12px;padding:12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <label style="margin:0;font-size:13px;color:#064e3b">তথ্যসূত্রসমূহ (Multiple Sources Provenance) *</label>
+                <button type="button" class="btn btn-sec" style="padding:4px 10px;font-size:12px" onclick="addSourceRow()">+ আরও তথ্যসূত্র যোগ করুন</button>
+              </div>
+              <div id="sourcesContainer">
+                <div class="source-row form-grid" style="margin-bottom:8px">
+                  <input class="src-name" required placeholder="তথ্যসূত্রের নাম (যেমন: BANBEIS / যশোর বোর্ড) *">
+                  <input class="src-url" placeholder="তথ্যসূত্র লিংক (https://...)">
+                  <input class="src-fields" placeholder="কোন তথ্যের সূত্র (যেমন: EIIN, স্থাপিত সাল)">
+                </div>
+              </div>
+            </div>
+            <div class="form-grid" style="margin-top:12px">
               <div><label>ভেরিফিকেশন স্ট্যাটাস</label><select name="verification_status"><option value="verified">Verified</option><option value="pending_review">Pending Review</option><option value="unverified">Unverified</option></select></div>
               <div><label>পাবলিশ স্ট্যাটাস</label><select name="is_published"><option value="1">Published</option><option value="0">Draft (Noindex)</option></select></div>
             </div>
@@ -683,7 +696,23 @@
       initDashboard();
     }
 
-    function editInst(i) {
+        function addSourceRow(name = '', url = '', fields = '') {
+      const box = document.getElementById('sourcesContainer');
+      const div = document.createElement('div');
+      div.className = 'source-row form-grid';
+      div.style.marginBottom = '8px';
+      div.innerHTML = `
+        <input class="src-name" value="${name.replace(/"/g,'&quot;')}" placeholder="তথ্যসূত্রের নাম *">
+        <input class="src-url" value="${url.replace(/"/g,'&quot;')}" placeholder="তথ্যসূত্র লিংক (https://...)">
+        <div style="display:flex;gap:6px">
+          <input class="src-fields" value="${fields.replace(/"/g,'&quot;')}" placeholder="কোন তথ্যের সূত্র">
+          <button type="button" class="btn btn-danger" style="padding:6px 10px" onclick="this.closest('.source-row').remove()">✕</button>
+        </div>
+      `;
+      box.appendChild(div);
+    }
+
+    async function editInst(i) {
       showTab('m3', document.querySelectorAll('.nav-btn')[2]);
       const f = document.getElementById('formInst');
       f.id.value = i.id;
@@ -694,7 +723,7 @@
       f.institution_type_id.value = i.institution_type_id;
       f.division_id.value = i.division_id; filterDistrictsByDivision(i.district_id); filterUpazilasByDistrict(i.upazila_id);
       f.established_year.value = i.established_year || '';
-      f.management_type.value = i.management_type || 'unknown';
+      f.management_type.value = i.management_type || 'unknown'; f.gender_type.value = i.gender_type || 'co-education'; try { const sr = await api('/api/admin/institution-sources?id=' + i.id); const box = document.getElementById('sourcesContainer'); box.innerHTML = ''; if (sr.sources && sr.sources.length) { sr.sources.forEach(s => addSourceRow(s.source_name, s.source_url || '', s.covered_fields || '')); } else { addSourceRow(); } } catch {}
       f.education_board.value = i.education_board || '';
       f.official_website.value = i.official_website || '';
       f.address_bn.value = i.address_bn || '';
@@ -715,7 +744,13 @@
       const f = e.target;
       const msg = document.getElementById('instSaveMsg');
       try {
-        const payload = Object.fromEntries(new FormData(f).entries());
+                const payload = Object.fromEntries(new FormData(f).entries());
+        payload.sources = Array.from(document.querySelectorAll('#sourcesContainer .source-row')).map(row => ({
+          source_name: row.querySelector('.src-name').value.trim(),
+          source_url: row.querySelector('.src-url').value.trim(),
+          covered_fields: row.querySelector('.src-fields').value.trim()
+        })).filter(s => s.source_name);
+        if (payload.sources.length) payload.source_name = payload.sources[0].source_name;
         payload.is_published = payload.is_published === '1';
         const res = await api('/api/admin/institutions', 'POST', payload);
         msg.textContent = `✓ সেভ হয়েছে! /institution/${res.slug}/`;
@@ -983,6 +1018,7 @@
   </script>
 </body>
 </html>
+
 
 
 

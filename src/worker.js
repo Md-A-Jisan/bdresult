@@ -6,6 +6,11 @@
 const SITE_URL = 'https://bdresult.me';
 const SITE_NAME = 'bdresult';
 
+const formatExternalUrl = (u) => {
+  const s = String(u || '').trim();
+  if (!s) return '';
+  return /^https?:\/\//i.test(s) ? s : 'https://' + s;
+};
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[c]));
@@ -713,7 +718,7 @@ async function handleInstitutionProfile(req, env, slug) {
           ${inst.admission_info_bn
             ? `<p>${esc(inst.admission_info_bn)}</p>`
             : `<p>এই প্রতিষ্ঠানের সুনির্দিষ্ট ভর্তি বিজ্ঞপ্তি এখনো ডাটাবেসে যুক্ত হয়নি। সাধারণত শিক্ষা মন্ত্রণালয় ও সংশ্লিষ্ট শিক্ষা বোর্ডের কেন্দ্রীয় নীতিমালা অনুযায়ী ভর্তি কার্যক্রম পরিচালিত হয়।</p>`}
-          ${inst.official_admission_url ? `<p><a href="${esc(inst.official_admission_url)}" target="_blank" rel="noopener noreferrer">অফিশিয়াল ভর্তি পোর্টাল দেখুন ↗</a></p>` : ''}
+          ${inst.official_admission_url ? `<p><a href="${esc(formatExternalUrl(inst.official_admission_url))}" target="_blank" rel="noopener noreferrer">অফিশিয়াল ভর্তি পোর্টাল দেখুন ↗</a></p>` : ''}
         </section>
 
         <!-- E. RESULTS AND PERFORMANCE -->
@@ -757,7 +762,7 @@ async function handleInstitutionProfile(req, env, slug) {
                 <tr><th>উপজেলা / থানা</th><td><a href="/upazilas/${esc(inst.upazila_slug)}/">${esc(inst.upazila_bn)}</a></td></tr>
                 <tr><th>জেলা</th><td><a href="/districts/${esc(inst.district_slug)}/">${esc(inst.district_bn)}</a> (${esc(inst.division_bn)} বিভাগ)</td></tr>
                 ${inst.postal_code ? `<tr><th>পোস্ট কোড</th><td>${esc(inst.postal_code)}</td></tr>` : ''}
-                ${inst.official_website ? `<tr><th>অফিশিয়াল ওয়েবসাইট</th><td><a href="${esc(inst.official_website)}" target="_blank" rel="noopener nofollow">${esc(inst.official_website)}</a></td></tr>` : ''}
+                ${inst.official_website ? `<tr><th>অফিশিয়াল ওয়েবসাইট</th><td><a href="${esc(formatExternalUrl(inst.official_website))}" target="_blank" rel="noopener nofollow">${esc(inst.official_website)}</a></td></tr>` : ''}
                 ${contacts.map(c => `<tr><th>${esc(c.label_bn || c.contact_type)}</th><td>${esc(c.contact_value)}</td></tr>`).join('')}
               </tbody>
             </table>
@@ -830,7 +835,7 @@ async function handleInstitutionProfile(req, env, slug) {
             <strong>ব্যবহৃত অফিশিয়াল তথ্যসূত্রসমূহ:</strong>
             ${sources.length ? `
               <ul style="margin:6px 0 0">
-                ${sources.map(s => `<li><strong>${esc(s.source_name)}</strong> (${esc(s.covered_fields || 'সাধারণ তথ্য')}) — সংগৃহীত: ${esc(s.accessed_date)} ${s.source_url ? `<a href="${esc(s.source_url)}" target="_blank" rel="noopener nofollow">[লিংক]</a>` : ''}</li>`).join('')}
+                ${sources.map(s => `<li><strong>${esc(s.source_name)}</strong> (${esc(s.covered_fields || 'সাধারণ তথ্য')}) — সংগৃহীত: ${esc(s.accessed_date)} ${s.source_url ? `<a href="${esc(formatExternalUrl(s.source_url))}" target="_blank" rel="noopener nofollow">[লিংক]</a>` : ''}</li>`).join('')}
               </ul>
             ` : `<p style="margin:4px 0 0">ব্যানবেইস (BANBEIS) ও সংশ্লিষ্ট শিক্ষা বোর্ডের পাবলিক ডিরেক্টরি।</p>`}
             ${verifLogs.length ? `
@@ -1130,6 +1135,7 @@ async function handleAdminApi(req, env, path) {
   }
 
   // MODULE 2 & 3 & 14: Institution Management, Add/Edit & Bulk Verification Actions
+  if (path === '/api/admin/institution-sources' && req.method === 'GET') { const iid = new URL(req.url).searchParams.get('id'); const s = await env.DB.prepare('SELECT * FROM institution_sources WHERE institution_id = ?').bind(iid).all(); return jsonResponse({ sources: s.results || [] }); }
   if (path === '/api/admin/institutions' && req.method === 'GET') {
     const url = new URL(req.url);
     const q = (url.searchParams.get('q') || '').trim();
@@ -1207,7 +1213,7 @@ async function handleAdminApi(req, env, path) {
           eiin = ?, slug = ?, name_en = ?, name_bn = ?, normalized_name = ?,
           institution_type_id = ?, division_id = ?, district_id = ?, upazila_id = ?,
           address_bn = ?, address_en = ?, postal_code = ?, latitude = ?, longitude = ?,
-          established_year = ?, management_type = ?, education_board = ?,
+          established_year = ?, management_type = ?, gender_type = ?, education_board = ?,
           education_levels = ?, academic_groups = ?, programs_offered = ?, facilities_json = ?,
           overview_bn = ?, history_bn = ?, admission_info_bn = ?, official_website = ?,
           verification_status = ?, is_published = ?, completeness_score = ?,
@@ -1218,7 +1224,7 @@ async function handleAdminApi(req, env, path) {
         eiin, slug, b.name_en, b.name_bn, normName,
         b.institution_type_id, b.division_id, b.district_id, b.upazila_id,
         b.address_bn || null, b.address_en || null, b.postal_code || null, b.latitude || null, b.longitude || null,
-        b.established_year || null, b.management_type || 'unknown', b.education_board || null,
+        b.established_year || null, b.management_type || 'unknown', b.gender_type || 'unknown', b.education_board || null,
         JSON.stringify(parseCommaList(b.education_levels)),
         JSON.stringify(parseCommaList(b.academic_groups)),
         JSON.stringify(parseCommaList(b.programs_offered)),
@@ -1232,6 +1238,16 @@ async function handleAdminApi(req, env, path) {
         `INSERT INTO verification_logs (institution_id, admin_user_id, new_status, verified_fields_summary, source_reference) VALUES (?, ?, ?, ?, ?)`
       ).bind(b.id, admin.id, b.verification_status || 'unverified', 'প্রোফাইল তথ্য হালনাগাদ ও যাচাই', b.source_name || 'Admin Edit').run();
 
+            if (Array.isArray(b.sources)) {
+        await env.DB.prepare(`DELETE FROM institution_sources WHERE institution_id = ?`).bind(b.id).run();
+        for (const s of b.sources) {
+          if (s.source_name) {
+            await env.DB.prepare(
+              `INSERT INTO institution_sources (institution_id, source_name, source_url, covered_fields, accessed_date) VALUES (?, ?, ?, ?, date('now'))`
+            ).bind(b.id, s.source_name.trim(), formatExternalUrl(s.source_url) || null, (s.covered_fields || 'প্রোফাইল তথ্য').trim()).run();
+          }
+        }
+      }
       await logAudit(env, admin.id, 'UPDATE_INSTITUTION', 'institutions', b.id, { slug, eiin }, ip);
       return jsonResponse({ ok: true, id: b.id, slug });
     } else {
@@ -1240,17 +1256,17 @@ async function handleAdminApi(req, env, path) {
           internal_code, eiin, slug, name_en, name_bn, normalized_name,
           institution_type_id, division_id, district_id, upazila_id,
           address_bn, address_en, postal_code, latitude, longitude,
-          established_year, management_type, education_board,
+          established_year, management_type, gender_type, education_board,
           education_levels, academic_groups, programs_offered, facilities_json,
           overview_bn, history_bn, admission_info_bn, official_website,
           verification_status, is_published, completeness_score,
           last_verified_at, verified_by_admin_id, seo_title, seo_description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
         internalCode, eiin, slug, b.name_en, b.name_bn, normName,
         b.institution_type_id, b.division_id, b.district_id, b.upazila_id,
         b.address_bn || null, b.address_en || null, b.postal_code || null, b.latitude || null, b.longitude || null,
-        b.established_year || null, b.management_type || 'unknown', b.education_board || null,
+        b.established_year || null, b.management_type || 'unknown', b.gender_type || 'unknown', b.education_board || null,
         JSON.stringify(parseCommaList(b.education_levels)),
         JSON.stringify(parseCommaList(b.academic_groups)),
         JSON.stringify(parseCommaList(b.programs_offered)),
@@ -1262,10 +1278,13 @@ async function handleAdminApi(req, env, path) {
       ).run();
 
       const newId = res.meta?.last_row_id;
-      if (b.source_name) {
-        await env.DB.prepare(
-          `INSERT INTO institution_sources (institution_id, source_name, source_url, covered_fields, accessed_date) VALUES (?, ?, ?, ?, date('now'))`
-        ).bind(newId, b.source_name, b.source_url || null, 'প্রাথমিক প্রোফাইল তথ্য').run();
+      const srcList = Array.isArray(b.sources) && b.sources.length ? b.sources : (b.source_name ? [{ source_name: b.source_name, source_url: b.source_url, covered_fields: 'প্রাথমিক প্রোফাইল তথ্য' }] : []);
+      for (const s of srcList) {
+        if (s.source_name) {
+          await env.DB.prepare(
+            `INSERT INTO institution_sources (institution_id, source_name, source_url, covered_fields, accessed_date) VALUES (?, ?, ?, ?, date('now'))`
+          ).bind(newId, s.source_name.trim(), formatExternalUrl(s.source_url) || null, (s.covered_fields || 'প্রোফাইল তথ্য').trim()).run();
+        }
       }
       await env.DB.prepare(
         `INSERT INTO verification_logs (institution_id, admin_user_id, previous_status, new_status, verified_fields_summary, source_reference) VALUES (?, ?, 'new', ?, 'প্রাথমিক প্রোফাইল তৈরি', ?)`
@@ -1510,7 +1529,7 @@ async function handleAdminApi(req, env, path) {
           INSERT OR IGNORE INTO institutions (
             internal_code, eiin, slug, name_en, name_bn, normalized_name,
             institution_type_id, division_id, district_id, upazila_id,
-            address_bn, established_year, management_type, education_board,
+            address_bn, established_year, management_type, gender_type, education_board,
             verification_status, is_published, completeness_score, import_job_id
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_review', 0, 45, ?)
         `).bind(
@@ -1756,5 +1775,6 @@ export default {
     }
   }
 };
+
 
 
