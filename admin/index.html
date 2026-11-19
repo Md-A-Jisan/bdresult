@@ -503,19 +503,33 @@
     }
 
     function oauthLogin() {
+      const gateMsg = document.getElementById('loginGateMsg');
+      if (gateMsg) gateMsg.textContent = 'GitHub অথরাইজেশন উইন্ডো খোলা হচ্ছে...';
       const w = window.open(OAUTH_WORKER + '/auth', 'github_oauth', 'width=600,height=700');
-      window.addEventListener('message', (e) => {
+      if (!w) {
+        if (gateMsg) gateMsg.textContent = 'ব্রাউজার পপ-আপ ব্লক করেছে! অ্যাড্রেস বার থেকে Pop-up Allow করুন।';
+        return;
+      }
+      function onAuthMessage(e) {
+        if (e.data === 'authorizing:github' && e.source) {
+          e.source.postMessage('authorizing:github', e.origin);
+          return;
+        }
         if (typeof e.data === 'string' && e.data.startsWith('authorization:github:success:')) {
+          window.removeEventListener('message', onAuthMessage);
           try {
             const parsed = JSON.parse(e.data.replace('authorization:github:success:', ''));
             if (parsed.token) {
               localStorage.setItem('bdr_admin_token', parsed.token);
-              if (w) w.close();
+              if (w && !w.closed) w.close();
               initDashboard();
             }
-          } catch {}
+          } catch (err) {
+            if (gateMsg) gateMsg.textContent = 'টোকেন পার্সিং ত্রুটি।';
+          }
         }
-      });
+      }
+      window.addEventListener('message', onAuthMessage);
     }
 
     async function api(path, method = 'GET', body = null) {
@@ -990,4 +1004,5 @@
   </script>
 </body>
 </html>
+
 
