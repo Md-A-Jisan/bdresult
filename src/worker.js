@@ -1345,11 +1345,40 @@ async function handleAdminApi(req, env, path) {
     const passed = parseInt(b.passed_students, 10) || 0;
     const gpa5 = parseInt(b.gpa5_students, 10) || 0;
     if (appeared <= 0 || passed > appeared || gpa5 > passed) {
-      return jsonResponse({ error: 'পরীক্ষার্থীর সংখ্যা সঠিক নয় (উত্তীর্ণ বা জিপিএ-৫ অংশগ্রহণকারীর চেয়ে বেশি হতে পারে না)।' }, 400);
+      return jsonResponse({ error: 'পরীক্ষার্থীর সংখ্যা সঠিক নয় (উত্তীর্ণ বা জিপিএ-৫ অংশগ্রহণকারীর চেয়ে বেশি হতে পারে না)।' }, 400);
     }
+    // Institution can be entered as EIIN (e.g. 117509) or internal ID
+    const instKey = String(b.institution_id || '').trim();
+    let inst = await env.DB.prepare(`SELECT id FROM institutions WHERE eiin = ?`).bind(instKey).first();
+    if (!inst) inst = await env.DB.prepare(`SELECT id FROM institutions WHERE id = ?`).bind(instKey).first();
+    if (!inst) {
+      return jsonResponse({ error: 'এই EIIN/ID দিয়ে কোনো প্রতিষ্ঠান পাওয়া যায়নি: ' + instKey }, 400);
+    }
+    const instId = inst.id;
+    const examYear = parseInt(b.exam_year, 10);
+    const group = b.academic_group || 'All';
     const failed = appeared - passed;
     const passRate = Number(((passed / appeared) * 100).toFixed(2));
     const gpa5Rate = Number(((gpa5 / appeared) * 100).toFixed(2));
+    const source = b.source_name || 'Education Board Result';
+
+    if (b.id) {
+      // EDIT existing row
+      await env.DB.prepare(`
+        UPDATE institution_results SET
+          institution_id = ?, exam_type = ?, exam_year = ?, education_board = ?, academic_group = ?,
+          total_students = ?, appeared_students = ?, passed_students = ?, failed_students = ?, gpa5_students = ?,
+          pass_rate = ?, gpa5_rate = ?, source_name = ?, source_url = ?, verification_status = ?,
+          updated_at = datetime('now')
+        WHERE id = ?
+      `).bind(
+        instId, b.exam_type, examYear, b.education_board, group,
+        b.total_students || appeared, appeared, passed, failed, gpa5,
+        passRate, gpa5Rate, source, b.source_url || null, b.verification_status || 'verified', b.id
+      ).run();
+      await logAudit(env, admin.id, 'UPDATE_RESULT', 'institution_results', b.id, { exam: b.exam_type, year: examYear, passRate }, ip);
+      return jsonResponse({ ok: true, pass_rate: passRate, gpa5_rate: gpa5Rate });
+    }
 
     await env.DB.prepare(`
       INSERT INTO institution_results (
@@ -1358,6 +1387,8 @@ async function handleAdminApi(req, env, path) {
         pass_rate, gpa5_rate, source_name, source_url, verification_status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(institution_id, exam_type, exam_year, academic_group) DO UPDATE SET
+        education_board = excluded.education_board,
+        total_students = excluded.total_students,
         appeared_students = excluded.appeared_students,
         passed_students = excluded.passed_students,
         failed_students = excluded.failed_students,
@@ -1368,12 +1399,12 @@ async function handleAdminApi(req, env, path) {
         verification_status = excluded.verification_status,
         updated_at = datetime('now')
     `).bind(
-      b.institution_id, b.exam_type, b.exam_year, b.education_board, b.academic_group || 'All',
+      instId, b.exam_type, examYear, b.education_board, group,
       b.total_students || appeared, appeared, passed, failed, gpa5,
-      passRate, gpa5Rate, b.source_name || 'Education Board Result', b.source_url || null, b.verification_status || 'verified'
+      passRate, gpa5Rate, source, b.source_url || null, b.verification_status || 'verified'
     ).run();
 
-    await logAudit(env, admin.id, 'UPSERT_RESULT', 'institution_results', b.institution_id, { exam: b.exam_type, year: b.exam_year, passRate }, ip);
+    await logAudit(env, admin.id, 'UPSERT_RESULT', 'institution_results', instId, { exam: b.exam_type, year: examYear, passRate }, ip);
     return jsonResponse({ ok: true, pass_rate: passRate, gpa5_rate: gpa5Rate });
   }
 
@@ -1779,6 +1810,9 @@ export default {
       return new Response('404 Not Found', { status: 404 });
     } catch (err) {
       console.error('Worker Error:', err);
+      if (new URL(req.url).pathname.startsWith('/api/')) {
+        return jsonResponse({ error: 'সার্ভার ত্রুটি: ' + err.message }, 500);
+      }
       return new Response('Internal Server Error: ' + err.message, { status: 500 });
     }
   }

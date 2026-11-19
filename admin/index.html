@@ -268,8 +268,9 @@
       <section id="tab-m8" class="tab-pane hidden">
         <div class="panel">
           <h2>Institution Results (Pass Rate & GPA-5 Rate Auto-Calculator)</h2>
-          <form onsubmit="return saveResult(event)" class="form-grid">
-            <div><label>Institution ID *</label><input type="number" name="institution_id" required></div>
+          <form id="resultForm" onsubmit="return saveResult(event)" class="form-grid">
+            <input type="hidden" name="id" value="">
+            <div><label>Institution EIIN / ID *</label><input type="number" name="institution_id" required></div>
             <div><label>Exam Type *</label><select name="exam_type"><option value="SSC">SSC</option><option value="HSC">HSC</option><option value="Dakhil">Dakhil</option><option value="Alim">Alim</option></select></div>
             <div><label>Year *</label><input type="number" name="exam_year" required value="2026"></div>
             <div><label>Board *</label><input name="education_board" required placeholder="Dhaka / Jashore"></div>
@@ -277,7 +278,7 @@
             <div><label>Passed Students *</label><input type="number" name="passed_students" required></div>
             <div><label>GPA-5 Students *</label><input type="number" name="gpa5_students" required value="0"></div>
             <div><label>Source *</label><input name="source_name" required value="Board Result Gazette"></div>
-            <div style="align-self:end"><button class="btn" type="submit">ফলাফল সেভ করুন</button></div>
+            <div style="align-self:end;display:flex;gap:8px"><button class="btn" type="submit" id="resultSubmitBtn">ফলাফল সেভ করুন</button><button class="btn btn-sec" type="button" id="resultCancelBtn" style="display:none" onclick="resetResultForm()">বাতিল</button></div>
           </form>
         </div>
         <div class="panel">
@@ -550,8 +551,10 @@
       const headers = { 'Authorization': 'Bearer ' + getToken() };
       if (body) headers['Content-Type'] = 'application/json';
       const r = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || 'API Error');
+      const txt = await r.text();
+      let j = {};
+      try { j = txt ? JSON.parse(txt) : {}; } catch { j = { error: txt.slice(0, 200) || 'API Error' }; }
+      if (!r.ok) throw new Error(j.error || 'API Error (' + r.status + ')');
       return j;
     }
 
@@ -586,28 +589,41 @@
       document.getElementById('loginGateMsg').textContent = 'সফলভাবে লগআউট হয়েছে।';
     }
 
-        function editResult(r) {
+    let RESULTS_CACHE = [];
+
+    function editResult(id) {
+      const r = RESULTS_CACHE.find(x => x.id === id);
       const f = document.getElementById('resultForm');
-      if (!f) return;
-      f.institution_id.value = r.institution_id || '';
-      f.exam_type.value = r.exam_type || 'SSC';
-      f.exam_year.value = r.exam_year || '';
-      if (f.education_board) f.education_board.value = r.education_board || '';
-      if (f.board) f.board.value = r.education_board || '';
-      f.appeared_students.value = r.appeared_students ?? '';
-      f.passed_students.value = r.passed_students ?? '';
-      f.gpa5_students.value = r.gpa5_students ?? 0;
-      if (f.source_name) f.source_name.value = r.source_name || '';
+      if (!r || !f) return;
+      f.elements['id'].value = r.id;
+      f.elements['institution_id'].value = r.eiin || r.institution_id || '';
+      f.elements['exam_type'].value = r.exam_type || 'SSC';
+      f.elements['exam_year'].value = r.exam_year || '';
+      f.elements['education_board'].value = r.education_board || '';
+      f.elements['appeared_students'].value = r.appeared_students ?? '';
+      f.elements['passed_students'].value = r.passed_students ?? '';
+      f.elements['gpa5_students'].value = r.gpa5_students ?? 0;
+      f.elements['source_name'].value = r.source_name || '';
+      document.getElementById('resultSubmitBtn').textContent = 'আপডেট করুন';
+      document.getElementById('resultCancelBtn').style.display = '';
       f.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetResultForm() {
+      const f = document.getElementById('resultForm');
+      f.reset();
+      f.elements['id'].value = '';
+      document.getElementById('resultSubmitBtn').textContent = 'ফলাফল সেভ করুন';
+      document.getElementById('resultCancelBtn').style.display = 'none';
     }
 
     async function deleteResult(id) {
       if (!confirm('আপনি কি নিশ্চিতভাবে এই পরীক্ষার ফলাফলটি ডিলিট করতে চান?')) return;
       try {
         await api('/api/admin/results?id=' + id, { method: 'DELETE' });
-        initDashboard();
+        await loadResults();
       } catch (err) {
-        alert('ডিলিট করতে সমস্যা হয়েছে: ' + err.message);
+        alert('ডিলিট করতে সমস্যা হয়েছে: ' + err.message);
       }
     }
 
@@ -835,17 +851,29 @@
     }
 
     async function loadResults() {
-      const d = await api('/api/admin/results');
-      document.getElementById('tbl-results').innerHTML = d.results.map(r => `
-        <tr><td>${r.institution_name} (${r.eiin || ''})</td><td>${r.exam_type}</td><td>${r.exam_year}</td><td>${r.appeared_students}</td><td>${r.passed_students}</td><td>${r.gpa5_students}</td><td><strong>${r.pass_rate}%</strong></td><td>${r.gpa5_rate}%</td><td><button class="btn btn-sec" style="padding:3px 8px;font-size:12px" onclick='editResult(${JSON.stringify(r)})'>Edit</button> <button class="btn btn-danger" style="padding:3px 8px;font-size:12px" onclick="deleteResult(${r.id})">Delete</button></td></tr>
-      `).join('');
+      try {
+        const d = await api('/api/admin/results');
+        RESULTS_CACHE = d.results || [];
+        document.getElementById('tbl-results').innerHTML = RESULTS_CACHE.map(r => `
+          <tr><td>${r.institution_name} (${r.eiin || ''})</td><td>${r.exam_type}</td><td>${r.exam_year}</td><td>${r.appeared_students}</td><td>${r.passed_students}</td><td>${r.gpa5_students}</td><td><strong>${r.pass_rate}%</strong></td><td>${r.gpa5_rate}%</td><td><button class="btn btn-sec" style="padding:3px 8px;font-size:12px" onclick="editResult(${r.id})">Edit</button> <button class="btn btn-danger" style="padding:3px 8px;font-size:12px" onclick="deleteResult(${r.id})">Delete</button></td></tr>
+        `).join('');
+      } catch (err) {
+        alert('ফলাফল লোড করতে সমস্যা: ' + err.message);
+      }
     }
 
     async function saveResult(e) {
       e.preventDefault();
-      const res = await api('/api/admin/results', 'POST', Object.fromEntries(new FormData(e.target).entries()));
-      alert(`ফলাফল সেভ হয়েছে! পাসের হার: ${res.pass_rate}%, জিপিএ-৫ হার: ${res.gpa5_rate}%`);
-      loadResults();
+      try {
+        const payload = Object.fromEntries(new FormData(e.target).entries());
+        if (!payload.id) delete payload.id;
+        const res = await api('/api/admin/results', 'POST', payload);
+        alert(`ফলাফল সেভ হয়েছে! পাসের হার: ${res.pass_rate}%, জিপিএ-৫ হার: ${res.gpa5_rate}%`);
+        resetResultForm();
+        await loadResults();
+      } catch (err) {
+        alert('সেভ করতে সমস্যা হয়েছে: ' + err.message);
+      }
       return false;
     }
 
