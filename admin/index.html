@@ -42,6 +42,27 @@
   </style>
 </head>
 <body>
+  <!-- FULLSCREEN LOGIN GATE (Hides Dashboard until GitHub OAuth succeeds) -->
+  <div id="loginGate" style="position:fixed;inset:0;background:#0f172a;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px">
+    <div style="background:#ffffff;max-width:420px;width:100%;border-radius:12px;padding:30px 26px;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,.3)">
+      <div style="display:inline-block;background:#064e3b;color:#fff;font-weight:700;font-size:20px;padding:6px 14px;border-radius:8px;margin-bottom:12px">bdresult<span style="color:#34d399">.me</span></div>
+      <h1 style="margin:6px 0 8px;font-size:20px;color:#0f172a">অ্যাডমিন প্যানেল লগইন</h1>
+      <p id="loginGateMsg" style="color:#64748b;font-size:14px;margin:0 0 20px">ড্যাশবোর্ডে প্রবেশ করতে অনুমোদিত GitHub অ্যাকাউন্ট দিয়ে লগইন করুন।</p>
+      
+      <button class="btn" style="width:100%;padding:11px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="oauthLogin()">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Login with GitHub
+      </button>
+
+      <details style="margin-top:16px;text-align:left;font-size:13px;color:#475569">
+        <summary style="cursor:pointer;text-align:center">অথবা Personal Access Token ব্যবহার করুন</summary>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <input id="manualToken" type="password" placeholder="ghp_xxxxxxxxxxxx">
+          <button class="btn btn-sec" onclick="saveManualToken()">Login</button>
+        </div>
+      </details>
+    </div>
+  </div>
   <aside>
     <div class="brand"><span>bdresult<small>.me</small></span><span style="font-size:11px;background:#064e3b;padding:2px 7px;border-radius:4px">21 Modules</span></div>
     <div class="nav-grp">ডিরেক্টরি ও প্রতিষ্ঠান</div>
@@ -78,10 +99,8 @@
     <div class="topbar">
       <div><strong id="adminStatus">লগইন স্ট্যাটাস চেক করা হচ্ছে...</strong></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn" onclick="oauthLogin()">GitHub OAuth Login</button>
-        <input id="manualToken" type="password" placeholder="GitHub Token..." style="width:170px;padding:6px 8px">
-        <button class="btn btn-sec" onclick="saveManualToken()">Save</button>
         <a href="/institutions/" target="_blank" class="btn btn-sec">পাবলিক ডিরেক্টরি ↗</a>
+        <button class="btn btn-danger" onclick="logoutAdmin()">Logout</button>
       </div>
     </div>
 
@@ -528,13 +547,50 @@
 
     function openLegacyCms() {
       const win = window.open('', '_blank');
-      win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Decap CMS</title></head><body><script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"><\/script></body></html>');
+      win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Decap CMS</title></head><body>
+  <!-- FULLSCREEN LOGIN GATE (Hides Dashboard until GitHub OAuth succeeds) -->
+  <div id="loginGate" style="position:fixed;inset:0;background:#0f172a;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px">
+    <div style="background:#ffffff;max-width:420px;width:100%;border-radius:12px;padding:30px 26px;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,.3)">
+      <div style="display:inline-block;background:#064e3b;color:#fff;font-weight:700;font-size:20px;padding:6px 14px;border-radius:8px;margin-bottom:12px">bdresult<span style="color:#34d399">.me</span></div>
+      <h1 style="margin:6px 0 8px;font-size:20px;color:#0f172a">অ্যাডমিন প্যানেল লগইন</h1>
+      <p id="loginGateMsg" style="color:#64748b;font-size:14px;margin:0 0 20px">ড্যাশবোর্ডে প্রবেশ করতে অনুমোদিত GitHub অ্যাকাউন্ট দিয়ে লগইন করুন।</p>
+      
+      <button class="btn" style="width:100%;padding:11px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="oauthLogin()">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Login with GitHub
+      </button>
+
+      <details style="margin-top:16px;text-align:left;font-size:13px;color:#475569">
+        <summary style="cursor:pointer;text-align:center">অথবা Personal Access Token ব্যবহার করুন</summary>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <input id="manualToken" type="password" placeholder="ghp_xxxxxxxxxxxx">
+          <button class="btn btn-sec" onclick="saveManualToken()">Login</button>
+        </div>
+      </details>
+    </div>
+  </div><script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"><\/script></body></html>');
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem('bdr_admin_token');
+      localStorage.removeItem('netlify-cms-user');
+      localStorage.removeItem('decap-cms-user');
+      document.getElementById('loginGate').style.display = 'flex';
+      document.getElementById('loginGateMsg').textContent = 'সফলভাবে লগআউট হয়েছে।';
     }
 
     async function initDashboard() {
       const st = document.getElementById('adminStatus');
+      const gate = document.getElementById('loginGate');
+      const gateMsg = document.getElementById('loginGateMsg');
+      if (!getToken()) {
+        gate.style.display = 'flex';
+        return;
+      }
+      gateMsg.textContent = 'GitHub অ্যাকাউন্ট যাচাই করা হচ্ছে...';
       try {
         const d = await api('/api/admin/overview');
+        gate.style.display = 'none';
         st.textContent = `লগইনকৃত: ${d.admin.display_name} (@${d.admin.github_username} — ${d.admin.role})`;
         st.style.color = '#064e3b';
 
@@ -575,9 +631,10 @@
           if (s.setting_key === 'min_completeness_for_index') document.getElementById('set_min_score').value = s.setting_value;
           if (s.setting_key === 'ranking_methodology_bn') document.getElementById('set_method').value = s.setting_value;
         });
-      } catch {
-        st.textContent = 'লগইন প্রয়োজন: উপরের GitHub OAuth Login বাটনে ক্লিক করুন।';
-        st.style.color = '#b91c1c';
+      } catch (err) {
+        gate.style.display = 'flex';
+        gateMsg.style.color = '#b91c1c';
+        gateMsg.textContent = 'অ্যাক্সেস প্রত্যাখ্যাত: আপনার GitHub অ্যাকাউন্টটি অ্যাডমিন হিসেবে অনুমোদিত নয় অথবা সেশন মেয়াদোত্তীর্ণ হয়েছে।';
       }
     }
 
@@ -933,3 +990,4 @@
   </script>
 </body>
 </html>
+
