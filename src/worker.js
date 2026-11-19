@@ -476,10 +476,14 @@ async function handleResultsComparisonPage(req, env) {
       ]);
 
       const years = Array.from(new Set([...(resA.results || []).map(r => r.exam_year), ...(resB.results || []).map(r => r.exam_year)])).sort((a, b) => b - a);
+      const mismatchWarn = (instA.institution_type_id !== instB.institution_type_id)
+        ? `<div style="background:#fef9c3;border:1px solid #fde047;color:#854d0e;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:14px"><strong>⚠ অসম প্রতিষ্ঠানের তুলনা:</strong> আপনি দুটি ভিন্ন স্তরের প্রতিষ্ঠানের মধ্যে তুলনা করছেন। স্বচ্ছ ও সঠিক মূল্যায়নের জন্য সমপর্যায়ের প্রতিষ্ঠান (যেমন: স্কুলের সাথে স্কুল অথবা কলেজের সাথে কলেজ) নির্বাচন করুন।</div>`
+        : '';
 
       compareHtml = `
         <section class="prof-sec">
           <h2>তুলনামূলক ফলাফল বিশ্লেষণ (${esc(examType)}): ${esc(instA.name_bn)} বনাম ${esc(instB.name_bn)}</h2>
+          ${mismatchWarn}
           <div class="tbl-wrap">
             <table class="data-tbl">
               <thead>
@@ -498,8 +502,8 @@ async function handleResultsComparisonPage(req, env) {
                   return `
                     <tr>
                       <th>${esc(examType)} ${yr} ফলাফল</th>
-                      <td>${ra ? `পরীক্ষার্থী: ${ra.appeared_students} | পাস: ${ra.passed_students} (<strong>${ra.pass_rate}%</strong>) | জিপিএ-৫: <strong>${ra.gpa5_students}</strong> (${ra.gpa5_rate}%)` : 'তথ্য নেই'}</td>
-                      <td>${rb ? `পরীক্ষার্থী: ${rb.appeared_students} | পাস: ${rb.passed_students} (<strong>${rb.pass_rate}%</strong>) | জিপিএ-৫: <strong>${rb.gpa5_students}</strong> (${rb.gpa5_rate}%)` : 'তথ্য নেই'}</td>
+                      <td>${ra ? `পরীক্ষার্থী: ${ra.appeared_students} | পাস: ${ra.passed_students} (<strong>${ra.pass_rate}%</strong>) | জিপিএ-৫: <strong>${ra.gpa5_students}</strong> (${ra.gpa5_rate}%)` : 'এই পরীক্ষায় অংশগ্রহণ নেই / তথ্য অপ্রাপ্য'}</td>
+                      <td>${rb ? `পরীক্ষার্থী: ${rb.appeared_students} | পাস: ${rb.passed_students} (<strong>${rb.pass_rate}%</strong>) | জিপিএ-৫: <strong>${rb.gpa5_students}</strong> (${rb.gpa5_rate}%)` : 'এই পরীক্ষায় অংশগ্রহণ নেই / তথ্য অপ্রাপ্য'}</td>
                     </tr>
                   `;
                 }).join('')}
@@ -542,7 +546,7 @@ async function handleResultsComparisonPage(req, env) {
     ${compareHtml}
 
     <section class="prof-sec">
-      <h2>বোর্ড ও বছর ভিত্তিক যাচাইকৃত ফলাফল সংক্ষিপ্তসার</h2>
+      <h2>সমগ্র ডাটাবেসের বোর্ড ও বছর ভিত্তিক সামগ্রিক পরিসংখ্যান</h2>
       <div class="tbl-wrap">
         <table class="data-tbl">
           <thead><tr><th>পরীক্ষা</th><th>সাল</th><th>শিক্ষা বোর্ড</th><th>অন্তর্ভুক্ত প্রতিষ্ঠান</th><th>মোট পরীক্ষার্থী</th><th>উত্তীর্ণ</th><th>জিপিএ-৫</th><th>গড় পাসের হার</th><th>জিপিএ-৫ হার</th></tr></thead>
@@ -1768,3 +1772,4 @@ export default {
     }
   }
 };
+
