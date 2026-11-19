@@ -282,7 +282,7 @@
         </div>
         <div class="panel">
           <h2>সংরক্ষিত ফলাফল তালিকা</h2>
-          <table><thead><tr><th>প্রতিষ্ঠান</th><th>পরীক্ষা</th><th>সাল</th><th>অংশগ্রহণ</th><th>পাস</th><th>জিপিএ-৫</th><th>পাসের হার</th><th>জিপিএ-৫ হার</th></tr></thead><tbody id="tbl-results"></tbody></table>
+          <table><thead><tr><th>প্রতিষ্ঠান</th><th>পরীক্ষা</th><th>সাল</th><th>অংশগ্রহণ</th><th>পাস</th><th>জিপিএ-৫</th><th>পাসের হার</th><th>জিপিএ-৫ হার</th><th>অ্যাকশন</th></tr></thead><tbody id="tbl-results"></tbody></table>
         </div>
       </section>
 
@@ -586,6 +586,31 @@
       document.getElementById('loginGateMsg').textContent = 'সফলভাবে লগআউট হয়েছে।';
     }
 
+        function editResult(r) {
+      const f = document.getElementById('resultForm');
+      if (!f) return;
+      f.institution_id.value = r.institution_id || '';
+      f.exam_type.value = r.exam_type || 'SSC';
+      f.exam_year.value = r.exam_year || '';
+      if (f.education_board) f.education_board.value = r.education_board || '';
+      if (f.board) f.board.value = r.education_board || '';
+      f.appeared_students.value = r.appeared_students ?? '';
+      f.passed_students.value = r.passed_students ?? '';
+      f.gpa5_students.value = r.gpa5_students ?? 0;
+      if (f.source_name) f.source_name.value = r.source_name || '';
+      f.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function deleteResult(id) {
+      if (!confirm('আপনি কি নিশ্চিতভাবে এই পরীক্ষার ফলাফলটি ডিলিট করতে চান?')) return;
+      try {
+        await api('/api/admin/results?id=' + id, { method: 'DELETE' });
+        initDashboard();
+      } catch (err) {
+        alert('ডিলিট করতে সমস্যা হয়েছে: ' + err.message);
+      }
+    }
+
     async function initDashboard() {
       const st = document.getElementById('adminStatus');
       const gate = document.getElementById('loginGate');
@@ -812,7 +837,7 @@
     async function loadResults() {
       const d = await api('/api/admin/results');
       document.getElementById('tbl-results').innerHTML = d.results.map(r => `
-        <tr><td>${r.institution_name} (${r.eiin || ''})</td><td>${r.exam_type}</td><td>${r.exam_year}</td><td>${r.appeared_students}</td><td>${r.passed_students}</td><td>${r.gpa5_students}</td><td><strong>${r.pass_rate}%</strong></td><td>${r.gpa5_rate}%</td></tr>
+        <tr><td>${r.institution_name} (${r.eiin || ''})</td><td>${r.exam_type}</td><td>${r.exam_year}</td><td>${r.appeared_students}</td><td>${r.passed_students}</td><td>${r.gpa5_students}</td><td><strong>${r.pass_rate}%</strong></td><td>${r.gpa5_rate}%</td><td><button class="btn btn-sec" style="padding:3px 8px;font-size:12px" onclick='editResult(${JSON.stringify(r)})'>Edit</button> <button class="btn btn-danger" style="padding:3px 8px;font-size:12px" onclick="deleteResult(${r.id})">Delete</button></td></tr>
       `).join('');
     }
 

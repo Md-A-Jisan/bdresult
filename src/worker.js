@@ -1331,6 +1331,14 @@ async function handleAdminApi(req, env, path) {
     return jsonResponse({ results: rows.results || [] });
   }
 
+  if (path === '/api/admin/results' && req.method === 'DELETE') {
+    const id = new URL(req.url).searchParams.get('id');
+    if (!id) return jsonResponse({ error: 'Result ID required' }, 400);
+    await env.DB.prepare(`DELETE FROM institution_results WHERE id = ?`).bind(id).run();
+    await logAudit(env, admin.id, 'DELETE_RESULT', 'institution_results', id, {}, ip);
+    return jsonResponse({ ok: true });
+  }
+
   if (path === '/api/admin/results' && req.method === 'POST') {
     const b = await req.json();
     const appeared = parseInt(b.appeared_students, 10) || 0;
@@ -1775,6 +1783,7 @@ export default {
     }
   }
 };
+
 
 
 
