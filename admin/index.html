@@ -731,7 +731,26 @@
       f.division_id.value = i.division_id; filterDistrictsByDivision(i.district_id); filterUpazilasByDistrict(i.upazila_id);
       f.established_year.value = i.established_year || '';
       f.management_type.value = i.management_type || 'unknown'; f.gender_type.value = i.gender_type || 'co-education'; try { const sr = await api('/api/admin/institution-sources?id=' + i.id); const box = document.getElementById('sourcesContainer'); box.innerHTML = ''; if (sr.sources && sr.sources.length) { sr.sources.forEach(s => addSourceRow(s.source_name, s.source_url || '', s.covered_fields || '')); } else { addSourceRow(); } } catch {}
-            f.education_board.value = i.education_board || '';
+                  const toComma = (val) => {
+        if (!val) return '';
+        if (Array.isArray(val)) return val.join(', ');
+        try { const arr = JSON.parse(val); return Array.isArray(arr) ? arr.join(', ') : String(val); } catch { return String(val); }
+      };
+      const setVal = (name, val) => { const el = f.querySelector(`[name="${name}"]`); if (el) el.value = val ?? ''; };
+      setVal('education_board', i.education_board);
+      setVal('education_levels', toComma(i.education_levels_json || i.education_levels));
+      setVal('groups_streams', toComma(i.groups_streams_json || i.groups_streams));
+      setVal('programs_courses', toComma(i.programs_courses_json || i.programs_courses));
+      setVal('facilities', toComma(i.facilities_json || i.facilities));
+      setVal('established_year', i.established_year);
+      setVal('address_bn', i.address_bn);
+      setVal('post_code', i.post_code);
+      setVal('latitude', i.latitude);
+      setVal('longitude', i.longitude);
+      setVal('official_website', i.official_website);
+      setVal('overview_text', i.overview_text);
+      setVal('admission_info', i.admission_info);
+      setVal('history_text', i.history_text);
       if (f.education_levels) f.education_levels.value = jsonArrToComma(i.education_levels_json || i.education_levels);
       if (f.groups_streams) f.groups_streams.value = jsonArrToComma(i.groups_streams_json || i.groups_streams);
       if (f.programs_courses) f.programs_courses.value = jsonArrToComma(i.programs_courses_json || i.programs_courses);
@@ -1038,6 +1057,7 @@
   </script>
 </body>
 </html>
+
 
 
 
