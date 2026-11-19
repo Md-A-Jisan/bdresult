@@ -544,22 +544,6 @@ async function handleResultsComparisonPage(req, env) {
     </form>
 
     ${compareHtml}
-
-    <section class="prof-sec">
-      <h2>সমগ্র ডাটাবেসের বোর্ড ও বছর ভিত্তিক সামগ্রিক পরিসংখ্যান</h2>
-      <div class="tbl-wrap">
-        <table class="data-tbl">
-          <thead><tr><th>পরীক্ষা</th><th>সাল</th><th>শিক্ষা বোর্ড</th><th>অন্তর্ভুক্ত প্রতিষ্ঠান</th><th>মোট পরীক্ষার্থী</th><th>উত্তীর্ণ</th><th>জিপিএ-৫</th><th>গড় পাসের হার</th><th>জিপিএ-৫ হার</th></tr></thead>
-          <tbody>
-            ${(boardSummaryRes.results || []).map(b => {
-              const pr = b.appeared > 0 ? ((b.passed / b.appeared) * 100).toFixed(2) : '0.00';
-              const gr = b.appeared > 0 ? ((b.gpa5 / b.appeared) * 100).toFixed(2) : '0.00';
-              return `<tr><td><strong>${esc(b.exam_type)}</strong></td><td>${esc(b.exam_year)}</td><td>${esc(b.education_board)}</td><td>${b.inst_count}</td><td>${b.appeared}</td><td>${b.passed}</td><td><strong>${b.gpa5}</strong></td><td><strong>${pr}%</strong></td><td>${gr}%</td></tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    </section>
   `;
 
   return new Response(renderPublicLayout({
@@ -1772,4 +1756,5 @@ export default {
     }
   }
 };
+
 
