@@ -194,8 +194,17 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     .prof-hdr{background:linear-gradient(180deg,#fff 0%,#f0fdf4 100%);border:2px solid var(--g);border-left-width:8px;border-radius:16px;padding:20px;margin-bottom:30px;box-shadow:0 6px 0 var(--g),0 16px 30px -10px rgba(6,78,59,.45)}
     .prof-hdr h1{margin:6px 0 4px;font-size:25px;color:var(--g);line-height:1.4}
     .prof-sub{color:#475569;font-size:16px;margin:0 0 12px}
-    .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0}
-    .q-stat{background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #e2e8f0}
+    .prof-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:2px}
+    .vbadge{display:inline-block;width:.78em;height:.78em;margin-left:.3em;vertical-align:-.04em;flex:none}
+    .nw{white-space:nowrap}
+    .prof-actions{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+    .act{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1.5px solid var(--g);border-radius:999px;font-size:13.5px;font-weight:600;color:var(--g);background:#fff;line-height:1.2}
+    .act:hover{background:var(--l)}
+    .act.pri,.act.pri:hover{background:var(--g);color:#fff}
+    .prof-latest{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;margin-top:12px;padding:9px 13px;background:var(--l);border:1px solid #a7f3d0;border-radius:10px;font-size:14px;color:#064e3b}
+    .prof-latest span{color:#047857;font-size:13px}
+    .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid #e2e8f0}
+    .q-stat{background:#fff;padding:7px 11px;border-radius:8px;border:1px solid #e2e8f0}
     .q-stat small{display:block;color:#64748b;font-size:12px}
     .q-stat strong{font-size:15px;color:#0f172a}
     .toc-nav{display:flex;gap:8px;overflow-x:auto;padding:8px 0;margin-bottom:18px;border-bottom:1px solid #e2e8f0;white-space:nowrap;-webkit-overflow-scrolling:touch}
@@ -218,8 +227,15 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     .pag a,.pag span{padding:6px 13px;border:1px solid #cbd5e1;border-radius:6px;font-size:14px}
     .pag .cur{background:var(--g);color:#fff;border-color:var(--g)}
     @media(max-width:600px){
-      .prof-hdr{padding:14px}
-      .prof-hdr h1{font-size:21px}
+      .prof-hdr{padding:14px;border-left-width:4px}
+      .prof-hdr h1{font-size:21px;margin:8px 0 2px}
+      .prof-sub{font-size:14px;margin-bottom:10px}
+      .quick-grid{grid-template-columns:1fr 1fr;gap:8px}
+      .q-stat.wide{grid-column:1/-1}
+      .q-stat strong{font-size:14px;line-height:1.5}
+      .prof-actions{gap:6px}
+      .act{padding:6px 10px;font-size:12.5px;gap:5px}
+      .act svg{width:14px;height:14px}
       .prof-sec{padding:0 14px 16px;box-shadow:0 4px 0 var(--g),0 12px 22px -10px rgba(6,78,59,.45)}.prof-sec>h2{margin:0 -14px 14px;padding:12px 14px;font-size:17px}.prof-hdr{padding:14px}
       .inst-item{padding:12px}
       .data-tbl{font-size:13px}
@@ -421,7 +437,6 @@ async function handlePublicDirectory(req, env, routeContext) {
   `).join('') : `<div class="box"><p>এই ফিল্টারে কোনো যাচাইকৃত শিক্ষাপ্রতিষ্ঠান পাওয়া যায়নি। অন্য নাম বা EIIN দিয়ে চেষ্টা করুন।</p></div>`;
 
   const body = `
-    <nav class="bc"><a href="/">হোম</a> › <a href="/institutions/">শিক্ষাপ্রতিষ্ঠান</a> › <span>${esc(pageHeading)}</span></nav>
     <h1>${esc(pageHeading)}</h1>
     <p>${esc(pageDesc)}</p>
 
@@ -564,7 +579,6 @@ async function handleResultsComparisonPage(req, env) {
   const instOptions = (allInstRes.results || []).map(i => `<option value="${esc(i.slug)}">${esc(i.name_bn)} (${esc(i.eiin || 'No EIIN')})</option>`).join('');
 
   const body = `
-    <nav class="bc"><a href="/">হোম</a> › <span>ফলাফল পরিসংখ্যান ও প্রতিষ্ঠান তুলনা</span></nav>
     <h1>স্বচ্ছ বোর্ড ফলাফল পরিসংখ্যান ও শিক্ষাপ্রতিষ্ঠান তুলনা</h1>
     <div class="src-box" style="margin-bottom:20px">
       <strong>স্বচ্ছ তুলনা ও মূল্যায়ন পদ্ধতি (Ranking & Comparison Methodology):</strong>
@@ -688,36 +702,50 @@ async function handleInstitutionProfile(req, env, slug) {
   ];
 
   const body = `
-    <nav class="bc">
-      <a href="/">হোম</a> ›
-      <a href="/institutions/${esc(inst.type_slug)}/">${esc(inst.type_bn)}</a> ›
-      <a href="/districts/${esc(inst.district_slug)}/">${esc(inst.district_bn)}</a> ›
-      <span>${esc(inst.name_bn)}</span>
-    </nav>
 
     <!-- A. HEADER SECTION -->
+    ${(() => {
+      const isVerified = inst.verification_status === 'verified';
+      const vIcon = isVerified ? `<svg class="vbadge" viewBox="0 0 24 24" role="img" aria-label="যাচাইকৃত প্রতিষ্ঠান"><title>অফিশিয়াল সোর্স দ্বারা যাচাইকৃত</title><g fill="#1d9bf0"><circle cx="12" cy="12" r="8.4"/><rect x="4.6" y="4.6" width="14.8" height="14.8" rx="3.4"/><rect x="4.6" y="4.6" width="14.8" height="14.8" rx="3.4" transform="rotate(45 12 12)"/></g><path d="M7.9 12.3l2.7 2.7 5.6-5.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : '';
+      const words = String(inst.name_bn || '').trim().split(/\s+/);
+      const lastWord = words.pop();
+      const h1Html = (words.length ? esc(words.join(' ')) + ' ' : '') + `<span class="nw">${esc(lastWord)}${vIcon}</span>`;
+      const phone = contacts.find(c => c.contact_type === 'phone' || c.contact_type === 'hotline');
+      const ic = {
+        call: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+        web: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>',
+        map: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        cmp: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l4 4-4 4M3 7h18M7 21l-4-4 4-4M21 17H3"/></svg>'
+      };
+      const latestYear = results.length ? results[0].exam_year : null;
+      const latest = latestYear ? results.filter(r => r.exam_year === latestYear).slice(0, 2) : [];
+      return `
     <section class="prof-hdr">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <span class="tag">${esc(inst.type_bn)}</span>
-          ${inst.eiin ? `<span class="badge badge-eiin">EIIN: ${esc(inst.eiin)}</span>` : `<span class="badge badge-eiin">ID: ${esc(inst.internal_code)}</span>`}
-          ${inst.verification_status === 'verified'
-            ? `<span class="badge badge-verified">✓ অফিশিয়াল সোর্স দ্বারা যাচাইকৃত</span>`
-            : `<span class="badge badge-unverified">তথ্য যাচাই প্রক্রিয়াধীন</span>`}
-        </div>
-        <a href="/results/compare/?a=${esc(inst.slug)}" style="font-size:13px;font-weight:600;padding:4px 10px;border:1px solid var(--g);border-radius:6px">⇄ অন্য প্রতিষ্ঠানের সাথে তুলনা করুন</a>
+      <div class="prof-top">
+        <span class="tag">${esc(inst.type_bn)}</span>
+        ${isVerified ? '' : `<span class="badge badge-unverified">তথ্য যাচাই প্রক্রিয়াধীন</span>`}
       </div>
-      <h1>${esc(inst.name_bn)}</h1>
+      <h1>${h1Html}</h1>
       <p class="prof-sub">${esc(inst.name_en)} — ${esc(inst.upazila_bn)}, ${esc(inst.district_bn)}</p>
 
-      <div class="quick-grid">
-        <div class="q-stat"><small>EIIN নম্বর</small><strong>${esc(inst.eiin || 'প্রযোজ্য নয় / অপ্রাপ্য')}</strong></div>
-        <div class="q-stat"><small>প্রতিষ্ঠার সাল</small><strong>${esc(inst.established_year || 'তথ্য যাচাইকৃত নয়')}</strong></div>
-        <div class="q-stat"><small>ব্যবস্থাপনা</small><strong>${esc(mgmtMap[inst.management_type] || 'অজানা')}</strong></div>
-        <div class="q-stat"><small>শিক্ষা বোর্ড</small><strong>${esc(inst.education_board || 'প্রযোজ্য নয়')}</strong></div>
-        <div class="q-stat"><small>অবস্থান</small><strong><a href="/upazilas/${esc(inst.upazila_slug)}/">${esc(inst.upazila_bn)}</a>, <a href="/districts/${esc(inst.district_slug)}/">${esc(inst.district_bn)}</a></strong></div>
+      <div class="prof-actions">
+        ${phone ? `<a class="act pri" href="tel:${esc(String(phone.contact_value).replace(/[^+\d]/g, ''))}">${ic.call}কল</a>` : ''}
+        ${inst.official_website ? `<a class="act" href="${esc(formatExternalUrl(inst.official_website))}" target="_blank" rel="noopener nofollow">${ic.web}ওয়েবসাইট</a>` : ''}
+        ${(inst.latitude && inst.longitude) ? `<a class="act" href="https://www.google.com/maps?q=${encodeURIComponent(inst.latitude + ',' + inst.longitude)}" target="_blank" rel="noopener">${ic.map}ম্যাপ</a>` : ''}
+        <a class="act" href="/results/compare/?a=${esc(inst.slug)}">${ic.cmp}তুলনা</a>
       </div>
-    </section>
+
+      ${latest.length ? `<a class="prof-latest" href="#results"><span>সর্বশেষ ফলাফল</span>${latest.map(r => `<strong>${esc(r.exam_type)} ${esc(r.exam_year)}: পাস ${esc(r.pass_rate)}%</strong>`).join('')}</a>` : ''}
+
+      <div class="quick-grid">
+        <div class="q-stat"><small>EIIN নম্বর</small><strong>${esc(inst.eiin || 'প্রযোজ্য নয়')}</strong></div>
+        <div class="q-stat"><small>প্রতিষ্ঠার সাল</small><strong>${esc(inst.established_year || 'যাচাইকৃত নয়')}</strong></div>
+        <div class="q-stat"><small>ব্যবস্থাপনা</small><strong title="${esc(mgmtMap[inst.management_type] || '')}">${esc(String(mgmtMap[inst.management_type] || 'অজানা').replace(/\s*\([^)]*\)/g, ''))}</strong></div>
+        <div class="q-stat"><small>শিক্ষা বোর্ড</small><strong>${esc(inst.education_board || 'প্রযোজ্য নয়')}</strong></div>
+        <div class="q-stat wide"><small>অবস্থান</small><strong><a href="/upazilas/${esc(inst.upazila_slug)}/">${esc(inst.upazila_bn)}</a>, <a href="/districts/${esc(inst.district_slug)}/">${esc(inst.district_bn)}</a></strong></div>
+      </div>
+    </section>`;
+    })()}
 
     <nav class="toc-nav" aria-label="প্রোফাইল সেকশন নেভিগেশন">
       <a href="#overview">পরিচিতি</a>
@@ -1049,7 +1077,6 @@ async function handleDynamicDatabasePost(env, slug) {
   ];
 
   const body = `
-    <nav class="bc"><a href="/">হোম</a> › <span>${esc(post.title_bn)}</span></nav>
     <div class="grid">
       <article class="post">
         <h1>${esc(post.title_bn)}</h1>
