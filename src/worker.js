@@ -37,6 +37,44 @@ function sanitizeHtml(raw) {
     .replace(/javascript:/gi, '');
 }
 
+// Plain text -> safe HTML (keeps line breaks, "- " / "• " bullets, numbered lines, blank-line paragraphs)
+function formatText(raw) {
+  const text = String(raw || '').replace(/\r\n?/g, '\n').trim();
+  if (!text) return '';
+  const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  const bulletRe = /^\s*(?:[-*•–]|\u2022)\s+(.*)$/;
+  const numRe = /^\s*(?:\d+|[০-৯]+)[.)।]\s+(.*)$/;
+  const out = [];
+  let para = [], list = null;
+  const flushPara = () => { if (para.length) { out.push('<p>' + para.map(inline).join('<br>') + '</p>'); para = []; } };
+  const flushList = () => { if (list) { out.push('<' + list.tag + '>' + list.items.map(i => '<li>' + inline(i) + '</li>').join('') + '</' + list.tag + '>'); list = null; } };
+  for (const line of text.split('\n')) {
+    if (!line.trim()) { flushPara(); flushList(); continue; }
+    let m;
+    if ((m = line.match(bulletRe))) { flushPara(); if (!list || list.tag !== 'ul') { flushList(); list = { tag: 'ul', items: [] }; } list.items.push(m[1]); }
+    else if ((m = line.match(numRe))) { flushPara(); if (!list || list.tag !== 'ol') { flushList(); list = { tag: 'ol', items: [] }; } list.items.push(m[1]); }
+    else { flushList(); para.push(line.trim()); }
+  }
+  flushPara(); flushList();
+  return out.join('');
+}
+
+// Post body: real HTML stays HTML (sanitized); plain text / markdown-lite is converted
+function renderPostBody(raw) {
+  const src = String(raw || '');
+  if (/<(p|div|h[1-6]|ul|ol|li|br|table|img|blockquote)[\s>\/]/i.test(src)) return sanitizeHtml(src);
+  const text = src.replace(/\r\n?/g, '\n').trim();
+  const blocks = text.split(/\n{2,}/).map(blk => {
+    const lines = blk.split('\n');
+    if (lines.length === 1) {
+      const h = lines[0].match(/^(#{1,4})\s+(.*)$/);
+      if (h) { const lv = Math.min(h[1].length + 1, 5); return `<h${lv}>${esc(h[2])}</h${lv}>`; }
+    }
+    return formatText(blk).replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" rel="noopener">$1</a>');
+  });
+  return blocks.join('');
+}
+
 const jsonResponse = (data, status = 200, extraHeaders = {}) => new Response(JSON.stringify(data), {
   status,
   headers: {
@@ -716,7 +754,7 @@ async function handleInstitutionProfile(req, env, slug) {
         <section id="admission" class="prof-sec">
           <h2>ভর্তি সংক্রান্ত তথ্য (Admission Information)</h2>
           ${inst.admission_info_bn
-            ? `<p>${esc(inst.admission_info_bn)}</p>`
+            ? formatText(inst.admission_info_bn)
             : `<p>এই প্রতিষ্ঠানের সুনির্দিষ্ট ভর্তি বিজ্ঞপ্তি এখনো ডাটাবেসে যুক্ত হয়নি। সাধারণত শিক্ষা মন্ত্রণালয় ও সংশ্লিষ্ট শিক্ষা বোর্ডের কেন্দ্রীয় নীতিমালা অনুযায়ী ভর্তি কার্যক্রম পরিচালিত হয়।</p>`}
           ${inst.official_admission_url ? `<p><a href="${esc(formatExternalUrl(inst.official_admission_url))}" target="_blank" rel="noopener noreferrer">অফিশিয়াল ভর্তি পোর্টাল দেখুন ↗</a></p>` : ''}
         </section>
@@ -763,7 +801,7 @@ async function handleInstitutionProfile(req, env, slug) {
                 <tr><th>জেলা</th><td><a href="/districts/${esc(inst.district_slug)}/">${esc(inst.district_bn)}</a> (${esc(inst.division_bn)} বিভাগ)</td></tr>
                 ${inst.postal_code ? `<tr><th>পোস্ট কোড</th><td>${esc(inst.postal_code)}</td></tr>` : ''}
                 ${inst.official_website ? `<tr><th>অফিশিয়াল ওয়েবসাইট</th><td><a href="${esc(formatExternalUrl(inst.official_website))}" target="_blank" rel="noopener nofollow">${esc(inst.official_website)}</a></td></tr>` : ''}
-                ${contacts.map(c => `<tr><th>${esc(c.label_bn || c.contact_type)}</th><td>${esc(c.contact_value)}</td></tr>`).join('')}
+                ${contacts.map(c => { const v = esc(c.contact_value); const link = c.contact_type === 'email' ? `<a href="mailto:${v}">${v}</a>` : (c.contact_type === 'phone' || c.contact_type === 'hotline') ? `<a href="tel:${esc(String(c.contact_value).replace(/[^+\d]/g, ''))}">${v}</a>` : v; return `<tr><th>${esc(c.label_bn || c.contact_type)}</th><td>${link}</td></tr>`; }).join('')}
               </tbody>
             </table>
           </div>
@@ -776,7 +814,7 @@ async function handleInstitutionProfile(req, env, slug) {
         ${inst.history_bn ? `
           <section id="history" class="prof-sec">
             <h2>প্রতিষ্ঠানের ইতিহাস (Institution History)</h2>
-            <p>${esc(inst.history_bn)}</p>
+            ${formatText(inst.history_bn)}
           </section>
         ` : ''}
 
@@ -1014,7 +1052,7 @@ async function handleDynamicDatabasePost(env, slug) {
         <h1>${esc(post.title_bn)}</h1>
         <p class="meta">প্রকাশিত: ${esc((post.published_at || post.created_at || '').slice(0, 10))} · লেখক: ${esc(post.author_name || 'bdresult ডেস্ক')}</p>
         ${post.featured_image ? `<img src="${esc(post.featured_image)}" alt="${esc(post.featured_image_alt || post.title_bn)}" width="800" height="450">` : ''}
-        <div>${sanitizeHtml(post.content_html || post.content_markdown)}</div>
+        <div>${renderPostBody(post.content_html || post.content_markdown)}</div>
         ${(relRes.results || []).length ? `
           <h2>আরও পড়ুন</h2>
           <ul>${relRes.results.map(r => `<li><a href="/${esc(r.slug)}/">${esc(r.title_bn)}</a></li>`).join('')}</ul>
@@ -1077,6 +1115,19 @@ async function handleInstitutionSitemap(env) {
 // ============================================================================
 // ADMIN API HANDLER (/api/admin/*) - ALL 21 MODULES
 // ============================================================================
+// Optional phone + email (both optional; empty value removes the contact)
+async function saveInstitutionContacts(env, instId, b) {
+  if (b.contact_phone === undefined && b.contact_email === undefined) return;
+  const items = [['phone', 'ফোন', b.contact_phone], ['email', 'ইমেইল', b.contact_email]];
+  for (const [type, label, raw] of items) {
+    const val = String(raw || '').trim();
+    await env.DB.prepare(`DELETE FROM institution_contacts WHERE institution_id = ? AND contact_type = ?`).bind(instId, type).run();
+    if (val) {
+      await env.DB.prepare(`INSERT INTO institution_contacts (institution_id, contact_type, contact_value, label_bn, is_primary) VALUES (?, ?, ?, ?, 1)`).bind(instId, type, val, label).run();
+    }
+  }
+}
+
 async function handleAdminApi(req, env, path) {
   const admin = await authenticateAdmin(req, env);
   if (!admin) {
@@ -1135,6 +1186,16 @@ async function handleAdminApi(req, env, path) {
   }
 
   // MODULE 2 & 3 & 14: Institution Management, Add/Edit & Bulk Verification Actions
+  if (path === '/api/admin/institution-contacts' && req.method === 'GET') {
+    const iid = new URL(req.url).searchParams.get('id');
+    const c = await env.DB.prepare(`SELECT contact_type, contact_value FROM institution_contacts WHERE institution_id = ? AND contact_type IN ('phone','email') ORDER BY is_primary DESC, id ASC`).bind(iid).all();
+    const rows = c.results || [];
+    return jsonResponse({
+      phone: (rows.find(r => r.contact_type === 'phone') || {}).contact_value || '',
+      email: (rows.find(r => r.contact_type === 'email') || {}).contact_value || ''
+    });
+  }
+
   if (path === '/api/admin/institution-sources' && req.method === 'GET') { const iid = new URL(req.url).searchParams.get('id'); const s = await env.DB.prepare('SELECT * FROM institution_sources WHERE institution_id = ?').bind(iid).all(); return jsonResponse({ sources: s.results || [] }); }
   if (path === '/api/admin/institutions' && req.method === 'GET') {
     const url = new URL(req.url);
@@ -1248,6 +1309,7 @@ async function handleAdminApi(req, env, path) {
           }
         }
       }
+      await saveInstitutionContacts(env, b.id, b);
       await logAudit(env, admin.id, 'UPDATE_INSTITUTION', 'institutions', b.id, { slug, eiin }, ip);
       return jsonResponse({ ok: true, id: b.id, slug });
     } else {
@@ -1290,6 +1352,7 @@ async function handleAdminApi(req, env, path) {
         `INSERT INTO verification_logs (institution_id, admin_user_id, previous_status, new_status, verified_fields_summary, source_reference) VALUES (?, ?, 'new', ?, 'প্রাথমিক প্রোফাইল তৈরি', ?)`
       ).bind(newId, admin.id, b.verification_status || 'unverified', b.source_name || 'Admin').run();
 
+      await saveInstitutionContacts(env, newId, b);
       await logAudit(env, admin.id, 'CREATE_INSTITUTION', 'institutions', newId, { slug, eiin }, ip);
       return jsonResponse({ ok: true, id: newId, slug });
     }
@@ -1505,7 +1568,7 @@ async function handleAdminApi(req, env, path) {
         updated_at = datetime('now')
     `).bind(
       slug, b.post_type || 'education_guide', b.title_bn, b.excerpt_bn || '',
-      b.content_markdown || '', sanitizeHtml(b.content_html || b.content_markdown || ''),
+      b.content_markdown || '', renderPostBody(b.content_html || b.content_markdown || ''),
       b.featured_image || null, b.featured_image_alt || b.title_bn,
       b.category_id ? parseInt(b.category_id, 10) : null,
       b.institution_id ? parseInt(b.institution_id, 10) : null,
@@ -1817,8 +1880,3 @@ export default {
     }
   }
 };
-
-
-
-
-

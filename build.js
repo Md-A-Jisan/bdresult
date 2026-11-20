@@ -1,4 +1,4 @@
-const fs=require('fs'),path=require('path'),matter=require('gray-matter'),{marked}=require('marked');
+const fs=require('fs'),path=require('path'),matter=require('gray-matter'),{marked}=require('marked');marked.use({gfm:true,breaks:true});
 const S=JSON.parse(fs.readFileSync('content/settings.json','utf8')),U=S.url.replace(/\/$/,''),D='dist',A=S.ads||{};
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=d=>d.toLocaleDateString('bn-BD',{year:'numeric',month:'long',day:'numeric'});

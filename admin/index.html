@@ -175,6 +175,8 @@
               <div><label>Latitude</label><input type="number" step="any" name="latitude"></div>
               <div><label>Longitude</label><input type="number" step="any" name="longitude"></div>
               <div><label>অফিশিয়াল ওয়েবসাইট</label><input name="official_website"></div>
+              <div><label>ফোন নম্বর (ঐচ্ছিক)</label><input name="contact_phone" type="tel" placeholder="01XXXXXXXXX"></div>
+              <div><label>ইমেইল (ঐচ্ছিক)</label><input name="contact_email" type="email" placeholder="info@example.edu.bd"></div>
             </div>
             <div style="margin-top:12px;padding:12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -193,9 +195,9 @@
               <div><label>ভেরিফিকেশন স্ট্যাটাস</label><select name="verification_status"><option value="verified">Verified</option><option value="pending_review">Pending Review</option><option value="unverified">Unverified</option></select></div>
               <div><label>পাবলিশ স্ট্যাটাস</label><select name="is_published"><option value="1">Published</option><option value="0">Draft (Noindex)</option></select></div>
             </div>
-            <div style="margin-top:10px"><label>পরিচিতি (Overview)</label><textarea name="overview_bn" rows="2"></textarea></div>
-            <div style="margin-top:10px"><label>ভর্তি তথ্য (Admission Info)</label><textarea name="admission_info_bn" rows="2"></textarea></div>
-            <div style="margin-top:10px"><label>ইতিহাস (History)</label><textarea name="history_bn" rows="2"></textarea></div>
+            <div style="margin-top:10px"><label>পরিচিতি (Overview)</label><textarea name="overview_bn" rows="4" placeholder="প্রতি লাইনে একটি পয়েন্ট লিখতে &quot;- &quot; দিয়ে শুরু করুন। প্যারাগ্রাফ আলাদা করতে ফাঁকা লাইন দিন।"></textarea></div>
+            <div style="margin-top:10px"><label>ভর্তি তথ্য (Admission Info)</label><textarea name="admission_info_bn" rows="4" placeholder="প্রতি লাইনে একটি পয়েন্ট লিখতে &quot;- &quot; দিয়ে শুরু করুন। প্যারাগ্রাফ আলাদা করতে ফাঁকা লাইন দিন।"></textarea></div>
+            <div style="margin-top:10px"><label>ইতিহাস (History)</label><textarea name="history_bn" rows="4" placeholder="প্রতি লাইনে একটি পয়েন্ট লিখতে &quot;- &quot; দিয়ে শুরু করুন। প্যারাগ্রাফ আলাদা করতে ফাঁকা লাইন দিন।"></textarea></div>
             <div class="form-grid" style="margin-top:10px">
               <div><label>Custom SEO Title</label><input name="seo_title"></div>
               <div><label>Custom Meta Description</label><input name="seo_description"></div>
@@ -797,6 +799,11 @@
       f.history_bn.value = i.history_bn || '';
       f.seo_title.value = i.seo_title || '';
       f.seo_description.value = i.seo_description || '';
+      try {
+        const ct = await api('/api/admin/institution-contacts?id=' + i.id);
+        f.contact_phone.value = ct.phone || '';
+        f.contact_email.value = ct.email || '';
+      } catch (err) { /* contacts optional */ }
       try {
         const sr = await api('/api/admin/institution-sources?id=' + i.id);
         const box = document.getElementById('sourcesContainer');
