@@ -957,36 +957,57 @@
       reader.readAsText(file);
     }
 
-    const TARGET_FIELDS = ['eiin','name_bn','name_en','institution_type_id','division_id','district_id','upazila_id','established_year','education_board','address_bn'];
+    const TARGET_FIELDS = ['eiin','name_bn','name_en','institution_type_id','division_id','district_id','upazila_id','established_year','management_type','gender_type','education_board','address_bn'];
+    const CSV_ALIASES = { institution_type_id:['category_slug','institution_type','type'], division_id:['division_name','division'], district_id:['district_name','district'], upazila_id:['upazila_name','upazila'] };
+
+    // Quote-aware CSV parser (handles commas inside "..." and multi-line cells)
+    function parseCsv(text) {
+      const rows = []; let row = [], cur = '', q = false;
+      text = text.replace(/^\uFEFF/, '');
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (q) {
+          if (c === '"' && text[i+1] === '"') { cur += '"'; i++; }
+          else if (c === '"') q = false;
+          else cur += c;
+        } else if (c === '"') q = true;
+        else if (c === ',') { row.push(cur); cur = ''; }
+        else if (c === '\n' || c === '\r') { if (c === '\r' && text[i+1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+        else cur += c;
+      }
+      if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+      return rows.filter(r => r.some(x => x.trim() !== ''));
+    }
 
     function parseCsvText() {
       const raw = document.getElementById('csvInput').value.trim();
       if (!raw) return;
-      const headers = raw.split(/\r?\n/)[0].split(',').map(h => h.trim());
+      const headers = parseCsv(raw)[0].map(h => h.trim());
       document.getElementById('colMapperBox').innerHTML = TARGET_FIELDS.map(tf => `
         <div>
           <label>DB ফিল্ড: <code>${tf}</code></label>
           <select class="col-map-sel" data-target="${tf}">
             <option value="">-- কলাম ম্যাপ করুন --</option>
-            ${headers.map(h => `<option value="${h}" ${h.toLowerCase() === tf ? 'selected' : ''}>${h}</option>`).join('')}
+            ${headers.map(h => `<option value="${h}" ${(h.toLowerCase() === tf || (CSV_ALIASES[tf] || []).includes(h.toLowerCase())) ? 'selected' : ''}>${h}</option>`).join('')}
           </select>
         </div>
       `).join('');
     }
 
     async function runCsvImport(mode) {
+      const out = document.getElementById('importReport');
       const raw = document.getElementById('csvInput').value.trim();
-      if (!raw) return;
-      const lines = raw.split(/\r?\n/).filter(Boolean);
-      const headers = lines[0].split(',').map(h => h.trim());
+      if (!raw) { out.textContent = 'আগে CSV ফাইল সিলেক্ট করুন বা টেক্সট পেস্ট করুন।'; return; }
+      if (mode === 'commit' && !confirm('বৈধ রেকর্ডগুলো ইমপোর্ট করা হবে (Unpublished Queue-তে)। চালিয়ে যাবেন?')) return;
 
+      const rows = parseCsv(raw);
+      const headers = rows[0].map(h => h.trim());
       const mapping = {};
       document.querySelectorAll('.col-map-sel').forEach(sel => {
         if (sel.value) mapping[sel.dataset.target] = headers.indexOf(sel.value);
       });
 
-      const records = lines.slice(1).map(line => {
-        const cols = line.split(',');
+      const records = rows.slice(1).map(cols => {
         const obj = {};
         if (Object.keys(mapping).length > 0) {
           for (const [target, idx] of Object.entries(mapping)) {
@@ -998,11 +1019,23 @@
         return obj;
       });
 
-      const res = await api('/api/admin/import', 'POST', { mode, records });
-      document.getElementById('importReport').textContent = JSON.stringify(res, null, 2);
-      LAST_IMPORT_ERRORS = [...(res.duplicates || []), ...(res.errors || [])];
-      document.getElementById('btnDownloadErrors').classList.toggle('hidden', LAST_IMPORT_ERRORS.length === 0);
-      if (mode === 'commit') initDashboard();
+      const btns = document.querySelectorAll('button[onclick^="runCsvImport"]');
+      btns.forEach(b => b.disabled = true);
+      out.textContent = mode === 'commit' ? 'ইমপোর্ট চলছে... একটু অপেক্ষা করুন' : 'ভ্যালিডেশন চলছে...';
+      try {
+        const fileEl = document.getElementById('csvFileInput');
+        const file_name = fileEl && fileEl.files[0] ? fileEl.files[0].name : 'pasted.csv';
+        const res = await api('/api/admin/import', 'POST', { mode, records, file_name });
+        out.textContent = JSON.stringify(res, null, 2);
+        LAST_IMPORT_ERRORS = [...(res.duplicates || []), ...(res.errors || [])];
+        document.getElementById('btnDownloadErrors').classList.toggle('hidden', LAST_IMPORT_ERRORS.length === 0);
+        if (mode === 'commit') { alert('ইমপোর্ট সম্পন্ন: ' + res.valid_count + 'টি রেকর্ড যোগ হয়েছে'); initDashboard(); }
+      } catch (err) {
+        out.textContent = 'ERROR: ' + (err && err.message ? err.message : err);
+        alert('ইমপোর্ট ব্যর্থ: ' + (err && err.message ? err.message : err));
+      } finally {
+        btns.forEach(b => b.disabled = false);
+      }
     }
 
     function downloadErrorCsv() {
