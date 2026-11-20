@@ -969,37 +969,59 @@
     const CSV_ALIASES = { institution_type_id:['category_slug','institution_type','type'], division_id:['division_name','division'], district_id:['district_name','district'], upazila_id:['upazila_name','upazila'] };
 
     // Quote-aware CSV parser (handles commas inside "..." and multi-line cells)
-    function parseCsv(text) {
-      const rows = []; let row = [], cur = '', q = false;
-      text = text.replace(/^\uFEFF/, '');
+        const ALL_CSV_FIELDS = [
+      'eiin', 'name_bn', 'name_en', 'slug', 'category_slug',
+      'division_name', 'district_name', 'upazila_name',
+      'established_year', 'management_type', 'gender_type', 'education_board',
+      'education_levels', 'groups_streams', 'programs_courses', 'facilities',
+      'address_bn', 'post_code', 'latitude', 'longitude', 'official_website',
+      'source_name', 'source_url', 'overview_text', 'admission_info', 'history_text'
+    ];
+
+    function parseCsvText(text) {
+      const rows = buildMappedRows();
+      let row = [], cur = '', inQuotes = false;
       for (let i = 0; i < text.length; i++) {
-        const c = text[i];
-        if (q) {
-          if (c === '"' && text[i+1] === '"') { cur += '"'; i++; }
-          else if (c === '"') q = false;
-          else cur += c;
-        } else if (c === '"') q = true;
-        else if (c === ',') { row.push(cur); cur = ''; }
-        else if (c === '\n' || c === '\r') { if (c === '\r' && text[i+1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
-        else cur += c;
+        const ch = text[i], next = text[i + 1];
+        if (ch === '"' && inQuotes && next === '"') { cur += '"'; i++; }
+        else if (ch === '"') { inQuotes = !inQuotes; }
+        else if (ch === ',' && !inQuotes) { row.push(cur); cur = ''; }
+        else if ((ch === '\n' || (ch === '\r' && next === '\n')) && !inQuotes) {
+          if (ch === '\r') i++;
+          row.push(cur);
+          if (row.some(c => c.trim() !== '')) rows.push(row);
+          row = []; cur = '';
+        } else { cur += ch; }
       }
-      if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
-      return rows.filter(r => r.some(x => x.trim() !== ''));
+      if (cur !== '' || row.length) {
+        row.push(cur);
+        if (row.some(c => c.trim() !== '')) rows.push(row);
+      }
+      if (rows.length < 2) return { headers: [], data: [] };
+      const headers = rows[0].map(h => h.replace(/^\uFEFF/, '').trim());
+      const data = rows.slice(1).map(cols => {
+        const obj = {};
+        headers.forEach((h, idx) => { obj[h] = (cols[idx] ?? '').trim(); });
+        return obj;
+      });
+      return { headers, data };
     }
 
-    function parseCsvText() {
-      const raw = document.getElementById('csvInput').value.trim();
-      if (!raw) return;
-      const headers = parseCsv(raw)[0].map(h => h.trim());
-      document.getElementById('colMapperBox').innerHTML = TARGET_FIELDS.map(tf => `
-        <div>
-          <label>DB ফিল্ড: <code>${tf}</code></label>
-          <select class="col-map-sel" data-target="${tf}">
-            <option value="">-- কলাম ম্যাপ করুন --</option>
-            ${headers.map(h => `<option value="${h}" ${(h.toLowerCase() === tf || (CSV_ALIASES[tf] || []).includes(h.toLowerCase())) ? 'selected' : ''}>${h}</option>`).join('')}
-          </select>
-        </div>
-      `).join('');
+    function buildMappedRows() {
+      const txt = document.getElementById('csvTextInput')?.value || '';
+      const { data } = parseCsvText(txt);
+      const mapSelects = document.querySelectorAll('#csvMapGrid select[data-db-field]');
+      return data.map(raw => {
+        const out = { ...raw };
+        mapSelects.forEach(sel => {
+          const dbField = sel.getAttribute('data-db-field');
+          const csvCol = sel.value;
+          if (csvCol && raw[csvCol] !== undefined) {
+            out[dbField] = raw[csvCol];
+          }
+        });
+        return out;
+      });
     }
 
     async function runCsvImport(mode) {
@@ -1008,7 +1030,7 @@
       if (!raw) { out.textContent = 'আগে CSV ফাইল সিলেক্ট করুন বা টেক্সট পেস্ট করুন।'; return; }
       if (mode === 'commit' && !confirm('বৈধ রেকর্ডগুলো ইমপোর্ট করা হবে (Unpublished Queue-তে)। চালিয়ে যাবেন?')) return;
 
-      const rows = parseCsv(raw);
+      const rows = buildMappedRows();
       const headers = rows[0].map(h => h.trim());
       const mapping = {};
       document.querySelectorAll('.col-map-sel').forEach(sel => {
@@ -1148,3 +1170,4 @@
   </script>
 </body>
 </html>
+
