@@ -789,6 +789,14 @@
       f.facilities_json.value = toList(i.facilities_json);
       f.official_website.value = i.official_website || '';
       f.address_bn.value = i.address_bn || '';
+      const setF = (n, v) => { const el = f.querySelector(`[name="${n}"]`); if (el) el.value = v ?? ''; };
+      setF('post_code', i.post_code);
+      setF('latitude', i.latitude);
+      setF('longitude', i.longitude);
+      setF('official_website', i.official_website);
+      setF('overview_text', i.overview_text);
+      setF('admission_info', i.admission_info);
+      setF('history_text', i.history_text);
       f.postal_code.value = i.postal_code || '';
       f.latitude.value = i.latitude ?? '';
       f.longitude.value = i.longitude ?? '';
@@ -1008,7 +1016,7 @@
       });
 
       const records = rows.slice(1).map(cols => {
-        const obj = {};
+        const obj = { ...rawRow };
         if (Object.keys(mapping).length > 0) {
           for (const [target, idx] of Object.entries(mapping)) {
             if (idx >= 0) obj[target] = (cols[idx] || '').trim();

@@ -1673,178 +1673,144 @@ async function handleAdminApi(req, env, path) {
 
   // MODULE 13: CSV Bulk Import + Rollback
   if (path === '/api/admin/import' && req.method === 'POST') {
-    const b = await req.json();
-    const records = Array.isArray(b.records) ? b.records : [];
-    const mode = b.mode || 'preview';
-    const fileName = b.file_name || 'bulk-upload.csv';
+    const body = await req.json();
+    const mode = body.mode || 'preview';
+    const rows = Array.isArray(body.rows) ? body.rows : [];
+    const fileName = body.file_name || 'bulk-upload.csv';
 
-    const MGMT = ['government', 'non_government', 'autonomous', 'private', 'mpo', 'unknown'];
-    const GENDER = ['boys', 'girls', 'co-education', 'unknown'];
-    const normMgmt = (v) => {
-      const x = String(v || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
-      if (x === 'non-government' || x === 'nongovernment') return 'non_government';
-      return MGMT.includes(x) ? x : 'unknown';
-    };
-    const normGender = (v) => {
-      const x = String(v || '').trim().toLowerCase();
-      if (x === 'boy' || x === 'male') return 'boys';
-      if (x === 'girl' || x === 'female') return 'girls';
-      if (x === 'co_education' || x === 'coed' || x === 'co-ed' || x === 'mixed') return 'co-education';
-      return GENDER.includes(x) ? x : 'unknown';
+    const toJsonArr = (val) => {
+      if (!val) return '[]';
+      if (Array.isArray(val)) return JSON.stringify(val);
+      const s = String(val).trim();
+      if (s.startsWith('[')) return s;
+      return JSON.stringify(s.split(',').map(x => x.trim()).filter(Boolean));
     };
 
-    // ---- Lookup caches (name/slug/id -> row id). Created on demand in commit mode ----
-    const cache = { type: new Map(), div: new Map(), dist: new Map(), upz: new Map() };
-    const keyOf = (v) => String(v || '').trim().toLowerCase();
-    async function findOne(table, val, extraWhere = '', extraBind = []) {
-      const k = keyOf(val);
-      if (!k) return null;
-      if (/^\d+$/.test(k)) {
-        const r = await env.DB.prepare(`SELECT id FROM ${table} WHERE id = ? ${extraWhere}`).bind(parseInt(k, 10), ...extraBind).first();
-        if (r) return r.id;
-      }
-      const r = await env.DB.prepare(
-        `SELECT id FROM ${table} WHERE (lower(slug) = ? OR lower(name_en) = ? OR name_bn = ?) ${extraWhere} LIMIT 1`
-      ).bind(k, k, String(val).trim(), ...extraBind).first();
-      return r ? r.id : null;
-    }
-    async function resolveType(v) {
-      const k = keyOf(v) || 'school';
-      if (cache.type.has(k)) return cache.type.get(k);
-      let id = await findOne('institution_types', v || 'school');
-      cache.type.set(k, id);
-      return id;
-    }
-    async function resolveDiv(v) {
-      const k = keyOf(v);
-      if (!k) return null;
-      if (cache.div.has(k)) return cache.div.get(k);
-      const id = await findOne('divisions', v);
-      cache.div.set(k, id);
-      return id;
-    }
-    async function resolveDist(v, divId, create) {
-      const k = keyOf(v) + '|' + divId;
-      if (!keyOf(v)) return null;
-      if (cache.dist.has(k)) return cache.dist.get(k);
-      let id = await findOne('districts', v);
-      if (!id && create && divId) {
-        const en = String(v).trim();
-        const slug = slugify(en) || ('district-' + Date.now());
-        await env.DB.prepare(`INSERT OR IGNORE INTO districts (division_id, slug, name_en, name_bn) VALUES (?, ?, ?, ?)`).bind(divId, slug, en, en).run();
-        id = (await env.DB.prepare(`SELECT id FROM districts WHERE slug = ?`).bind(slug).first())?.id || null;
-      }
-      cache.dist.set(k, id);
-      return id;
-    }
-    async function resolveUpz(v, distId, create) {
-      const name = String(v || '').trim() || 'অনির্দিষ্ট (Unspecified)';
-      const k = keyOf(name) + '|' + distId;
-      if (cache.upz.has(k)) return cache.upz.get(k);
-      let id = distId ? await findOne('upazilas', name, 'AND district_id = ?', [distId]) : null;
-      if (!id && create && distId) {
-        const slug = (slugify(name) || 'unspecified') + '-d' + distId;
-        await env.DB.prepare(`INSERT OR IGNORE INTO upazilas (district_id, slug, name_en, name_bn) VALUES (?, ?, ?, ?)`).bind(distId, slug, name, name).run();
-        id = (await env.DB.prepare(`SELECT id FROM upazilas WHERE slug = ?`).bind(slug).first())?.id || null;
-      }
-      cache.upz.set(k, id);
-      return id;
-    }
+    const validRows = [];
+    const invalidRows = [];
 
-    let valid = [];
-    let duplicates = [];
-    let errors = [];
-    const seenEiin = new Set();
-    const seenNorm = new Set();
-
-    for (let idx = 0; idx < records.length; idx++) {
-      const r = records[idx];
-      if (!r.name_en || !r.name_bn) {
-        errors.push({ row: idx + 1, eiin: r.eiin || '', reason: 'বাংলা অথবা ইংরেজি নাম অনুপস্থিত' });
+    for (let idx = 0; idx < rows.length; idx++) {
+      const r = rows[idx];
+      const nameBn = String(r.name_bn || '').trim();
+      const nameEn = String(r.name_en || '').trim();
+      const eiin = String(r.eiin || '').replace(/\.0$/, '').trim();
+      if (!nameBn || !nameEn) {
+        invalidRows.push({ row: idx + 1, reason: 'বাংলা বা ইংরেজি নাম অনুপস্থিত', data: r });
         continue;
       }
-      const eiin = r.eiin ? String(r.eiin).trim() : null;
-      const norm = normalizeName(r.name_en);
-      if ((eiin && seenEiin.has(eiin)) || seenNorm.has(norm)) {
-        duplicates.push({ row: idx + 1, eiin: r.eiin || '', reason: 'ফাইলের ভেতরেই ডুপ্লিকেট' });
-        continue;
-      }
-      const existing = await env.DB.prepare(
-        `SELECT id, name_bn, eiin FROM institutions WHERE (eiin IS NOT NULL AND eiin = ?) OR normalized_name = ?`
-      ).bind(eiin || '__NONE__', norm).first();
+      validRows.push({ ...r, name_bn: nameBn, name_en: nameEn, eiin: eiin || null });
+    }
+
+    if (mode === 'preview') {
+      return jsonResponse({
+        mode: 'preview',
+        job_id: null,
+        total: rows.length,
+        valid_count: validRows.length,
+        duplicate_count: 0,
+        invalid_count: invalidRows.length,
+        invalid_rows: invalidRows.slice(0, 50)
+      });
+    }
+
+    const jobRes = await env.DB.prepare(
+      `INSERT INTO import_jobs (file_name, total_rows, valid_rows, duplicate_rows, error_rows, status, imported_by) VALUES (?, ?, ?, 0, ?, 'processing', ?)`
+    ).bind(fileName, rows.length, validRows.length, invalidRows.length, admin.id).run();
+    const jobId = jobRes.meta?.last_row_id;
+
+    let insertedCount = 0;
+    for (const r of validRows) {
+      const catSlug = String(r.category_slug || 'school').trim();
+      const catRow = await env.DB.prepare(`SELECT id FROM institution_categories WHERE slug = ? OR name_bn = ? LIMIT 1`).bind(catSlug, catSlug).first();
+      const divName = String(r.division_name || '').trim();
+      const divRow = await env.DB.prepare(`SELECT id FROM divisions WHERE name_bn = ? OR name_en = ? LIMIT 1`).bind(divName, divName).first();
+      const distName = String(r.district_name || '').trim();
+      const distRow = await env.DB.prepare(`SELECT id FROM districts WHERE name_bn = ? OR name_en = ? LIMIT 1`).bind(distName, distName).first();
+      const upzName = String(r.upazila_name || '').trim();
+      const upzRow = upzName ? await env.DB.prepare(`SELECT id FROM upazilas WHERE name_bn = ? OR name_en = ? LIMIT 1`).bind(upzName, upzName).first() : null;
+
+      const baseSlug = String(r.slug || r.name_en).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const slug = r.eiin && !baseSlug.endsWith(r.eiin) ? `${baseSlug}-${r.eiin}` : baseSlug;
+      const estYear = r.established_year ? parseInt(String(r.established_year).replace(/\.0$/, ''), 10) || null : null;
+      const lat = r.latitude !== undefined && r.latitude !== '' ? parseFloat(r.latitude) : null;
+      const lon = r.longitude !== undefined && r.longitude !== '' ? parseFloat(r.longitude) : null;
+      const website = r.official_website ? formatExternalUrl(r.official_website) : null;
+
+      const levelsJson = toJsonArr(r.education_levels_json || r.education_levels);
+      const groupsJson = toJsonArr(r.groups_streams_json || r.groups_streams);
+      const programsJson = toJsonArr(r.programs_courses_json || r.programs_courses);
+      const facilitiesJson = toJsonArr(r.facilities_json || r.facilities);
+
+      let instId = null;
+      const existing = r.eiin ? await env.DB.prepare(`SELECT id FROM institutions WHERE eiin = ? LIMIT 1`).bind(r.eiin).first() : null;
 
       if (existing) {
-        duplicates.push({ row: idx + 1, eiin: r.eiin || '', existing_id: existing.id, existing_name: existing.name_bn, reason: 'ডুপ্লিকেট EIIN বা নাম' });
-        continue;
-      }
-      if (eiin) seenEiin.add(eiin);
-      seenNorm.add(norm);
-      valid.push({ ...r, eiin, normalized_name: norm, _row: idx + 1 });
-    }
-
-    let jobId = null;
-    let inserted = 0;
-    if (mode === 'commit' && valid.length > 0) {
-      // Resolve type/division/district/upazila names to real IDs (creating missing district/upazila rows)
-      const prepared = [];
-      for (const v of valid) {
-        const typeId = await resolveType(v.institution_type_id);
-        const divId = await resolveDiv(v.division_id);
-        if (!typeId) { errors.push({ row: v._row, eiin: v.eiin || '', reason: 'প্রতিষ্ঠানের ধরন (category) খুঁজে পাওয়া যায়নি: ' + (v.institution_type_id || '') }); continue; }
-        if (!divId) { errors.push({ row: v._row, eiin: v.eiin || '', reason: 'বিভাগ খুঁজে পাওয়া যায়নি: ' + (v.division_id || '') }); continue; }
-        const distId = await resolveDist(v.district_id, divId, true);
-        if (!distId) { errors.push({ row: v._row, eiin: v.eiin || '', reason: 'জেলা অনুপস্থিত/খুঁজে পাওয়া যায়নি' }); continue; }
-        const upzId = await resolveUpz(v.upazila_id, distId, true);
-        if (!upzId) { errors.push({ row: v._row, eiin: v.eiin || '', reason: 'উপজেলা তৈরি/খুঁজে পাওয়া যায়নি' }); continue; }
-        prepared.push({ v, typeId, divId, distId, upzId });
-      }
-
-      const jobRes = await env.DB.prepare(`
-        INSERT INTO import_jobs (file_name, total_rows, valid_rows, duplicate_rows, error_rows, status, error_report_json, imported_by_admin_id)
-        VALUES (?, ?, ?, ?, ?, 'completed', ?, ?)
-      `).bind(fileName, records.length, prepared.length, duplicates.length, errors.length, JSON.stringify([...duplicates, ...errors]), admin.id).run();
-      jobId = jobRes.meta?.last_row_id;
-
-      const stmts = prepared.map(({ v, typeId, divId, distId, upzId }) => {
-        const slug = slugify(v.name_en + (v.eiin ? '-' + v.eiin : '')) || ('inst-' + Math.floor(Math.random() * 1e9));
-        const code = 'BDR-' + Math.floor(100000 + Math.random() * 900000) + '-' + Math.floor(Math.random() * 1000);
-        const yr = v.established_year ? parseInt(v.established_year, 10) : null;
-        return env.DB.prepare(`
-          INSERT OR IGNORE INTO institutions (
-            internal_code, eiin, slug, name_en, name_bn, normalized_name,
-            institution_type_id, division_id, district_id, upazila_id,
-            address_bn, established_year, management_type, gender_type, education_board,
-            verification_status, is_published, completeness_score, import_job_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_review', 0, 45, ?)
+        instId = existing.id;
+        await env.DB.prepare(`
+          UPDATE institutions SET
+            name_bn = ?, name_en = ?, category_id = COALESCE(?, category_id),
+            division_id = COALESCE(?, division_id), district_id = COALESCE(?, district_id), upazila_id = COALESCE(?, upazila_id),
+            established_year = COALESCE(?, established_year), management_type = COALESCE(?, management_type),
+            gender_type = COALESCE(?, gender_type), education_board = COALESCE(?, education_board),
+            education_levels_json = ?, groups_streams_json = ?, programs_courses_json = ?, facilities_json = ?,
+            address_bn = COALESCE(?, address_bn), post_code = COALESCE(?, post_code),
+            latitude = COALESCE(?, latitude), longitude = COALESCE(?, longitude),
+            official_website = COALESCE(?, official_website),
+            overview_text = COALESCE(?, overview_text), admission_info = COALESCE(?, admission_info), history_text = COALESCE(?, history_text),
+            import_job_id = ?, updated_at = datetime('now')
+          WHERE id = ?
         `).bind(
-          code, v.eiin, slug, v.name_en, v.name_bn, v.normalized_name,
-          typeId, divId, distId, upzId,
-          v.address_bn || null,
-          Number.isFinite(yr) ? yr : null,
-          normMgmt(v.management_type),
-          normGender(v.gender_type),
-          v.education_board || null,
-          jobId
-        );
-      });
-      for (let i = 0; i < stmts.length; i += 50) {
-        const res = await env.DB.batch(stmts.slice(i, i + 50));
-        for (const x of res) inserted += x.meta?.changes || 0;
+          r.name_bn, r.name_en, catRow?.id || null,
+          divRow?.id || null, distRow?.id || null, upzRow?.id || null,
+          estYear, r.management_type || null,
+          r.gender_type || null, r.education_board || null,
+          levelsJson, groupsJson, programsJson, facilitiesJson,
+          r.address_bn || null, r.post_code ? String(r.post_code).replace(/\.0$/, '') : null,
+          isNaN(lat) ? null : lat, isNaN(lon) ? null : lon,
+          website,
+          r.overview_text || null, r.admission_info || null, r.history_text || null,
+          jobId, instId
+        ).run();
+      } else {
+        const ins = await env.DB.prepare(`
+          INSERT INTO institutions (
+            eiin, name_bn, name_en, slug, category_id, division_id, district_id, upazila_id,
+            established_year, management_type, gender_type, education_board,
+            education_levels_json, groups_streams_json, programs_courses_json, facilities_json,
+            address_bn, post_code, latitude, longitude, official_website,
+            overview_text, admission_info, history_text,
+            verification_status, is_published, import_job_id, created_by
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unverified', 0, ?, ?)
+        `).bind(
+          r.eiin, r.name_bn, r.name_en, slug, catRow?.id || 1, divRow?.id || 1, distRow?.id || 1, upzRow?.id || null,
+          estYear, r.management_type || 'unknown', r.gender_type || 'co-education', r.education_board || null,
+          levelsJson, groupsJson, programsJson, facilitiesJson,
+          r.address_bn || null, r.post_code ? String(r.post_code).replace(/\.0$/, '') : null,
+          isNaN(lat) ? null : lat, isNaN(lon) ? null : lon, website,
+          r.overview_text || null, r.admission_info || null, r.history_text || null,
+          jobId, admin.id
+        ).run();
+        instId = ins.meta?.last_row_id;
       }
-      await env.DB.prepare(`UPDATE import_jobs SET valid_rows = ?, error_rows = ?, error_report_json = ? WHERE id = ?`)
-        .bind(inserted, errors.length, JSON.stringify([...duplicates, ...errors]), jobId).run();
-      await logAudit(env, admin.id, 'BULK_IMPORT_COMMIT', 'import_jobs', jobId, { imported: inserted }, ip);
+
+      if (instId && r.source_name) {
+        await env.DB.prepare(`DELETE FROM institution_sources WHERE institution_id = ?`).bind(instId).run();
+        await env.DB.prepare(
+          `INSERT INTO institution_sources (institution_id, source_name, source_url, covered_fields, accessed_date) VALUES (?, ?, ?, ?, date('now'))`
+        ).bind(instId, String(r.source_name).trim(), r.source_url ? formatExternalUrl(r.source_url) : null, 'EIIN, ঠিকানা, শিক্ষা স্তর ও পরিচিতি').run();
+      }
+      insertedCount++;
     }
+
+    await env.DB.prepare(`UPDATE import_jobs SET status = 'completed', valid_rows = ? WHERE id = ?`).bind(insertedCount, jobId).run();
+    await logAudit(env, admin.id, 'CSV_IMPORT', 'import_jobs', jobId, { fileName, insertedCount }, ip);
 
     return jsonResponse({
-      mode,
+      mode: 'import',
       job_id: jobId,
-      total: records.length,
-      valid_count: mode === 'commit' ? inserted : valid.length,
-      duplicate_count: duplicates.length,
-      error_count: errors.length,
-      duplicates,
-      errors
+      total: rows.length,
+      valid_count: insertedCount,
+      invalid_count: invalidRows.length
     });
   }
 
