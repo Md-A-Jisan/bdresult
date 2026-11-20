@@ -191,7 +191,7 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     .badge-verified{background:#dcfce7;color:#166534;border:1px solid #86efac}
     .badge-unverified{background:#fef9c3;color:#854d0e;border:1px solid #fde047}
     .badge-eiin{background:#f1f5f9;color:#0f172a;border:1px solid #cbd5e1;font-family:monospace;font-size:13px}
-    .prof-hdr{background:#f8fafc;border:1px solid #cbd5e1;border-left:5px solid var(--g);border-radius:10px;padding:18px;margin-bottom:20px}
+    .prof-hdr{background:linear-gradient(180deg,#fff 0%,#f0fdf4 100%);border:2px solid var(--g);border-left-width:8px;border-radius:16px;padding:20px;margin-bottom:30px;box-shadow:0 6px 0 var(--g),0 16px 30px -10px rgba(6,78,59,.45)}
     .prof-hdr h1{margin:6px 0 4px;font-size:25px;color:var(--g);line-height:1.4}
     .prof-sub{color:#475569;font-size:16px;margin:0 0 12px}
     .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0}
@@ -200,15 +200,18 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     .q-stat strong{font-size:15px;color:#0f172a}
     .toc-nav{display:flex;gap:8px;overflow-x:auto;padding:8px 0;margin-bottom:18px;border-bottom:1px solid #e2e8f0;white-space:nowrap;-webkit-overflow-scrolling:touch}
     .toc-nav a{font-size:14px;padding:5px 12px;border-radius:14px;background:var(--l);color:var(--g);font-weight:600;flex:none}
-    .prof-sec{margin-bottom:26px;padding-bottom:18px;border-bottom:1px solid #f1f5f9}
-    .prof-sec h2{color:var(--g);border-left:4px solid var(--g2);padding-left:10px;font-size:20px;margin-bottom:12px;line-height:1.4}
-    .tbl-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #cbd5e1;border-radius:8px;margin:10px 0}
+    /* 3D block cards: dark-green border, raised bottom edge, gradient header bar */
+    .prof-sec{position:relative;background:#fff;border:2px solid var(--g);border-radius:16px;overflow:hidden;margin-bottom:32px;padding:0 20px 20px;box-shadow:0 6px 0 var(--g),0 16px 30px -10px rgba(6,78,59,.45);transition:transform .2s ease,box-shadow .2s ease}
+    @media(hover:hover){.prof-sec:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--g),0 22px 36px -10px rgba(6,78,59,.5)}}
+    @media(prefers-reduced-motion:reduce){.prof-sec{transition:none}.prof-sec:hover{transform:none}}
+    .prof-sec>h2{margin:0 -20px 18px;padding:14px 20px;background:linear-gradient(180deg,#0e7a50 0%,#064e3b 100%);color:#fff;border:0;border-bottom:3px solid #022c22;font-size:20px;line-height:1.4;text-shadow:0 1px 0 rgba(0,0,0,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+    .tbl-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #a7f3d0;border-radius:10px;margin:10px 0;box-shadow:0 2px 6px rgba(6,78,59,.08)}
     .data-tbl{width:100%;border-collapse:collapse;font-size:14px;word-break:normal;overflow-wrap:normal}
     .data-tbl th,.data-tbl td{border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 12px;text-align:left;white-space:nowrap}
     .data-tbl th:last-child,.data-tbl td:last-child{border-right:0}
     .data-tbl tr:last-child th,.data-tbl tr:last-child td{border-bottom:0}
-    .data-tbl th{background:#f1f5f9;font-weight:700;color:#0f172a}
-    .data-tbl tbody tr:nth-child(even){background:#f8fafc}
+    .data-tbl th{background:#ecfdf5;font-weight:700;color:#064e3b}
+    .data-tbl tbody tr:nth-child(even){background:#f7fdf9}
     .rev-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:16px;margin-bottom:14px}
     .src-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;font-size:14px}
     .pag{display:flex;gap:8px;justify-content:center;margin:24px 0;flex-wrap:wrap}
@@ -217,7 +220,7 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     @media(max-width:600px){
       .prof-hdr{padding:14px}
       .prof-hdr h1{font-size:21px}
-      .prof-sec h2{font-size:18px}
+      .prof-sec{padding:0 14px 16px;box-shadow:0 4px 0 var(--g),0 12px 22px -10px rgba(6,78,59,.45)}.prof-sec>h2{margin:0 -14px 14px;padding:12px 14px;font-size:17px}.prof-hdr{padding:14px}
       .inst-item{padding:12px}
       .data-tbl{font-size:13px}
       .data-tbl th,.data-tbl td{padding:8px 10px}
