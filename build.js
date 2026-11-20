@@ -35,8 +35,10 @@ w('404.html',layout({title:'পেজ পাওয়া যায়নি',des
 const skip=['uploads','admin','assets'];
 const tools=fs.existsSync('static')?fs.readdirSync('static',{withFileTypes:true}).flatMap(d=>d.isDirectory()?(!skip.includes(d.name)&&fs.existsSync(`static/${d.name}/index.html`)?[`/${d.name}/`]:[]):(d.name.endsWith('.html')&&!['404.html','index.html'].includes(d.name)?[`/${d.name.slice(0,-5)}`]:[])):[];
 const urls=['/','/institutions/','/institutions/schools/','/institutions/colleges/','/institutions/madrasas/','/institutions/technical/','/institutions/universities/',...cats.map(c=>`/category/${c.slug}/`),...tools,...pages.map(x=>`/${x.slug}/`),...posts.map(p=>`/${p.slug}/`)];
-w('sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u=>{const p=posts.find(x=>`/${x.slug}/`===u);return `<url><loc>${U+u}</loc>${p?`<lastmod>${new Date(p.updated||p.date).toISOString().slice(0,10)}</lastmod>`:''}</url>`}).join('')}</urlset>`);
-w('robots.txt',`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ${U}/sitemap.xml\nSitemap: ${U}/sitemap-institutions.xml\n`);
+w('sitemap-pages.xml',`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u=>{const p=posts.find(x=>`/${x.slug}/`===u);return `<url><loc>${U+u}</loc>${p?`<lastmod>${new Date(p.updated||p.date).toISOString().slice(0,10)}</lastmod>`:''}</url>`}).join('')}</urlset>`);
+w('sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>${U}/sitemap-pages.xml</loc><lastmod>${new Date().toISOString().slice(0,10)}</lastmod></sitemap><sitemap><loc>${U}/sitemap-institutions.xml</loc></sitemap></sitemapindex>`);
+w('robots.txt',`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ${U}/sitemap.xml\n`);
+w('site-config.json',JSON.stringify({googleVerification:S.googleVerification||'',gaHtml:ga(S.gaId)}));
 w('rss.xml',`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${esc(S.name)}</title><link>${U}</link><description>${esc(S.description)}</description>${posts.slice(0,30).map(p=>`<item><title>${esc(p.title)}</title><link>${U}/${p.slug}/</link><guid>${U}/${p.slug}/</guid><pubDate>${p.date.toUTCString()}</pubDate><description>${esc(p.description)}</description></item>`).join('')}</channel></rss>`);
 w('search.json',JSON.stringify(posts.map(p=>({t:p.title,u:`/${p.slug}/`}))));
 // Export legacy posts snapshot for D1 one-click sync
