@@ -1805,32 +1805,55 @@ async function handleAdminApi(req, env, path) {
       `).bind(fileName, records.length, prepared.length, duplicates.length, errors.length, JSON.stringify([...duplicates, ...errors]), admin.id).run();
       jobId = jobRes.meta?.last_row_id;
 
-      const stmts = prepared.map(({ v, typeId, divId, distId, upzId }) => {
-        const slug = slugify(v.name_en + (v.eiin ? '-' + v.eiin : '')) || ('inst-' + Math.floor(Math.random() * 1e9));
+      const toList = (val) => JSON.stringify(String(val || '').split(/[,;|،]/).map(x => x.trim()).filter(Boolean));
+      const numOrNull = (val) => { const n = parseFloat(val); return Number.isFinite(n) ? n : null; };
+      const stmts = [];
+      for (const { v, typeId, divId, distId, upzId } of prepared) {
+        const slug = (v.slug ? slugify(v.slug) : '') || slugify(v.name_en + (v.eiin ? '-' + v.eiin : '')) || ('inst-' + Math.floor(Math.random() * 1e9));
         const code = 'BDR-' + Math.floor(100000 + Math.random() * 900000) + '-' + Math.floor(Math.random() * 1000);
         const yr = v.established_year ? parseInt(v.established_year, 10) : null;
-        return env.DB.prepare(`
+        const score = calculateCompleteness({ ...v, verification_status: 'pending_review' });
+        stmts.push(env.DB.prepare(`
           INSERT OR IGNORE INTO institutions (
             internal_code, eiin, slug, name_en, name_bn, normalized_name,
             institution_type_id, division_id, district_id, upazila_id,
-            address_bn, established_year, management_type, gender_type, education_board,
+            address_bn, address_en, postal_code, latitude, longitude,
+            established_year, management_type, gender_type, education_board,
+            education_levels, academic_groups, programs_offered, facilities_json,
+            overview_bn, history_bn, admission_info_bn, official_website,
+            seo_title, seo_description,
             verification_status, is_published, completeness_score, import_job_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_review', 0, 45, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_review', 0, ?, ?)
         `).bind(
           code, v.eiin, slug, v.name_en, v.name_bn, v.normalized_name,
           typeId, divId, distId, upzId,
-          v.address_bn || null,
+          v.address_bn || null, v.address_en || null, v.postal_code || null, numOrNull(v.latitude), numOrNull(v.longitude),
           Number.isFinite(yr) ? yr : null,
           normMgmt(v.management_type),
           normGender(v.gender_type),
           v.education_board || null,
-          jobId
-        );
-      });
+          toList(v.education_levels), toList(v.academic_groups), toList(v.programs_offered), toList(v.facilities_json),
+          v.overview_bn || null, v.history_bn || null, v.admission_info_bn || null, v.official_website || null,
+          v.seo_title || null, v.seo_description || null,
+          score, jobId
+        ));
+        // Contacts & source (linked via internal_code, only inserted if the institution row was actually created)
+        if (v.contact_phone) stmts.push(env.DB.prepare(
+          `INSERT INTO institution_contacts (institution_id, contact_type, contact_value, label_bn, is_primary)
+           SELECT id, 'phone', ?, 'ফোন', 1 FROM institutions WHERE internal_code = ?`).bind(String(v.contact_phone).trim(), code));
+        if (v.contact_email) stmts.push(env.DB.prepare(
+          `INSERT INTO institution_contacts (institution_id, contact_type, contact_value, label_bn, is_primary)
+           SELECT id, 'email', ?, 'ইমেইল', 1 FROM institutions WHERE internal_code = ?`).bind(String(v.contact_email).trim(), code));
+        if (v.source_name) stmts.push(env.DB.prepare(
+          `INSERT INTO institution_sources (institution_id, source_name, source_url, covered_fields, accessed_date)
+           SELECT id, ?, ?, 'প্রাথমিক প্রোফাইল তথ্য', date('now') FROM institutions WHERE internal_code = ?`)
+          .bind(String(v.source_name).trim(), formatExternalUrl(v.source_url) || null, code));
+      }
       for (let i = 0; i < stmts.length; i += 50) {
         const res = await env.DB.batch(stmts.slice(i, i + 50));
-        for (const x of res) inserted += x.meta?.changes || 0;
+        // counted below from DB (batch mixes institutions + contacts/sources)
       }
+      inserted = (await env.DB.prepare(`SELECT COUNT(*) AS c FROM institutions WHERE import_job_id = ?`).bind(jobId).first())?.c || 0;
       await env.DB.prepare(`UPDATE import_jobs SET valid_rows = ?, error_rows = ?, error_report_json = ? WHERE id = ?`)
         .bind(inserted, errors.length, JSON.stringify([...duplicates, ...errors]), jobId).run();
       await logAudit(env, admin.id, 'BULK_IMPORT_COMMIT', 'import_jobs', jobId, { imported: inserted }, ip);

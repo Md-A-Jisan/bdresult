@@ -957,7 +957,7 @@
       reader.readAsText(file);
     }
 
-    const TARGET_FIELDS = ['eiin','name_bn','name_en','institution_type_id','division_id','district_id','upazila_id','established_year','management_type','gender_type','education_board','address_bn'];
+    const TARGET_FIELDS = ['eiin','name_bn','name_en','institution_type_id','division_id','district_id','upazila_id','established_year','management_type','gender_type','education_board','address_bn','address_en','postal_code','latitude','longitude','education_levels','academic_groups','programs_offered','facilities_json','overview_bn','history_bn','admission_info_bn','official_website','contact_phone','contact_email','source_name','source_url','seo_title','seo_description','slug'];
     const CSV_ALIASES = { institution_type_id:['category_slug','institution_type','type'], division_id:['division_name','division'], district_id:['district_name','district'], upazila_id:['upazila_name','upazila'] };
 
     // Quote-aware CSV parser (handles commas inside "..." and multi-line cells)
