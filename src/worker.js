@@ -24,6 +24,16 @@ const slugify = (s) => String(s || '')
   .replace(/-+/g, '-')
   .replace(/^-|-$/g, '') || ('item-' + Date.now());
 
+
+// Stable slug for names that may be Bangla-only (slugify() would return a random item-<timestamp>)
+const stableSlug = (name, prefix) => {
+  const latin = String(name || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (latin) return latin;
+  let h = 5381;
+  for (const ch of String(name || '')) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0;
+  return prefix + '-' + h.toString(36);
+};
+
 const parseJsonSafe = (str, fallback = []) => {
   if (!str) return fallback;
   try { return JSON.parse(str); } catch { return fallback; }
@@ -1730,7 +1740,7 @@ async function handleAdminApi(req, env, path) {
       let id = await findOne('districts', v);
       if (!id && create && divId) {
         const en = String(v).trim();
-        const slug = slugify(en) || ('district-' + Date.now());
+        const slug = stableSlug(en, 'dist');
         await env.DB.prepare(`INSERT OR IGNORE INTO districts (division_id, slug, name_en, name_bn) VALUES (?, ?, ?, ?)`).bind(divId, slug, en, en).run();
         id = (await env.DB.prepare(`SELECT id FROM districts WHERE slug = ?`).bind(slug).first())?.id || null;
       }
@@ -1743,7 +1753,7 @@ async function handleAdminApi(req, env, path) {
       if (cache.upz.has(k)) return cache.upz.get(k);
       let id = distId ? await findOne('upazilas', name, 'AND district_id = ?', [distId]) : null;
       if (!id && create && distId) {
-        const slug = (slugify(name) || 'unspecified') + '-d' + distId;
+        const slug = stableSlug(name, 'upz') + '-d' + distId;
         await env.DB.prepare(`INSERT OR IGNORE INTO upazilas (district_id, slug, name_en, name_bn) VALUES (?, ?, ?, ?)`).bind(distId, slug, name, name).run();
         id = (await env.DB.prepare(`SELECT id FROM upazilas WHERE slug = ?`).bind(slug).first())?.id || null;
       }
@@ -1877,6 +1887,9 @@ async function handleAdminApi(req, env, path) {
     if (!jobId) return jsonResponse({ error: 'Invalid Job ID' }, 400);
     await env.DB.prepare(`DELETE FROM institutions WHERE import_job_id = ? AND verification_status != 'verified'`).bind(jobId).run();
     await env.DB.prepare(`UPDATE import_jobs SET status = 'rolled_back' WHERE id = ?`).bind(jobId).run();
+    // Remove auto-created, now-unused areas (random item-* / upz-* / dist-* slugs). Areas still used by any institution are kept.
+    await env.DB.prepare(`DELETE FROM upazilas WHERE (slug LIKE 'item-%' OR slug LIKE 'upz-%') AND id NOT IN (SELECT upazila_id FROM institutions)`).run();
+    await env.DB.prepare(`DELETE FROM districts WHERE (slug LIKE 'item-%' OR slug LIKE 'dist-%') AND id NOT IN (SELECT district_id FROM institutions) AND id NOT IN (SELECT district_id FROM upazilas)`).run();
     await logAudit(env, admin.id, 'ROLLBACK_IMPORT_JOB', 'import_jobs', jobId, { jobId }, ip);
     return jsonResponse({ ok: true });
   }
