@@ -39,6 +39,40 @@
     .pill-warn{background:#fef9c3;color:#854d0e}
     .hidden{display:none!important}
     @media(max-width:800px){body{flex-direction:column}aside{width:100%;height:auto;position:static}}
+    /* ===== Rich text editor (added) ===== */
+    .rt-wrap{position:relative;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+    .rt-bar{display:flex;flex-wrap:wrap;gap:2px;align-items:center;padding:6px;background:#f1f5f9;border-bottom:1px solid #cbd5e1;border-radius:8px 8px 0 0;position:sticky;top:0;z-index:20}
+    .rt-b{width:30px;height:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid transparent;border-radius:5px;color:#334155;font:inherit;font-size:14px;line-height:1;cursor:pointer}
+    .rt-b svg{width:16px;height:16px}
+    .rt-b:hover{background:#e2e8f0}
+    .rt-b.on{background:#d1fae5;border-color:#34d399;color:#064e3b}
+    .rt-b.rt-txt{width:auto;padding:0 8px;font-size:12px;font-weight:600}
+    .rt-sep{width:1px;height:20px;background:#cbd5e1;margin:0 4px}
+    .rt-s{width:auto!important;height:28px;padding:2px 4px!important;font-size:12px!important;background:#fff;cursor:pointer}
+    .rt-src-on .rt-b:not(.rt-txt),.rt-src-on .rt-s{opacity:.35;pointer-events:none}
+    .rt-area{padding:14px 16px;outline:0;overflow:auto;line-height:1.85;font-size:15px;background:#fff;word-break:break-word}
+    .rt-area:empty:before{content:attr(data-placeholder);color:#94a3b8}
+    .rt-area h2{font-size:1.5em;margin:.8em 0 .4em;color:#064e3b;border:0;padding:0}
+    .rt-area h3{font-size:1.3em;margin:.8em 0 .4em;color:#064e3b}
+    .rt-area h4{font-size:1.15em;margin:.8em 0 .4em;color:#064e3b}
+    .rt-area h5,.rt-area h6{font-size:1em;margin:.8em 0 .4em;color:#064e3b}
+    .rt-area p{margin:0 0 .8em}
+    .rt-area ul,.rt-area ol{margin:0 0 .8em;padding-left:1.6em}
+    .rt-area blockquote{margin:0 0 .8em;padding:6px 14px;border-left:4px solid #34d399;background:#f0fdf4;color:#334155}
+    .rt-area a{color:#1d4ed8;text-decoration:underline}
+    .rt-area hr{border:0;border-top:2px solid #cbd5e1;margin:1em 0}
+    .rt-area table{border-collapse:collapse;width:100%;margin:0 0 .8em}
+    .rt-area th,.rt-area td{border:1px solid #cbd5e1;padding:6px 8px;min-width:40px}
+    .rt-area th{background:#f1f5f9}
+    .rt-src{display:block;width:100%;border:0!important;border-radius:0!important;padding:12px;font:12.5px/1.6 ui-monospace,Consolas,monospace!important;resize:vertical;background:#0f172a;color:#e2e8f0}
+    .rt-foot{padding:4px 10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;background:#f8fafc;border-radius:0 0 8px 8px}
+    .rt-pop{position:absolute;z-index:30;width:240px;background:#fff;border:1px solid #cbd5e1;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px}
+    .rt-sw{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+    .rt-c{width:22px;height:22px;border:1px solid #cbd5e1;border-radius:4px;padding:0;cursor:pointer}
+    .rt-row{display:flex;gap:6px;align-items:center;margin-top:8px}
+    .rt-col{width:40px!important;height:26px;padding:0!important}
+    .rt-chk{display:flex;align-items:center;gap:6px;font-weight:400;margin-top:6px}
+    .rt-chk input{width:auto}
   </style>
 </head>
 <body>
@@ -498,6 +532,528 @@
       </section>
     </div>
   </main>
+
+  <!-- ===== Rich Text Editor (Blogger-style). Image / upload features intentionally NOT included ===== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ---------- config ---------- */
+    var OK_TAGS = new Set(['p','br','h2','h3','h4','h5','h6','strong','b','em','i','u','s','strike','del','sub','sup','blockquote','ul','ol','li','a','span','div','hr','table','thead','tbody','tr','th','td','code','pre','mark']);
+    var DROP_TAGS = new Set(['script','style','iframe','object','embed','noscript','template','head','meta','link','title','svg','canvas','video','audio','img','picture','form','input','button','select','textarea']);
+    var OK_STYLE = new Set(['color','background-color','font-size','font-family','font-weight','font-style','text-decoration','text-align','margin-left','padding','border','border-collapse','width','line-height']);
+    var BLOCK = new Set(['P','DIV','H1','H2','H3','H4','H5','H6','UL','OL','LI','BLOCKQUOTE','TABLE','HR','PRE','THEAD','TBODY','TR']);
+    var LEAF_BLOCKS = 'p,h2,h3,h4,h5,h6,li,div,blockquote';
+    var HTML_RE = /<(p|div|h[1-6]|ul|ol|li|br|table|blockquote|hr)[\s>\/]/i;
+    var nativeVal = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
+    var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    var registry = [];
+
+    /* ---------- helpers ---------- */
+    function cleanStyle(st) {
+      return String(st || '').split(';').map(function (d) {
+        var i = d.indexOf(':'); if (i < 1) return '';
+        var k = d.slice(0, i).trim().toLowerCase();
+        var v = d.slice(i + 1).trim().replace(/"/g, "'");
+        if (!OK_STYLE.has(k) || !v) return '';
+        if (!/^[#\w\s.,%()'\-+\/]+$/.test(v) || /url\s*\(|expression|javascript|import/i.test(v)) return '';
+        return k + ':' + v;
+      }).filter(Boolean).join(';');
+    }
+    function parseStyleMap(st) {
+      var m = {};
+      String(st || '').split(';').forEach(function (d) {
+        var i = d.indexOf(':'); if (i < 1) return;
+        m[d.slice(0, i).trim().toLowerCase()] = d.slice(i + 1).trim();
+      });
+      return m;
+    }
+    function styleToString(m) {
+      return Object.keys(m).map(function (k) { return k + ':' + m[k]; }).join(';');
+    }
+    function safeUrl(u) {
+      u = String(u || '').trim();
+      if (!u) return '';
+      if (/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(u)) return u;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(u)) return '';        // blocks javascript:, data: etc.
+      return 'https://' + u;
+    }
+
+    /* Sanitise arbitrary HTML into the small allow-list the site supports.
+       shift=true -> re-level headings so the smallest heading found becomes "base" (used for pasted content) */
+    function cleanHtml(html, base, shift) {
+      var doc = new DOMParser().parseFromString('<body>' + html + '</body>', 'text/html');
+      var off = 0;
+      if (shift) {
+        var min = 7;
+        doc.body.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(function (h) { min = Math.min(min, +h.tagName.charAt(1)); });
+        if (min !== 7) off = base - min;
+      }
+      var root = document.createElement('div');
+      (function walk(node, target) {
+        Array.prototype.forEach.call(node.childNodes, function (n) {
+          if (n.nodeType === 3) { target.appendChild(document.createTextNode(n.nodeValue)); return; }
+          if (n.nodeType !== 1) return;
+          var tag = n.tagName.toLowerCase();
+          if (DROP_TAGS.has(tag)) return;
+          if (/^h[1-6]$/.test(tag)) {
+            var lv = Math.max(2, Math.min(6, +tag.charAt(1) + off));
+            var h = document.createElement('h' + lv);
+            walk(n, h); target.appendChild(h); return;
+          }
+          if (!OK_TAGS.has(tag)) { walk(n, target); return; }
+
+          var sm = parseStyleMap(n.getAttribute('style'));
+          var wrap = target;
+
+          if (tag === 'b' || tag === 'strong') {
+            var fw = (sm['font-weight'] || '').toLowerCase();
+            if (fw === 'normal' || fw === '400') { walk(n, target); return; }   // Google-Docs wrapper
+          }
+          if (tag === 'span') {
+            var fwt = (sm['font-weight'] || '').toLowerCase();
+            if (fwt === 'bold' || fwt === 'bolder' || +fwt >= 600) { var st = document.createElement('strong'); wrap.appendChild(st); wrap = st; }
+            delete sm['font-weight'];
+            if ((sm['font-style'] || '').toLowerCase() === 'italic') { var em = document.createElement('em'); wrap.appendChild(em); wrap = em; }
+            delete sm['font-style'];
+            var td = (sm['text-decoration'] || sm['text-decoration-line'] || '').toLowerCase();
+            if (td.indexOf('underline') > -1) { var u = document.createElement('u'); wrap.appendChild(u); wrap = u; }
+            if (td.indexOf('line-through') > -1) { var s = document.createElement('s'); wrap.appendChild(s); wrap = s; }
+            delete sm['text-decoration']; delete sm['text-decoration-line'];
+          }
+
+          var el = document.createElement(tag === 'strike' || tag === 'del' ? 's' : tag);
+          if (tag === 'a') {
+            var href = safeUrl(n.getAttribute('href'));
+            if (!href) { walk(n, wrap); return; }
+            el.setAttribute('href', href);
+            if (n.getAttribute('target') === '_blank') el.setAttribute('target', '_blank');
+            var rel = (n.getAttribute('rel') || '').toLowerCase().split(/\s+/).filter(function (r) { return /^(nofollow|noopener|noreferrer|sponsored|ugc)$/.test(r); });
+            if (n.getAttribute('target') === '_blank' && rel.indexOf('noopener') < 0) rel.push('noopener');
+            if (rel.length) el.setAttribute('rel', rel.join(' '));
+          }
+          if ((tag === 'td' || tag === 'th')) {
+            ['colspan', 'rowspan'].forEach(function (a) { var v = parseInt(n.getAttribute(a), 10); if (v > 1 && v < 50) el.setAttribute(a, v); });
+          }
+          var cs = cleanStyle(styleToString(sm));
+          if (cs) el.setAttribute('style', cs);
+
+          if (tag === 'span' && !cs) { walk(n, wrap); return; }       // useless span -> unwrap
+          walk(n, el); wrap.appendChild(el);
+        });
+      })(doc.body, root);
+      root.querySelectorAll('h2 strong,h3 strong,h4 strong,h5 strong,h6 strong').forEach(function (n) {
+        while (n.firstChild) n.parentNode.insertBefore(n.firstChild, n); n.remove();
+      });
+      return root.innerHTML;
+    }
+
+    /* Plain text / light Markdown -> HTML  (# headings, - bullets, 1. numbers, **bold**, [t](url), ---, > quote) */
+    function inlineMd(t) {
+      var s = esc(t);
+      s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/\*([^*\s][^*]*?)\*/g, '<em>$1</em>');
+      s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" rel="noopener">$1</a>');
+      return s;
+    }
+    function textToHtml(raw, base) {
+      var lines = String(raw || '').replace(/\r\n?/g, '\n').split('\n');
+      var hRe = /^(#{1,6})(?:[ \t]+|(?=[0-9\u09E6-\u09EF]))(.+?)\s*$/;
+      var min = 7;
+      lines.forEach(function (l) { var m = l.match(hRe); if (m) min = Math.min(min, m[1].length); });
+      var off = min === 7 ? 0 : base - min;
+      var out = [], para = [], list = null, quote = [];
+      function flushPara() { if (para.length) { out.push('<p>' + para.map(inlineMd).join('<br>') + '</p>'); para = []; } }
+      function flushList() { if (list) { out.push('<' + list.tag + '>' + list.items.map(function (i) { return '<li>' + inlineMd(i) + '</li>'; }).join('') + '</' + list.tag + '>'); list = null; } }
+      function flushQuote() { if (quote.length) { out.push('<blockquote>' + quote.map(inlineMd).join('<br>') + '</blockquote>'); quote = []; } }
+      function flushAll() { flushPara(); flushList(); flushQuote(); }
+      lines.forEach(function (line) {
+        var m;
+        if (!line.trim()) { flushAll(); return; }
+        if ((m = line.match(hRe))) { flushAll(); var lv = Math.max(2, Math.min(6, m[1].length + off)); out.push('<h' + lv + '>' + inlineMd(m[2]) + '</h' + lv + '>'); return; }
+        if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { flushAll(); out.push('<hr>'); return; }
+        if ((m = line.match(/^\s*>\s?(.*)$/))) { flushPara(); flushList(); quote.push(m[1]); return; }
+        if ((m = line.match(/^\s*(?:[-*\u2022\u2013])\s+(.*)$/))) { flushPara(); flushQuote(); if (!list || list.tag !== 'ul') { flushList(); list = { tag: 'ul', items: [] }; } list.items.push(m[1]); return; }
+        if ((m = line.match(/^\s*(?:\d+|[\u09E6-\u09EF]+)[.)\u0964]\s+(.*)$/))) { flushPara(); flushQuote(); if (!list || list.tag !== 'ol') { flushList(); list = { tag: 'ol', items: [] }; } list.items.push(m[1]); return; }
+        flushList(); flushQuote(); para.push(line.trim());
+      });
+      flushAll();
+      return out.join('');
+    }
+    function looksMarkdown(t) {
+      return /\n/.test(t) || /^(#{1,6})(\s|[0-9\u09E6-\u09EF])/m.test(t) || /^\s*[-*\u2022]\s+/m.test(t) || /\*\*.+?\*\*/.test(t) || /\[[^\]]+\]\(https?:/.test(t);
+    }
+
+    /* ---------- one editor per textarea ---------- */
+    function enhance(ta, opts) {
+      var base = opts.base, minH = opts.minH;
+      var req = ta.required; ta.required = false;                 // hidden control can't be validated by the browser
+      var labelEl = ta.parentNode && ta.parentNode.querySelector('label');
+      var label = labelEl ? labelEl.textContent.replace('*', '').trim() : ta.name;
+
+      var wrap = document.createElement('div'); wrap.className = 'rt-wrap';
+      var bar = document.createElement('div'); bar.className = 'rt-bar';
+      var ed = document.createElement('div'); ed.className = 'rt-area'; ed.contentEditable = 'true'; ed.spellcheck = false;
+      ed.style.minHeight = minH + 'px'; ed.setAttribute('data-placeholder', 'এখানে লিখুন…');
+      var src = document.createElement('textarea'); src.className = 'rt-src'; src.style.minHeight = minH + 'px'; src.style.display = 'none'; src.spellcheck = false;
+      var foot = document.createElement('div'); foot.className = 'rt-foot';
+      var pop = document.createElement('div'); pop.className = 'rt-pop'; pop.style.display = 'none';
+      wrap.appendChild(bar); wrap.appendChild(ed); wrap.appendChild(src); wrap.appendChild(foot); wrap.appendChild(pop);
+      ta.parentNode.insertBefore(wrap, ta); ta.style.display = 'none';
+
+      var srcMode = false, saved = null;
+
+      var ico = {
+        undo: '<svg viewBox="0 0 16 16"><path d="M5 3 2 6l3 3M2 6h7a4 4 0 0 1 0 8H6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        redo: '<svg viewBox="0 0 16 16"><path d="m11 3 3 3-3 3M14 6H7a4 4 0 0 0 0 8h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        left: '<svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        center: '<svg viewBox="0 0 16 16"><path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        right: '<svg viewBox="0 0 16 16"><path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        just: '<svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h12M2 10h12M2 13.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        ul: '<svg viewBox="0 0 16 16"><circle cx="2.5" cy="4" r="1.2" fill="currentColor"/><circle cx="2.5" cy="8" r="1.2" fill="currentColor"/><circle cx="2.5" cy="12" r="1.2" fill="currentColor"/><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        ol: '<svg viewBox="0 0 16 16"><text x="0" y="5.5" font-size="5" fill="currentColor">1</text><text x="0" y="9.5" font-size="5" fill="currentColor">2</text><text x="0" y="13.5" font-size="5" fill="currentColor">3</text><path d="M6 4h8M6 8h8M6 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        outd: '<svg viewBox="0 0 16 16"><path d="M7 4h7M7 8h7M7 12h7M5 5.5 2 8l3 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        ind: '<svg viewBox="0 0 16 16"><path d="M7 4h7M7 8h7M7 12h7M2 5.5 5 8l-3 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        quote: '<svg viewBox="0 0 16 16"><path d="M3 12V8.5C3 6 4.2 4.6 6.5 4M9 12V8.5C9 6 10.2 4.6 12.5 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+        link: '<svg viewBox="0 0 16 16"><path d="M7 9a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-1 1M9 7a3 3 0 0 0-4.2 0l-2 2A3 3 0 0 0 7 13.2l1-1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        unlink: '<svg viewBox="0 0 16 16"><path d="M7 9a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-1 1M9 7a3 3 0 0 0-4.2 0l-2 2A3 3 0 0 0 7 13.2l1-1M2 2l12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+        hr: '<svg viewBox="0 0 16 16"><path d="M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+        table: '<svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 7h12M2 10h12M6.5 3v10M10 3v10" stroke="currentColor" stroke-width="1.2"/></svg>',
+        clear: '<svg viewBox="0 0 16 16"><path d="M3 3h8M7 3 5 13M9 13h4M11 9l3 3m0-3-3 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+      };
+      var heads = [base, base + 1, base + 2];
+      bar.innerHTML =
+        '<button type="button" class="rt-b" data-a="undo" title="আনডু (Ctrl+Z)">' + ico.undo + '</button>' +
+        '<button type="button" class="rt-b" data-a="redo" title="রিডু (Ctrl+Y)">' + ico.redo + '</button><i class="rt-sep"></i>' +
+        '<select class="rt-s" data-a="block" title="প্যারাগ্রাফ / হেডিং"><option value="">ফরম্যাট</option><option value="p">সাধারণ অনুচ্ছেদ</option>' +
+          heads.map(function (h) { return '<option value="h' + h + '">হেডিং H' + h + '</option>'; }).join('') + '</select>' +
+        '<select class="rt-s" data-a="font" title="ফন্ট"><option value="">ফন্ট</option><option value="Arial, Helvetica, sans-serif">Sans-serif</option><option value="Georgia, \'Times New Roman\', serif">Serif</option><option value="\'Courier New\', monospace">Monospace</option><option value="\'Noto Sans Bengali\', \'Hind Siliguri\', sans-serif">Bangla Sans</option></select>' +
+        '<select class="rt-s" data-a="size" title="ফন্ট সাইজ"><option value="">সাইজ</option><option value="2">ছোট</option><option value="3">স্বাভাবিক</option><option value="4">বড়</option><option value="5">আরও বড়</option><option value="6">বিশাল</option></select><i class="rt-sep"></i>' +
+        '<button type="button" class="rt-b" data-a="bold" title="বোল্ড (Ctrl+B)"><b>B</b></button>' +
+        '<button type="button" class="rt-b" data-a="italic" title="ইটালিক (Ctrl+I)"><i>I</i></button>' +
+        '<button type="button" class="rt-b" data-a="underline" title="আন্ডারলাইন (Ctrl+U)"><u>U</u></button>' +
+        '<button type="button" class="rt-b" data-a="strikeThrough" title="স্ট্রাইকথ্রু"><s>S</s></button>' +
+        '<button type="button" class="rt-b" data-a="forecolor" title="টেক্সট কালার"><span style="border-bottom:3px solid #b91c1c;line-height:1">A</span></button>' +
+        '<button type="button" class="rt-b" data-a="hilite" title="হাইলাইট কালার"><span style="background:#fef08a;padding:0 3px">A</span></button><i class="rt-sep"></i>' +
+        '<button type="button" class="rt-b" data-a="justifyLeft" title="বামে">' + ico.left + '</button>' +
+        '<button type="button" class="rt-b" data-a="justifyCenter" title="মাঝখানে">' + ico.center + '</button>' +
+        '<button type="button" class="rt-b" data-a="justifyRight" title="ডানে">' + ico.right + '</button>' +
+        '<button type="button" class="rt-b" data-a="justifyFull" title="জাস্টিফাই">' + ico.just + '</button><i class="rt-sep"></i>' +
+        '<button type="button" class="rt-b" data-a="insertUnorderedList" title="বুলেট লিস্ট">' + ico.ul + '</button>' +
+        '<button type="button" class="rt-b" data-a="insertOrderedList" title="নম্বর লিস্ট">' + ico.ol + '</button>' +
+        '<button type="button" class="rt-b" data-a="outdent" title="ইনডেন্ট কমান">' + ico.outd + '</button>' +
+        '<button type="button" class="rt-b" data-a="indent" title="ইনডেন্ট বাড়ান">' + ico.ind + '</button><i class="rt-sep"></i>' +
+        '<button type="button" class="rt-b" data-a="quote" title="কোট (ব্লককোট)">' + ico.quote + '</button>' +
+        '<button type="button" class="rt-b" data-a="link" title="লিংক (Ctrl+K)">' + ico.link + '</button>' +
+        '<button type="button" class="rt-b" data-a="unlink" title="লিংক সরান">' + ico.unlink + '</button>' +
+        '<button type="button" class="rt-b" data-a="hr" title="আনুভূমিক রেখা">' + ico.hr + '</button>' +
+        '<button type="button" class="rt-b" data-a="table" title="টেবিল">' + ico.table + '</button>' +
+        '<button type="button" class="rt-b" data-a="clear" title="ফরম্যাটিং মুছুন">' + ico.clear + '</button><i class="rt-sep"></i>' +
+        '<button type="button" class="rt-b rt-txt" data-a="source" title="HTML দেখুন / এডিট করুন">&lt;/&gt; HTML</button>';
+
+      /* ----- serialise editor -> clean HTML ----- */
+      function serialize() {
+        var c = ed.cloneNode(true);
+        function rename(n, tag) {
+          var r = document.createElement(tag);
+          Array.prototype.forEach.call(n.attributes, function (a) { r.setAttribute(a.name, a.value); });
+          while (n.firstChild) r.appendChild(n.firstChild);
+          n.replaceWith(r);
+        }
+        c.querySelectorAll('b').forEach(function (n) { rename(n, 'strong'); });
+        c.querySelectorAll('i').forEach(function (n) { rename(n, 'em'); });
+        c.querySelectorAll('strike').forEach(function (n) { rename(n, 's'); });
+        c.querySelectorAll('font').forEach(function (n) { while (n.firstChild) n.parentNode.insertBefore(n.firstChild, n); n.remove(); });
+        var out = document.createElement('div'), p = null;
+        Array.prototype.slice.call(c.childNodes).forEach(function (n) {
+          if (n.nodeType === 1 && BLOCK.has(n.tagName)) { p = null; out.appendChild(n); return; }
+          if (n.nodeType === 3 && !n.textContent.trim() && !p) return;
+          if (!p) { p = document.createElement('p'); out.appendChild(p); }
+          p.appendChild(n);
+        });
+        out.querySelectorAll('span,strong,em,u,s,mark').forEach(function (n) { if (!n.textContent && !n.querySelector('br')) n.remove(); });
+        out.querySelectorAll('p,div').forEach(function (n) {
+          if (!n.querySelector('hr,table,ul,ol') && !n.textContent.replace(/[\s\u00a0]/g, '')) n.remove();
+        });
+        out.querySelectorAll('p,li,h2,h3,h4,h5,h6,blockquote').forEach(function (n) {
+          var l = n.lastChild; if (l && l.nodeName === 'BR' && n.childNodes.length > 1) l.remove();
+        });
+        return out.innerHTML.trim();
+      }
+      function isEmpty() {
+        var h = srcMode ? cleanHtml(src.value, base, false) : serialize();
+        var d = document.createElement('div'); d.innerHTML = h;
+        return !d.textContent.trim() && !d.querySelector('hr,table');
+      }
+      function words() {
+        var t = (srcMode ? '' : ed.textContent).trim();
+        return t ? t.split(/\s+/).length : 0;
+      }
+      function updateFoot() { foot.textContent = 'শব্দ: ' + words() + ' · অক্ষর: ' + ed.textContent.length; }
+      function sync() {
+        var html = srcMode ? cleanHtml(src.value, base, false) : serialize();
+        var d = document.createElement('div'); d.innerHTML = html;
+        if (!d.textContent.trim() && !d.querySelector('hr,table')) html = '';
+        nativeVal.set.call(ta, html);
+        updateFoot();
+      }
+      function load(v) {
+        v = String(v == null ? '' : v);
+        var html = !v.trim() ? '' : (HTML_RE.test(v) ? cleanHtml(v, base, false) : textToHtml(v, base));
+        ed.innerHTML = html; if (srcMode) src.value = html; updateFoot();
+      }
+
+      /* ----- selection helpers ----- */
+      function save() { var s = window.getSelection(); if (s.rangeCount && ed.contains(s.anchorNode)) saved = s.getRangeAt(0).cloneRange(); }
+      function restore() { ed.focus(); if (saved) { var s = window.getSelection(); s.removeAllRanges(); s.addRange(saved); } }
+      function exec(cmd, val, css) {
+        restore();
+        document.execCommand('styleWithCSS', false, !!css);
+        document.execCommand(cmd, false, val == null ? null : val);
+        sync(); save(); refresh();
+      }
+      function selBlocks() {
+        restore();
+        var s = window.getSelection(); if (!s.rangeCount) return [];
+        var r = s.getRangeAt(0);
+        return Array.prototype.filter.call(ed.querySelectorAll(LEAF_BLOCKS), function (el) {
+          return !el.querySelector(LEAF_BLOCKS) && r.intersectsNode(el);
+        });
+      }
+      function shiftIndent(dir) {
+        var bl = selBlocks();
+        if (!bl.length) { exec('formatBlock', '<p>'); bl = selBlocks(); }
+        bl.forEach(function (el) {
+          var cur = parseInt(el.style.marginLeft, 10) || 0;
+          var nv = Math.max(0, Math.min(192, cur + dir * 24));
+          if (nv) el.style.marginLeft = nv + 'px'; else el.style.removeProperty('margin-left');
+          if (!el.getAttribute('style')) el.removeAttribute('style');
+        });
+        sync();
+      }
+      function refresh() {
+        if (document.activeElement !== ed) return;
+        ['bold', 'italic', 'underline', 'strikeThrough', 'insertUnorderedList', 'insertOrderedList', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'].forEach(function (c) {
+          var b = bar.querySelector('[data-a="' + c + '"]'); if (!b) return;
+          var on = false; try { on = document.queryCommandState(c); } catch (e) { }
+          b.classList.toggle('on', !!on);
+        });
+      }
+
+      /* ----- popups (colour / link / table) ----- */
+      function closePop() { pop.style.display = 'none'; pop.innerHTML = ''; }
+      function openPop(btn, html) {
+        pop.innerHTML = html; pop.style.display = 'block';
+        var br = btn.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+        pop.style.left = Math.max(0, Math.min(br.left - wr.left, wr.width - 250)) + 'px';
+        pop.style.top = (br.bottom - wr.top + 4) + 'px';
+      }
+      var FORE = ['#000000', '#434343', '#666666', '#999999', '#cccccc', '#ffffff', '#b91c1c', '#ea580c', '#ca8a04', '#15803d', '#0e7490', '#1d4ed8', '#6d28d9', '#be185d', '#064e3b', '#047857'];
+      var HIL = ['#fef08a', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#fed7aa', '#e9d5ff', '#fecaca', '#e5e7eb'];
+      function palette(btn, list, kind) {
+        openPop(btn,
+          '<div class="rt-sw">' + list.map(function (c) { return '<button type="button" class="rt-c" data-c="' + c + '" style="background:' + c + '"></button>'; }).join('') + '</div>' +
+          '<div class="rt-row"><label style="margin:0">কাস্টম</label><input type="color" class="rt-col" value="#1d4ed8"><button type="button" class="btn btn-sec rt-none" style="padding:3px 8px">' + (kind === 'fore' ? 'ডিফল্ট' : 'মুছুন') + '</button></div>');
+        function apply(c) {
+          closePop();
+          if (kind === 'fore') { c ? exec('foreColor', c, true) : exec('foreColor', '#000000', true); }
+          else { c ? exec('hiliteColor', c, true) : exec('hiliteColor', 'transparent', true); }
+        }
+        pop.querySelectorAll('.rt-c').forEach(function (b) { b.onmousedown = function (e) { e.preventDefault(); apply(b.getAttribute('data-c')); }; });
+        pop.querySelector('.rt-col').onchange = function () { apply(this.value); };
+        pop.querySelector('.rt-none').onmousedown = function (e) { e.preventDefault(); apply(''); };
+      }
+      function linkPop(btn) {
+        save();
+        var s = window.getSelection(), anchor = null;
+        if (saved) { var n = saved.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentNode; anchor = n && n.closest ? n.closest('a') : null; if (anchor && !ed.contains(anchor)) anchor = null; }
+        var url = anchor ? (anchor.getAttribute('href') || '') : '';
+        var nt = anchor ? anchor.getAttribute('target') === '_blank' : true;
+        var nf = anchor ? /nofollow/.test(anchor.getAttribute('rel') || '') : false;
+        openPop(btn,
+          '<label>লিংক URL</label><input type="text" class="rt-url" placeholder="https://..." value="' + esc(url).replace(/"/g, '&quot;') + '">' +
+          '<label class="rt-chk"><input type="checkbox" class="rt-nt"' + (nt ? ' checked' : '') + '> নতুন ট্যাবে খুলুন</label>' +
+          '<label class="rt-chk"><input type="checkbox" class="rt-nf"' + (nf ? ' checked' : '') + '> rel="nofollow" যোগ করুন</label>' +
+          '<div class="rt-row"><button type="button" class="btn rt-ok" style="padding:4px 12px">প্রয়োগ</button><button type="button" class="btn btn-sec rt-cancel" style="padding:4px 12px">বাতিল</button></div>');
+        var inp = pop.querySelector('.rt-url'); setTimeout(function () { inp.focus(); inp.select(); }, 0);
+        function ok() {
+          var u = safeUrl(inp.value); if (!u) { alert('সঠিক লিংক দিন'); return; }
+          var newTab = pop.querySelector('.rt-nt').checked, nofollow = pop.querySelector('.rt-nf').checked;
+          var rel = [newTab ? 'noopener' : '', nofollow ? 'nofollow' : ''].filter(Boolean).join(' ');
+          closePop();
+          if (anchor) {
+            anchor.setAttribute('href', u);
+            if (newTab) anchor.setAttribute('target', '_blank'); else anchor.removeAttribute('target');
+            if (rel) anchor.setAttribute('rel', rel); else anchor.removeAttribute('rel');
+            sync(); return;
+          }
+          restore();
+          var a = document.createElement('a'); a.setAttribute('href', u);
+          if (newTab) a.setAttribute('target', '_blank'); if (rel) a.setAttribute('rel', rel);
+          var sel = window.getSelection();
+          if (!sel.rangeCount || sel.isCollapsed) a.textContent = u; else a.appendChild(sel.getRangeAt(0).cloneContents());
+          document.execCommand('insertHTML', false, a.outerHTML); sync();
+        }
+        pop.querySelector('.rt-ok').onclick = ok;
+        pop.querySelector('.rt-cancel').onclick = closePop;
+        inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); ok(); } if (e.key === 'Escape') closePop(); };
+      }
+      function tablePop(btn) {
+        save();
+        openPop(btn,
+          '<div class="rt-row"><label style="margin:0">সারি</label><input type="number" class="rt-r" value="3" min="1" max="30" style="width:64px">' +
+          '<label style="margin:0">কলাম</label><input type="number" class="rt-cl" value="3" min="1" max="10" style="width:64px"></div>' +
+          '<label class="rt-chk"><input type="checkbox" class="rt-hd" checked> প্রথম সারি হেডার</label>' +
+          '<div class="rt-row"><button type="button" class="btn rt-ok" style="padding:4px 12px">টেবিল যোগ করুন</button><button type="button" class="btn btn-sec rt-cancel" style="padding:4px 12px">বাতিল</button></div>');
+        pop.querySelector('.rt-ok').onclick = function () {
+          var r = Math.max(1, Math.min(30, +pop.querySelector('.rt-r').value || 3));
+          var c = Math.max(1, Math.min(10, +pop.querySelector('.rt-cl').value || 3));
+          var hd = pop.querySelector('.rt-hd').checked;
+          var cell = 'border:1px solid #cbd5e1;padding:6px 8px';
+          var h = '<table style="border-collapse:collapse;width:100%"><tbody>';
+          for (var i = 0; i < r; i++) {
+            h += '<tr>';
+            for (var j = 0; j < c; j++) { var t = (hd && i === 0) ? 'th' : 'td'; h += '<' + t + ' style="' + cell + '"><br></' + t + '>'; }
+            h += '</tr>';
+          }
+          h += '</tbody></table><p><br></p>';
+          closePop(); restore(); document.execCommand('insertHTML', false, h); sync();
+        };
+        pop.querySelector('.rt-cancel').onclick = closePop;
+      }
+
+      /* ----- toolbar actions ----- */
+      bar.addEventListener('mousedown', function (e) { if (e.target.closest('.rt-b')) e.preventDefault(); });
+      bar.addEventListener('click', function (e) {
+        var b = e.target.closest('.rt-b'); if (!b) return;
+        var a = b.getAttribute('data-a');
+        if (a !== 'source' && srcMode) return;
+        closePop();
+        switch (a) {
+          case 'undo': case 'redo': exec(a); break;
+          case 'bold': case 'italic': case 'underline': case 'strikeThrough':
+          case 'insertUnorderedList': case 'insertOrderedList': exec(a, null, false); break;
+          case 'justifyLeft': case 'justifyCenter': case 'justifyRight': case 'justifyFull': exec(a, null, true); break;
+          case 'forecolor': save(); palette(b, FORE, 'fore'); break;
+          case 'hilite': save(); palette(b, HIL, 'hil'); break;
+          case 'indent': shiftIndent(1); break;
+          case 'outdent': shiftIndent(-1); break;
+          case 'quote': restore(); var cur = ''; try { cur = document.queryCommandValue('formatBlock'); } catch (x) { } exec('formatBlock', /blockquote/i.test(cur) ? '<p>' : '<blockquote>'); break;
+          case 'link': linkPop(b); break;
+          case 'unlink': exec('unlink'); break;
+          case 'hr': exec('insertHorizontalRule'); break;
+          case 'table': tablePop(b); break;
+          case 'clear': exec('removeFormat'); exec('unlink'); break;
+          case 'source': toggleSource(b); break;
+        }
+      });
+      bar.addEventListener('change', function (e) {
+        var s = e.target.closest('select'); if (!s) return;
+        var a = s.getAttribute('data-a'), v = s.value; s.selectedIndex = 0;
+        if (!v || srcMode) return;
+        if (a === 'block') exec('formatBlock', '<' + v + '>');
+        else if (a === 'font') exec('fontName', v, true);
+        else if (a === 'size') exec('fontSize', v, true);
+      });
+      function toggleSource(btn) {
+        closePop();
+        if (!srcMode) {
+          src.value = serialize(); srcMode = true;
+          ed.style.display = 'none'; src.style.display = 'block'; btn.classList.add('on');
+          bar.classList.add('rt-src-on');
+        } else {
+          var html = cleanHtml(src.value, base, false);
+          srcMode = false; ed.innerHTML = html;
+          src.style.display = 'none'; ed.style.display = ''; btn.classList.remove('on');
+          bar.classList.remove('rt-src-on');
+          sync();
+        }
+      }
+      src.addEventListener('input', sync);
+      document.addEventListener('mousedown', function (e) { if (pop.style.display !== 'none' && !pop.contains(e.target) && !e.target.closest('.rt-b')) closePop(); });
+
+      /* ----- editor events ----- */
+      try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) { }
+      ed.addEventListener('input', function () { sync(); });
+      ed.addEventListener('blur', sync);
+      ed.addEventListener('keyup', function () { save(); refresh(); });
+      ed.addEventListener('mouseup', function () { save(); refresh(); });
+      ed.addEventListener('focus', function () { refresh(); });
+      document.addEventListener('selectionchange', function () { if (document.activeElement === ed) { save(); refresh(); } });
+      ed.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); save(); linkPop(bar.querySelector('[data-a="link"]')); }
+      });
+      ed.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) e.preventDefault(); });   // no image/file drops
+      ed.addEventListener('paste', function (e) {
+        var cd = e.clipboardData; if (!cd) return;
+        e.preventDefault();
+        var html = cd.getData('text/html'), txt = cd.getData('text/plain'), ins = '';
+        if (html && /<(p|div|h[1-6]|ul|ol|li|table|strong|b|em|i|a|span|br)[\s>\/]/i.test(html)) {
+          ins = cleanHtml(html, base, true);
+        } else if (txt) {
+          if (!looksMarkdown(txt)) { document.execCommand('insertText', false, txt); sync(); return; }
+          ins = textToHtml(txt, base);
+        }
+        if (ins) document.execCommand('insertHTML', false, ins);
+        sync();
+      });
+
+      /* ----- keep the original textarea API working (editInst() etc. set .value from code) ----- */
+      Object.defineProperty(ta, 'value', {
+        configurable: true,
+        get: function () { return nativeVal.get.call(ta); },
+        set: function (v) { nativeVal.set.call(ta, v); load(v); }
+      });
+
+      var api = {
+        ta: ta, req: req, label: label,
+        sync: sync, isEmpty: isEmpty, load: load,
+        focus: function () { if (srcMode) src.focus(); else ed.focus(); wrap.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+      };
+      registry.push(api);
+      load(nativeVal.get.call(ta));
+    }
+
+    /* ---------- wire form events once (capture phase so it runs before the inline onsubmit) ---------- */
+    document.addEventListener('submit', function (e) {
+      var f = e.target, mine = registry.filter(function (a) { return f.contains(a.ta); });
+      if (!mine.length) return;
+      mine.forEach(function (a) { a.sync(); });
+      for (var i = 0; i < mine.length; i++) {
+        if (mine[i].req && mine[i].isEmpty()) {
+          e.preventDefault(); e.stopImmediatePropagation();
+          alert('"' + mine[i].label + '" ফাঁকা রাখা যাবে না।');
+          mine[i].focus(); return;
+        }
+      }
+    }, true);
+    document.addEventListener('reset', function (e) {
+      var f = e.target;
+      setTimeout(function () { registry.forEach(function (a) { if (f.contains(a.ta)) a.load(nativeVal.get.call(a.ta)); }); }, 0);
+    }, true);
+
+    /* ---------- which fields get the editor ---------- */
+    function init() {
+      var sels = [
+        ['textarea[name="content_markdown"]',        { base: 2, minH: 420 }],   // Posts, Admission notices, News
+        ['textarea[name="overview_bn"]',             { base: 3, minH: 220 }],   // Institution
+        ['textarea[name="admission_info_bn"]',       { base: 3, minH: 220 }],
+        ['textarea[name="history_bn"]',              { base: 3, minH: 220 }],
+        ['textarea[name="academic_analysis_bn"]',    { base: 3, minH: 160 }],   // Editorial review
+        ['textarea[name="facilities_analysis_bn"]',  { base: 3, minH: 160 }],
+        ['textarea[name="overall_assessment_bn"]',   { base: 3, minH: 160 }],
+        ['#set_method',                              { base: 3, minH: 140 }]    // Settings
+      ];
+      sels.forEach(function (s) {
+        document.querySelectorAll(s[0]).forEach(function (ta) {
+          if (ta.closest('.rt-wrap') || ta.dataset.rt) return;
+          ta.dataset.rt = '1'; enhance(ta, s[1]);
+        });
+      });
+    }
+    init();
+  })();
+  </script>
 
   <script>
     const OAUTH_WORKER = 'https://bdresult-auth.antoraisu.workers.dev';

@@ -47,8 +47,61 @@ function sanitizeHtml(raw) {
     .replace(/javascript:/gi, '');
 }
 
+// ---- Rich-text (admin editor) output: strict allow-list sanitizer ------------------------------
+// Used for institution / review / settings fields. Plain-text values saved before the editor existed still use the old path.
+const RICH_DETECT_RE = /<(p|div|h[1-6]|ul|ol|li|br|table|blockquote|hr)[\s>\/]/i;
+const isRichHtml = (s) => RICH_DETECT_RE.test(String(s || ''));
+const RICH_TAGS = new Set(['p','br','h2','h3','h4','h5','h6','strong','b','em','i','u','s','strike','del','sub','sup','blockquote','ul','ol','li','a','span','div','hr','table','thead','tbody','tr','th','td','code','pre','mark']);
+const RICH_STYLE = new Set(['color','background-color','font-size','font-family','font-weight','font-style','text-decoration','text-align','margin-left','padding','border','border-collapse','width','line-height']);
+function sanitizeRich(raw) {
+  const s = String(raw || '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<(script|style|iframe|object|embed|noscript|template|svg|form|textarea|select|button)\b[\s\S]*?<\/\1\s*>/gi, '');
+  const decode = (v) => String(v).replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&');
+  const escText = (t) => t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const rebuild = (slash, tag, attrs) => {
+    tag = tag.toLowerCase();
+    if (!RICH_TAGS.has(tag)) return '';
+    if (slash) return (tag === 'br' || tag === 'hr') ? '' : '</' + tag + '>';
+    const get = (name) => {
+      const x = attrs.match(new RegExp('(?:^|\\s)' + name + '\\s*=\\s*(?:"([^"]*)"|\'([^\']*)\'|([^\\s"\'>]+))', 'i'));
+      return x ? (x[1] ?? x[2] ?? x[3] ?? '') : null;
+    };
+    let out = '<' + tag;
+    if (tag === 'a') {
+      const href = decode(get('href') || '').trim();
+      if (/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(href)) out += ' href="' + href.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"';
+      const blank = String(get('target') || '').toLowerCase() === '_blank';
+      const rel = String(get('rel') || '').toLowerCase().split(/\s+/).filter((r) => /^(nofollow|noopener|noreferrer|sponsored|ugc)$/.test(r));
+      if (blank) { out += ' target="_blank"'; if (!rel.includes('noopener')) rel.push('noopener'); }
+      if (rel.length) out += ' rel="' + rel.join(' ') + '"';
+    }
+    if (tag === 'td' || tag === 'th') {
+      for (const a of ['colspan', 'rowspan']) { const v = parseInt(get(a), 10); if (v > 1 && v < 50) out += ' ' + a + '="' + v + '"'; }
+    }
+    const st = get('style');
+    if (st) {
+      const cleaned = decode(st).split(';').map((d) => {
+        const i = d.indexOf(':'); if (i < 1) return '';
+        const k = d.slice(0, i).trim().toLowerCase();
+        const v = d.slice(i + 1).trim().replace(/"/g, "'");
+        if (!RICH_STYLE.has(k) || !v) return '';
+        if (!/^[#\w\s.,%()'\-+\/]+$/.test(v) || /url\s*\(|expression|javascript|import/i.test(v)) return '';
+        return k + ':' + v;
+      }).filter(Boolean).join(';');
+      if (cleaned) out += ' style="' + cleaned + '"';
+    }
+    return out + ((tag === 'br' || tag === 'hr') ? ' />' : '>');
+  };
+  const re = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
+  let out = '', last = 0, m;
+  while ((m = re.exec(s))) { out += escText(s.slice(last, m.index)) + rebuild(m[1], m[2], m[3]); last = re.lastIndex; }
+  return out + escText(s.slice(last));
+}
+
 // Plain text -> safe HTML (keeps line breaks, "- " / "• " bullets, numbered lines, blank-line paragraphs)
 function formatText(raw) {
+  if (isRichHtml(raw)) return sanitizeRich(raw);
   const text = String(raw || '').replace(/\r\n?/g, '\n').trim();
   if (!text) return '';
   const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -621,7 +674,7 @@ async function handleResultsComparisonPage(req, env) {
     <h1>স্বচ্ছ বোর্ড ফলাফল পরিসংখ্যান ও শিক্ষাপ্রতিষ্ঠান তুলনা</h1>
     <div class="src-box" style="margin-bottom:20px">
       <strong>স্বচ্ছ তুলনা ও মূল্যায়ন পদ্ধতি (Ranking & Comparison Methodology):</strong>
-      <p style="margin:6px 0 0">${esc(methodRow?.setting_value || 'একই পরীক্ষা ও একই শিক্ষাবর্ষের যাচাইকৃত বোর্ড ফলাফলের ভিত্তিতে তুলনা করা হয়।')}</p>
+      ${isRichHtml(methodRow?.setting_value) ? `<div style="margin:6px 0 0">${sanitizeRich(methodRow.setting_value)}</div>` : `<p style="margin:6px 0 0">${esc(methodRow?.setting_value || 'একই পরীক্ষা ও একই শিক্ষাবর্ষের যাচাইকৃত বোর্ড ফলাফলের ভিত্তিতে তুলনা করা হয়।')}</p>`}
     </div>
 
     <form class="dir-filter" action="/results/compare/" method="GET">
@@ -716,7 +769,7 @@ async function handleInstitutionProfile(req, env, slug) {
     : 'EducationalOrganization';
   const sdPhone = contacts.find(c => c.contact_type === 'phone' || c.contact_type === 'hotline');
   const sdEmail = contacts.find(c => c.contact_type === 'email');
-  const sdDesc = String(inst.overview_bn || '').replace(/\s+/g, ' ').trim().slice(0, 300) || undefined;
+  const sdDesc = String(inst.overview_bn || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300) || undefined;
   const schema = [
     {
       '@context': 'https://schema.org',
@@ -814,7 +867,7 @@ async function handleInstitutionProfile(req, env, slug) {
         <!-- B. OVERVIEW -->
         <section id="overview" class="prof-sec">
           <h2>প্রতিষ্ঠান পরিচিতি (Overview)</h2>
-          <p>${esc(inst.overview_bn || `${inst.name_bn} (${inst.name_en}) ${inst.district_bn} জেলার ${inst.upazila_bn} উপজেলায় অবস্থিত একটি শিক্ষাপ্রতিষ্ঠান।`)}</p>
+          ${isRichHtml(inst.overview_bn) ? sanitizeRich(inst.overview_bn) : `<p>${esc(inst.overview_bn || `${inst.name_bn} (${inst.name_en}) ${inst.district_bn} জেলার ${inst.upazila_bn} উপজেলায় অবস্থিত একটি শিক্ষাপ্রতিষ্ঠান।`)}</p>`}
         </section>
 
         <!-- C. ACADEMIC INFORMATION -->
@@ -912,12 +965,12 @@ async function handleInstitutionProfile(req, env, slug) {
               <div class="rev-box">
                 <span class="badge badge-verified">সম্পাদকীয় বিশ্লেষণ — ${esc(rev.author_name)}</span>
                 <h3 style="margin:8px 0">${esc(rev.title_bn || 'একাডেমিক ও প্রাতিষ্ঠানিক মূল্যায়ন')}</h3>
-                ${rev.academic_analysis_bn ? `<p><strong>একাডেমিক ফলাফল বিশ্লেষণ:</strong> ${esc(rev.academic_analysis_bn)}</p>` : ''}
-                ${rev.facilities_analysis_bn ? `<p><strong>অবকাঠামো ও সুযোগ-সুবিধা:</strong> ${esc(rev.facilities_analysis_bn)}</p>` : ''}
+                ${rev.academic_analysis_bn ? (isRichHtml(rev.academic_analysis_bn) ? `<p><strong>একাডেমিক ফলাফল বিশ্লেষণ:</strong></p>${sanitizeRich(rev.academic_analysis_bn)}` : `<p><strong>একাডেমিক ফলাফল বিশ্লেষণ:</strong> ${esc(rev.academic_analysis_bn)}</p>`) : ''}
+                ${rev.facilities_analysis_bn ? (isRichHtml(rev.facilities_analysis_bn) ? `<p><strong>অবকাঠামো ও সুযোগ-সুবিধা:</strong></p>${sanitizeRich(rev.facilities_analysis_bn)}` : `<p><strong>অবকাঠামো ও সুযোগ-সুবিধা:</strong> ${esc(rev.facilities_analysis_bn)}</p>`) : ''}
                 ${rev.accessibility_notes_bn ? `<p><strong>অবস্থান ও যাতায়াত:</strong> ${esc(rev.accessibility_notes_bn)}</p>` : ''}
                 ${strengths.length ? `<p><strong>প্রমাণভিত্তিক ইতিবাচক দিক:</strong></p><ul>${strengths.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
                 ${limits.length ? `<p><strong>সীমাবদ্ধতা:</strong></p><ul>${limits.map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}
-                ${rev.overall_assessment_bn ? `<p><strong>সার্বিক মূল্যায়ন:</strong> ${esc(rev.overall_assessment_bn)}</p>` : ''}
+                ${rev.overall_assessment_bn ? (isRichHtml(rev.overall_assessment_bn) ? `<p><strong>সার্বিক মূল্যায়ন:</strong></p>${sanitizeRich(rev.overall_assessment_bn)}` : `<p><strong>সার্বিক মূল্যায়ন:</strong> ${esc(rev.overall_assessment_bn)}</p>`) : ''}
               </div>
             `;
           }).join('') : `<p>এই প্রতিষ্ঠানের বিস্তারিত সম্পাদকীয় বিশ্লেষণ এখনো প্রকাশিত হয়নি।</p>`}
