@@ -4,7 +4,7 @@ title: প্রবেশপত্র (Admit Card) হারিয়ে গে�
 slug: admit-card-hariye-gele-ki-korben-ssc-hsc
 date: 2026-11-13T01:59:00.000+06:00
 updated: 2026-11-13T01:59:00.000+06:00
-category: notice
+category: study-tips
 description: SSC বা HSC-র প্রবেশপত্র (Admit Card) হারিয়ে গেলে কী করবেন?
   পরীক্ষার আগে ও পরে করণীয়, জিডি, পত্রিকায় বিজ্ঞপ্তি, আবেদন ও ফি, চাকরির
   প্রবেশপত্র পুনরায় ডাউনলোডের নিয়মসহ ধাপে ধাপে গাইড।
