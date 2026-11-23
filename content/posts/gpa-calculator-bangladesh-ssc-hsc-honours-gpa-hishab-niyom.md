@@ -2,8 +2,8 @@
 title: "জিপিএ ক্যালকুলেটর বাংলাদেশ: SSC, HSC ও Honours জিপিএ হিসাবের নিয়ম"
 slug: gpa-calculator-bangladesh-ssc-hsc-honours-gpa-hishab-niyom
 date: 2026-11-12T03:59:00.000+06:00
-updated: 2026-11-12T03:59:00.000+06:00
-category: notice
+updated: 2026-11-23T15:47:00.000+06:00
+category: study-tips
 description: "জিপিএ ক্যালকুলেটর বাংলাদেশ: SSC, HSC ও Honours CGPA কীভাবে হিসাব
   করবেন? গ্রেড পয়েন্ট চার্ট, ৪র্থ বিষয়ের নিয়ম ও উদাহরণসহ সহজ গাইড এক পোস্টে।"
 image: /uploads/gpa-calculator-bangladesh-banner.webp
