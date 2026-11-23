@@ -7,7 +7,7 @@ updated: 2026-11-23T10:30:00.000+06:00
 category: scholarship
 description: সোনালী ব্যাংক শিক্ষা বৃত্তি ২০২৫-এর আবেদন চলছে ২৭ নভেম্বর ২০২৬
   পর্যন্ত। যোগ্য শিক্ষার্থীরা এককালীন ১৫,০০০ টাকা বৃত্তি পেতে আবেদন করতে পারবেন।
-image: /uploads/article-banner-1200×630.webp
+image: /uploads/article-banner-1200×630-r.webp
 tags: []
 draft: false
 faq:
