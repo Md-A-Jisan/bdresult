@@ -1,0 +1,43 @@
+{
+  "slug": "cu-d",
+  "published": true,
+  "university_bn": "চট্টগ্রাম বিশ্ববিদ্যালয় (চবি)",
+  "short_bn": "চবি",
+  "university_en": "University of Chittagong",
+  "unit": "D",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-02-06",
+  "exam_time": "10:00",
+  "date_status": "tentative",
+  "apply_start": "2026-12-10",
+  "apply_end": "2027-01-10",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা",
+  "center_text": "ঢাকা, রাজশাহী, চট্টগ্রাম",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "যেকোনো বিভাগ (মোট: ৫টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "ইংরেজি(৩০), বিশ্লেষণ দক্ষতা(২০)"
+        },
+        {
+          "r": "যেকোনো একটি",
+          "s": "বাংলা, ঐচ্ছিক ইংরেজি (৩০)"
+        },
+        {
+          "r": "যেকোনো একটি",
+          "s": "সাধারণ জ্ঞান(২০), গণিত(২০), অর্থনীতি(২০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

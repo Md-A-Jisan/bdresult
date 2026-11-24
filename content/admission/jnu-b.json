@@ -1,0 +1,35 @@
+{
+  "slug": "jnu-b",
+  "published": true,
+  "university_bn": "জগন্নাথ বিশ্ববিদ্যালয় (জবি)",
+  "short_bn": "জবি",
+  "university_en": "Jagannath University",
+  "unit": "B",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-15",
+  "exam_time": "10:00",
+  "date_status": "confirmed",
+  "apply_start": "2026-11-25",
+  "apply_end": "2026-12-10",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৭২ নম্বর, ১ ঘণ্টা",
+  "center_text": "জবি ও ঢাবি ক্যাম্পাস",
+  "second_time": "no",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "যেকোনো বিভাগ (মোট: ৩টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "বাংলা, ইংরেজি, সাধারণ জ্ঞান (প্রতিটি MCQ ৮, লিখিত ১৬)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

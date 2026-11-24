@@ -1,0 +1,39 @@
+{
+  "slug": "sust-a1",
+  "published": true,
+  "university_bn": "শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (শাবিপ্রবি)",
+  "short_bn": "শাবিপ্রবি",
+  "university_en": "SUST",
+  "unit": "A1",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-17",
+  "exam_time": "15:00",
+  "date_status": "tentative",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৮০ নম্বর, ১ ঘণ্টা ৩০ মিনিট",
+  "center_text": "ঢাকা, সিলেট, চট্টগ্রাম, রংপুর, যশোর বিভাগে অনুষ্ঠিত হবে",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(২০), রসায়ন(২০), উচ্চতর গণিত(২০)"
+        },
+        {
+          "r": "যেকোনো একটি",
+          "s": "জীববিজ্ঞান(২০), ইংরেজি(২০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

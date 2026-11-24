@@ -1,0 +1,43 @@
+{
+  "slug": "cou-a",
+  "published": true,
+  "university_bn": "কুমিল্লা বিশ্ববিদ্যালয় (কুবি)",
+  "short_bn": "কুবি",
+  "university_en": "Comilla University",
+  "unit": "A",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-02-05",
+  "exam_time": "10:00",
+  "date_status": "confirmed",
+  "apply_start": "2026-12-10",
+  "apply_end": "2026-12-31",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা",
+  "center_text": "কুমিল্লা বিশ্ববিদ্যালয় এবং রাজশাহী বিশ্ববিদ্যালয়",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(২৫), রসায়ন(২৫)"
+        },
+        {
+          "r": "যেকোনো দুটি বা একটি",
+          "s": "উচ্চতর গণিত(২৫), জীববিজ্ঞান(২৫)"
+        },
+        {
+          "r": "জীববিজ্ঞান বা উচ্চতর গণিত না দাগালে",
+          "s": "বাংলা(১০), ইংরেজি(১৫)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

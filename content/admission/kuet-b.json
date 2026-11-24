@@ -1,0 +1,39 @@
+{
+  "slug": "kuet-b",
+  "published": true,
+  "university_bn": "খুলনা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (কুয়েট)",
+  "short_bn": "কুয়েট",
+  "university_en": "KUET",
+  "unit": "B",
+  "category": "engineering",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-08",
+  "exam_time": "09:30",
+  "date_status": "confirmed",
+  "apply_start": "2026-11-10",
+  "apply_end": "2026-12-10",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৬০০ নম্বর, ৪ ঘণ্টা",
+  "center_text": "খুলনা, ঢাকা ও রাজশাহী",
+  "second_time": "no",
+  "negative_marking": "নেই",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৫টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(লিখিত ১৫০), রসায়ন(লিখিত ১৫০), উচ্চতর গণিত(লিখিত ১৫০), ইংরেজি(লিখিত ৫০)"
+        },
+        {
+          "r": "অঙ্কন",
+          "s": "অঙ্কন(লিখিত ১০০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

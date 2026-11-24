@@ -1,0 +1,35 @@
+{
+  "slug": "ruet-a",
+  "published": true,
+  "university_bn": "রাজশাহী প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (রুয়েট)",
+  "short_bn": "রুয়েট",
+  "university_en": "RUET",
+  "unit": "A",
+  "category": "engineering",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-28",
+  "exam_time": "09:30",
+  "date_status": "confirmed",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৪০০ নম্বর, ২ ঘণ্টা ৩০ মিনিট",
+  "center_text": "রুয়েট ও বুয়েট ক্যাম্পাস",
+  "second_time": "no",
+  "negative_marking": "-১.৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(১২০), উচ্চতর গণিত(১২০), রসায়ন(১২০), ইংরেজি(৪০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

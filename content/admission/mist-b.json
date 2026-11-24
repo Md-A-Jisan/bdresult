@@ -1,0 +1,39 @@
+{
+  "slug": "mist-b",
+  "published": true,
+  "university_bn": "মিলিটারি ইনস্টিটিউট অব সায়েন্স অ্যান্ড টেকনোলজি (MIST)",
+  "short_bn": "MIST",
+  "university_en": "MIST",
+  "unit": "B",
+  "category": "engineering",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-02-06",
+  "exam_time": "14:00",
+  "date_status": "confirmed",
+  "apply_start": "2027-01-05",
+  "apply_end": "2027-01-21",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৪০০ নম্বর, ৫ ঘণ্টা",
+  "center_text": "সাধারণত ঢাকা জেলার কয়েকটি সামরিক নিয়ন্ত্রিত প্রতিষ্ঠান",
+  "second_time": "yes",
+  "negative_marking": "নেই",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "ইঞ্জিনিয়ারিং এর জন্য বাধ্যতামূলক",
+          "s": "উচ্চতর গণিত(লিখিত ৮০), পদার্থবিজ্ঞান(লিখিত ৬০), রসায়ন(লিখিত ৪০), ইংরেজি(লিখিত ২০)"
+        },
+        {
+          "r": "আর্কিটেকচার এর জন্য বাধ্যতামূলক",
+          "s": "অঙ্কন(লিখিত ২০০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

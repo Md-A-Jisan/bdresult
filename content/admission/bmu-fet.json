@@ -1,0 +1,35 @@
+{
+  "slug": "bmu-fet",
+  "published": true,
+  "university_bn": "বাংলাদেশ মেরিটাইম বিশ্ববিদ্যালয়",
+  "short_bn": "মেরিটাইম",
+  "university_en": "Bangladesh Maritime University",
+  "unit": "FET",
+  "category": "specialized",
+  "season": "২০২৬-২৭",
+  "exam_date": "2026-12-30",
+  "exam_time": "15:00",
+  "date_status": "confirmed",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা ৩০ মিনিট",
+  "center_text": "ঢাকা, খুলনা, রাজশাহী, চট্টগ্রাম, রংপুর",
+  "second_time": "yes",
+  "negative_marking": "নেই",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৫টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(২০), রসায়ন(২০), উচ্চতর গণিত(২০), ইংরেজি(২০), আইসিটি(২০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

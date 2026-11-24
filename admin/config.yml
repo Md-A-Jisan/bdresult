@@ -4,7 +4,9 @@ backend:
   branch: main
   base_url: https://bdresult-auth.antoraisu.workers.dev   # <- your Cloudflare Worker URL
   auth_endpoint: auth
-publish_mode: editorial_workflow   # draft -> review -> publish
+publish_mode: simple   # Save/Publish চাপলেই সরাসরি GitHub main-এ commit -> Cloudflare অটো বিল্ড (draft/review ধাপ নেই)
+site_url: https://bdresult.me
+display_url: https://bdresult.me
 media_folder: static/uploads
 public_folder: /uploads
 locale: en
@@ -30,8 +32,11 @@ collections:
         search_fields: ["categories.*.name"]
         display_fields: ["categories.*.name"]
         value_field: "categories.*.slug"
-      - {label: "SEO Meta Description (140-160 chars)", name: description, widget: text}
+      - {label: "SEO Meta Description (140-160 chars)", name: description, widget: text, hint: "১৪০-১৬০ অক্ষর; ফাঁকা রাখলে বডির শুরু থেকে অটো নেবে"}
+      - {label: "SEO Title (ঐচ্ছিক, ৫০-৬০ অক্ষর; ফাঁকা = Title | Site)", name: seo_title, widget: string, required: false}
       - {label: Featured Image, name: image, widget: image, required: false}
+      - {label: "Image Alt Text (ছবির বর্ণনা)", name: image_alt, widget: string, required: false}
+      - {label: "Noindex (গুগলে দেখাবে না)", name: noindex, widget: boolean, default: false, required: false}
       - {label: Tags, name: tags, widget: list, required: false}
       - {label: Draft, name: draft, widget: boolean, default: false, required: false}
       - label: FAQ (shows in Google as rich result)
@@ -50,6 +55,8 @@ collections:
       - {label: Title, name: title, widget: string}
       - {label: Slug, name: slug, widget: string}
       - {label: Meta Description, name: description, widget: text}
+      - {label: "SEO Title (ঐচ্ছিক)", name: seo_title, widget: string, required: false}
+      - {label: "Noindex", name: noindex, widget: boolean, default: false, required: false}
       - {label: Body, name: body, widget: markdown}
   - name: settings
     label: "Settings & Ads"
@@ -65,6 +72,8 @@ collections:
           - {label: Home Description, name: description, widget: text}
           - {label: Email, name: email, widget: string}
           - {label: Google Search Console Verification Code, name: googleVerification, widget: string, required: false}
+          - {label: "Bing Webmaster Verification Code (msvalidate.01)", name: bingVerification, widget: string, required: false}
+          - {label: "Social Profile URLs (Facebook, YouTube, Telegram... — Google Organization schema-তে যাবে)", name: social, widget: list, required: false, field: {label: URL, name: url, widget: string}}
           - {label: "Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX)", name: gaId, widget: string, required: false, hint: "Only paste the ID. The tracking code is added automatically on every page."}
           - {label: "Other Tracking Code (Cloudflare Web Analytics, Clarity, Meta Pixel etc. - full <script>)", name: analytics, widget: text, required: false}
           - label: Ads
@@ -80,3 +89,90 @@ collections:
             name: categories
             widget: list
             fields: [{label: Slug, name: slug, widget: string}, {label: Name, name: name, widget: string}, {label: Description, name: desc, widget: text}]
+  - name: admission
+    label: "ভর্তি পরীক্ষা ক্যালেন্ডার (প্রতিটি পরীক্ষা)"
+    folder: content/admission
+    create: true
+    extension: json
+    format: json
+    slug: "{{fields.slug}}"
+    identifier_field: slug
+    summary: "{{short_bn}} {{unit}} — {{exam_date}}"
+    sortable_fields: [exam_date, short_bn]
+    fields:
+      - {label: "URL Slug (ইংরেজি, যেমন du-a) — একবার দিলে বদলাবেন না", name: slug, widget: string, pattern: ['^[a-z0-9][a-z0-9-]*$', 'শুধু a-z, 0-9 ও - ব্যবহার করুন']}
+      - {label: "প্রকাশিত (বন্ধ করলে সাইটে দেখাবে না)", name: published, widget: boolean, default: true}
+      - {label: "বিশ্ববিদ্যালয়ের পূর্ণ নাম (বাংলা)", name: university_bn, widget: string}
+      - {label: "সংক্ষিপ্ত নাম (টেবিলে দেখাবে, যেমন ঢাবি)", name: short_bn, widget: string, required: false}
+      - {label: "English Name", name: university_en, widget: string, required: false}
+      - {label: "ইউনিট (A / B / IBA ...)", name: unit, widget: string, required: false}
+      - label: "ক্যাটাগরি"
+        name: category
+        widget: select
+        default: public
+        options:
+          - {label: "সাধারণ বিশ্ববিদ্যালয়", value: public}
+          - {label: "প্রকৌশল ও প্রযুক্তি", value: engineering}
+          - {label: "মেডিকেল", value: medical}
+          - {label: "কৃষি", value: agriculture}
+          - {label: "গুচ্ছ", value: cluster}
+          - {label: "বিশেষায়িত", value: specialized}
+          - {label: "বেসরকারি", value: private}
+      - {label: "সেশন", name: season, widget: string, default: "২০২৬-২৭"}
+      - {label: "পরীক্ষার তারিখ (YYYY-MM-DD) — ঘোষণা না হলে ফাঁকা রাখুন", name: exam_date, widget: string, required: false, pattern: ['^(\d{4}-\d{2}-\d{2})?$', 'যেমন 2026-12-12']}
+      - {label: "পরীক্ষার সময় (24 ঘণ্টা, HH:MM)", name: exam_time, widget: string, required: false, default: "10:00", pattern: ['^(\d{2}:\d{2})?$', 'যেমন 14:30']}
+      - label: "তারিখের অবস্থা"
+        name: date_status
+        widget: select
+        default: confirmed
+        options:
+          - {label: "নিশ্চিত (সার্কুলার অনুযায়ী)", value: confirmed}
+          - {label: "সম্ভাব্য (* চিহ্ন দেখাবে)", value: tentative}
+      - {label: "আবেদন শুরু (YYYY-MM-DD)", name: apply_start, widget: string, required: false, pattern: ['^(\d{4}-\d{2}-\d{2})?$', 'যেমন 2026-11-11']}
+      - {label: "আবেদনের শেষ (YYYY-MM-DD)", name: apply_end, widget: string, required: false, pattern: ['^(\d{4}-\d{2}-\d{2})?$', 'যেমন 2026-11-25']}
+      - {label: "আবেদন ফি", name: apply_fee, widget: string, required: false}
+      - {label: "আবেদন লিংক", name: apply_url, widget: string, required: false}
+      - {label: "সার্কুলার লিংক", name: circular_url, widget: string, required: false}
+      - {label: "অফিসিয়াল ওয়েবসাইট", name: official_url, widget: string, required: false}
+      - {label: "নম্বর ও সময় (যেমন ১০০ নম্বর, ১ ঘণ্টা)", name: marks_text, widget: string, required: false}
+      - {label: "পরীক্ষা কেন্দ্র", name: center_text, widget: string, required: false}
+      - label: "সেকেন্ড টাইম"
+        name: second_time
+        widget: select
+        required: false
+        default: ""
+        options:
+          - {label: "অজানা", value: ""}
+          - {label: "আছে", value: "yes"}
+          - {label: "নেই", value: "no"}
+      - {label: "নেগেটিভ মার্কিং (যেমন -০.২৫ বা নেই)", name: negative_marking, widget: string, required: false}
+      - label: "মানবণ্টন (বিভাগ অনুযায়ী)"
+        name: sections
+        widget: list
+        required: false
+        summary: "{{fields.t}}"
+        fields:
+          - {label: "বিভাগের নাম (যেমন বিজ্ঞান বিভাগ, মোট: ৪টি)", name: t, widget: string}
+          - label: "নিয়ম ও বিষয়"
+            name: rules
+            widget: list
+            summary: "{{fields.r}}"
+            fields:
+              - {label: "নিয়ম (যেমন দাগানো বাধ্যতামূলক)", name: r, widget: string}
+              - {label: "বিষয় ও নম্বর (যেমন পদার্থ(২৫), রসায়ন(২৫))", name: s, widget: text}
+      - {label: "অতিরিক্ত নোট", name: notes_bn, widget: text, required: false}
+      - {label: "SEO Title (ঐচ্ছিক; ফাঁকা = অটো)", name: seo_title, widget: string, required: false}
+      - {label: "SEO Meta Description (ঐচ্ছিক; ফাঁকা = অটো)", name: seo_description, widget: text, required: false}
+  - name: admission_settings
+    label: "ভর্তি ক্যালেন্ডার পেজ সেটিংস"
+    files:
+      - label: "পেজ সেটিংস ও SEO"
+        name: admission_settings
+        file: content/admission-settings.json
+        format: json
+        fields:
+          - {label: "সেশন", name: season, widget: string}
+          - {label: "SEO Title", name: seo_title, widget: string}
+          - {label: "SEO Meta Description (১৪০-১৬০ অক্ষর)", name: seo_description, widget: text}
+          - {label: "পেজ ইন্ট্রো", name: intro_bn, widget: text}
+          - {label: "টেলিগ্রাম লিংক", name: telegram_url, widget: string, required: false}

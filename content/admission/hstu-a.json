@@ -1,0 +1,35 @@
+{
+  "slug": "hstu-a",
+  "published": true,
+  "university_bn": "হাজী মোহাম্মদ দানেশ বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় (হাবিপ্রবি)",
+  "short_bn": "হাবিপ্রবি",
+  "university_en": "HSTU",
+  "unit": "A",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-24",
+  "exam_time": "09:30",
+  "date_status": "tentative",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা",
+  "center_text": "নিজ ক্যাম্পাস",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(২৫), রসায়ন(২৫), জীববিজ্ঞান(২৫), ইংরেজি(২৫)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

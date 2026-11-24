@@ -1,0 +1,35 @@
+{
+  "slug": "bmu-fmgp",
+  "published": true,
+  "university_bn": "বাংলাদেশ মেরিটাইম বিশ্ববিদ্যালয়",
+  "short_bn": "মেরিটাইম",
+  "university_en": "Bangladesh Maritime University",
+  "unit": "FMGP",
+  "category": "specialized",
+  "season": "২০২৬-২৭",
+  "exam_date": "2026-12-29",
+  "exam_time": "10:00",
+  "date_status": "confirmed",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা ৩০ মিনিট",
+  "center_text": "ঢাকা, খুলনা, রাজশাহী, চট্টগ্রাম, রংপুর",
+  "second_time": "yes",
+  "negative_marking": "নেই",
+  "sections": [
+    {
+      "t": "যেকোনো বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "ইংরেজি(৩৫), আইসিটি(২৫), Analytical Ability and Critical reasoning(১৫), সাধারণ জ্ঞান(২৫)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

@@ -1,0 +1,35 @@
+{
+  "slug": "guccho-c",
+  "published": true,
+  "university_bn": "সাধারণ বিশ্ববিদ্যালয় গুচ্ছ ভর্তি পরীক্ষা",
+  "short_bn": "গুচ্ছ",
+  "university_en": "GST Cluster Admission",
+  "unit": "C",
+  "category": "cluster",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-03-20",
+  "exam_time": "11:00",
+  "date_status": "confirmed",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা",
+  "center_text": "গুচ্ছভুক্ত ১৯টি বিশ্ববিদ্যালয়, ঢাবি এবং সিভাসু",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "ব্যবসা বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "হিসাববিজ্ঞান(৩৫), ব্যবসায় সংগঠন ও ব্যবস্থাপনা(৩৫), বাংলা(১৫), ইংরেজি(১৫)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

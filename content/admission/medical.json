@@ -1,0 +1,35 @@
+{
+  "slug": "medical",
+  "published": true,
+  "university_bn": "মেডিকেল ভর্তি পরীক্ষা (এমবিবিএস/বিডিএস)",
+  "short_bn": "মেডিকেল",
+  "university_en": "MBBS/BDS Medical Admission",
+  "unit": "",
+  "category": "medical",
+  "season": "২০২৬-২৭",
+  "exam_date": "2026-12-18",
+  "exam_time": "11:00",
+  "date_status": "confirmed",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা",
+  "center_text": "বিভাগীয় শহর",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৫টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "জীববিজ্ঞান(৩০), রসায়ন(২৫), পদার্থবিজ্ঞান(১৫), ইংরেজি(১৫), সাধারণ জ্ঞান(১৫)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

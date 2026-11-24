@@ -1,0 +1,35 @@
+{
+  "slug": "ru-a",
+  "published": true,
+  "university_bn": "রাজশাহী বিশ্ববিদ্যালয় (রাবি)",
+  "short_bn": "রাবি",
+  "university_en": "University of Rajshahi",
+  "unit": "A",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-02-20",
+  "exam_time": "11:00",
+  "date_status": "confirmed",
+  "apply_start": "2026-11-15",
+  "apply_end": "2026-11-30",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা",
+  "center_text": "ঢাকা, রাজশাহী, রংপুর, খুলনা, চট্টগ্রাম, ময়মনসিংহ, সিলেট, বরিশাল",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "যেকোনো বিভাগ (মোট: ৩টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "বাংলা(৩৫), ইংরেজি(৩৫), সাধারণ জ্ঞান(৩০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

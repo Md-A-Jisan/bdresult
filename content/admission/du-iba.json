@@ -1,0 +1,39 @@
+{
+  "slug": "du-iba",
+  "published": true,
+  "university_bn": "ঢাকা বিশ্ববিদ্যালয় (ঢাবি)",
+  "short_bn": "ঢাবি",
+  "university_en": "University of Dhaka",
+  "unit": "IBA",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2026-12-05",
+  "exam_time": "10:00",
+  "date_status": "confirmed",
+  "apply_start": "2026-11-11",
+  "apply_end": "2026-11-25",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ২ ঘণ্টা",
+  "center_text": "শুধু নিজ ক্যাম্পাস",
+  "second_time": "no",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "যেকোনো বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "বহুনির্বাচনি (MCQ)",
+          "s": "ইংরেজি, গণিত, বিশ্লেষণাত্মক দক্ষতা"
+        },
+        {
+          "r": "বর্ণনামূলক",
+          "s": "Argumentative writing / Descriptive writing / Critical writing / Thematic writeup ইত্যাদি"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

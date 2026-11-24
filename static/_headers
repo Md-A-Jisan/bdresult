@@ -3,3 +3,17 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+/api-static-posts.json
+  X-Robots-Tag: noindex
+/search.json
+  X-Robots-Tag: noindex
+/site-config.json
+  X-Robots-Tag: noindex
+/uploads/*
+  Cache-Control: public, max-age=2592000
+/admission-calendar/calendar.ics
+  Content-Type: text/calendar; charset=utf-8

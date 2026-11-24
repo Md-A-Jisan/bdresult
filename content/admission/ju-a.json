@@ -1,0 +1,35 @@
+{
+  "slug": "ju-a",
+  "published": true,
+  "university_bn": "জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (জাবি)",
+  "short_bn": "জাবি",
+  "university_en": "Jahangirnagar University",
+  "unit": "A",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-10",
+  "exam_time": "10:00",
+  "date_status": "tentative",
+  "apply_start": "2026-11-22",
+  "apply_end": "2026-12-15",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৮০ নম্বর, ১ ঘণ্টা",
+  "center_text": "নিজ ক্যাম্পাস",
+  "second_time": "yes",
+  "negative_marking": "-০.১৮",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৫টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "বাংলা(৩), ইংরেজি(৩), আইসিটি(৮), পদার্থবিজ্ঞান(২২), রসায়ন(২২), উচ্চতর গণিত(২২)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

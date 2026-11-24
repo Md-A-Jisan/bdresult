@@ -1,0 +1,35 @@
+{
+  "slug": "buet-a",
+  "published": true,
+  "university_bn": "বাংলাদেশ প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (বুয়েট)",
+  "short_bn": "বুয়েট",
+  "university_en": "BUET",
+  "unit": "A",
+  "category": "engineering",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-02-01",
+  "exam_time": "10:00",
+  "date_status": "confirmed",
+  "apply_start": "2026-12-01",
+  "apply_end": "2027-01-07",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৩০০ নম্বর, ৩ ঘণ্টা",
+  "center_text": "শুধুমাত্র নিজ ক্যাম্পাস",
+  "second_time": "no",
+  "negative_marking": "নেই",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "উচ্চতর গণিত(লিখিত ১০০), পদার্থবিজ্ঞান(লিখিত ১০০), রসায়ন(লিখিত ১০০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

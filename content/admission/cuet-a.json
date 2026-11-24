@@ -1,0 +1,35 @@
+{
+  "slug": "cuet-a",
+  "published": true,
+  "university_bn": "চট্টগ্রাম প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (চুয়েট)",
+  "short_bn": "চুয়েট",
+  "university_en": "CUET",
+  "unit": "A",
+  "category": "engineering",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-23",
+  "exam_time": "10:00",
+  "date_status": "tentative",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৫০০ নম্বর, ২ ঘণ্টা ৩০ মিনিট",
+  "center_text": "চুয়েট ক্যাম্পাস ও চট্টগ্রাম শহরে অনুষ্ঠিত হবে",
+  "second_time": "no",
+  "negative_marking": "-১.৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "পদার্থবিজ্ঞান(১৫০), উচ্চতর গণিত(১৫০), রসায়ন(১৫০), ইংরেজি(৫০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

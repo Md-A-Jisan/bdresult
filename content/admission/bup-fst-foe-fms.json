@@ -1,0 +1,35 @@
+{
+  "slug": "bup-fst-foe-fms",
+  "published": true,
+  "university_bn": "বাংলাদেশ ইউনিভার্সিটি অব প্রফেশনালস (BUP)",
+  "short_bn": "BUP",
+  "university_en": "Bangladesh University of Professionals",
+  "unit": "FST-FOE-FMS",
+  "category": "specialized",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-22",
+  "exam_time": "10:30",
+  "date_status": "confirmed",
+  "apply_start": "2026-12-01",
+  "apply_end": "2027-01-05",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "৬০ নম্বর, ১ ঘণ্টা",
+  "center_text": "সাধারণত ঢাকা জেলার কয়েকটি সামরিক নিয়ন্ত্রিত প্রতিষ্ঠান",
+  "second_time": "yes",
+  "negative_marking": "-০.৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৩টি)",
+      "rules": [
+        {
+          "r": "যেকোনো ৩টি",
+          "s": "পদার্থবিজ্ঞান(২০), রসায়ন(২০), জীববিজ্ঞান(২০), উচ্চতর গণিত(২০)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

@@ -1,0 +1,43 @@
+{
+  "slug": "du-b",
+  "published": true,
+  "university_bn": "ঢাকা বিশ্ববিদ্যালয় (ঢাবি)",
+  "short_bn": "ঢাবি",
+  "university_en": "University of Dhaka",
+  "unit": "B",
+  "category": "public",
+  "season": "২০২৬-২৭",
+  "exam_date": "2026-12-19",
+  "exam_time": "11:00",
+  "date_status": "confirmed",
+  "apply_start": "2026-11-11",
+  "apply_end": "2026-11-25",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ১ ঘণ্টা ৩০ মিনিট",
+  "center_text": "বিভাগীয় শহরে",
+  "second_time": "no",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "যেকোনো বিভাগ (মোট: ৩টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "ইংরেজি, সাধারণ জ্ঞান"
+        },
+        {
+          "r": "সাধারণ শিক্ষার্থীরা দাগাবে",
+          "s": "বাংলা"
+        },
+        {
+          "r": "যারা GCE/A Level পাশ করেছে, তারাই শুধুমাত্র দাগাবে",
+          "s": "Elective English"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}

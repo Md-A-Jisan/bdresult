@@ -246,28 +246,47 @@ async function logAudit(env, adminId, actionType, entityType, entityId, changes,
 // ============================================================================
 // SHARED PUBLIC UI LAYOUT
 // ============================================================================
+const clipDesc = (t, n = 160) => {
+  t = String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
+  if (t.length <= n) return t;
+  const c = t.slice(0, n - 1), i = c.lastIndexOf(' ');
+  return (i > n * 0.6 ? c.slice(0, i) : c) + '…';
+};
+
 function renderPublicLayout({ title, desc, path, body, type = 'website', img, schema = [], noindex = false }) {
   const canonical = SITE_URL + path;
+  const dd = clipDesc(desc);
+  const imgUrl = img ? (img.startsWith('http') ? img : SITE_URL + img) : SITE_URL + '/og-default.png';
   return `<!doctype html>
 <html lang="bn">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${esc(title)}</title>
-  <meta name="description" content="${esc(desc)}">
+  <meta name="description" content="${esc(dd)}">
   <link rel="canonical" href="${esc(canonical)}">
-  ${noindex ? '<meta name="robots" content="noindex,nofollow">' : '<meta name="robots" content="index,follow,max-image-preview:large">'}
+  <link rel="alternate" hreflang="bn-BD" href="${esc(canonical)}">
+  <link rel="alternate" hreflang="x-default" href="${esc(canonical)}">
+  ${noindex ? '<meta name="robots" content="noindex,nofollow">' : '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">'}
   <meta name="theme-color" content="#064e3b">
   <meta property="og:title" content="${esc(title)}">
-  <meta property="og:description" content="${esc(desc)}">
+  <meta property="og:description" content="${esc(dd)}">
   <meta property="og:type" content="${esc(type)}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:site_name" content="${SITE_NAME}">
   <meta property="og:locale" content="bn_BD">
-  <meta name="twitter:card" content="${img ? 'summary_large_image' : 'summary'}">
+  <meta property="og:image" content="${esc(imgUrl)}">
+  <meta property="og:image:alt" content="${esc(title)}">
+  ${img ? '' : '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(title)}">
+  <meta name="twitter:description" content="${esc(dd)}">
+  <meta name="twitter:image" content="${esc(imgUrl)}">
+  ${SITE_CFG && SITE_CFG.bingVerification ? `<meta name="msvalidate.01" content="${esc(SITE_CFG.bingVerification)}">` : ''}
   ${SITE_CFG && SITE_CFG.googleVerification ? `<meta name="google-site-verification" content="${esc(SITE_CFG.googleVerification)}">` : ''}
-  ${img ? `<meta property="og:image" content="${esc(img.startsWith('http') ? img : SITE_URL + img)}">` : ''}
-  <link rel="icon" href="/favicon.svg">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/logo-512.png">
+  <link rel="alternate" type="application/rss+xml" title="${SITE_NAME}" href="/rss.xml">
   <link rel="stylesheet" href="/assets/style.css">
   <style>
     main{overflow-wrap:break-word;word-wrap:break-word;word-break:normal}
@@ -344,8 +363,9 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
         <input id="q" name="q" type="search" placeholder="নাম বা EIIN দিয়ে খুঁজুন..." aria-label="Search">
       </form>
     </div>
-    <nav class="w">
+    <nav class="w" aria-label="প্রধান মেনু">
       <a href="/">হোম</a>
+      <a href="/admission-calendar/">ভর্তি ক্যালেন্ডার</a>
       <a href="/institutions/">সকল প্রতিষ্ঠান</a>
       <a href="/institutions/schools/">স্কুল</a>
       <a href="/institutions/colleges/">কলেজ</a>
@@ -356,7 +376,7 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
       <a href="/emis/">EMIS টুল</a>
     </nav>
   </header>
-  <main class="w">${body}</main>
+  <main class="w" id="main">${body}</main>
   <footer>
     <div class="w">
       <p><a href="/">হোম</a> · <a href="/institutions/">শিক্ষাপ্রতিষ্ঠান ডিরেক্টরি</a> · <a href="/results/compare/">ফলাফল তুলনা</a> · <a href="/about/">আমাদের সম্পর্কে</a> · <a href="/contact/">যোগাযোগ</a> · <a href="/privacy-policy/">প্রাইভেসি পলিসি</a></p>

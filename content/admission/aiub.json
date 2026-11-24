@@ -1,0 +1,35 @@
+{
+  "slug": "aiub",
+  "published": true,
+  "university_bn": "এভিয়েশন অ্যান্ড অ্যারোস্পেস বিশ্ববিদ্যালয় (এআইইউবি)",
+  "short_bn": "এআইইউবি",
+  "university_en": "Aviation and Aerospace University, Bangladesh",
+  "unit": "",
+  "category": "specialized",
+  "season": "২০২৬-২৭",
+  "exam_date": "2027-01-30",
+  "exam_time": "10:00",
+  "date_status": "confirmed",
+  "apply_start": "",
+  "apply_end": "",
+  "apply_fee": "",
+  "apply_url": "",
+  "circular_url": "",
+  "official_url": "",
+  "marks_text": "১০০ নম্বর, ২ ঘণ্টা",
+  "center_text": "লালমনিরহাট ক্যাম্পাসে এবং বিএএএফ শাহীন কলেজ, ঢাকা",
+  "second_time": "yes",
+  "negative_marking": "-০.২৫",
+  "sections": [
+    {
+      "t": "বিজ্ঞান বিভাগ (মোট: ৪টি)",
+      "rules": [
+        {
+          "r": "দাগানো বাধ্যতামূলক",
+          "s": "উচ্চতর গণিত(MCQ ২৪, লিখিত ১৬), পদার্থবিজ্ঞান(MCQ ১৮, লিখিত ১২), রসায়ন(MCQ ১২, লিখিত ৮), ইংরেজি(MCQ ৬, লিখিত ৪)"
+        }
+      ]
+    }
+  ],
+  "notes_bn": ""
+}
