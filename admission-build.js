@@ -49,8 +49,52 @@ module.exports = function ({ esc, w, layout, side, bc, U, S, clip = (t, n = 160)
   const faqHtml = (items) => `<section class="faq"><h2>সচরাচর জিজ্ঞাসা (FAQ)</h2>${items.map((x) => `<details><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p></details>`).join('')}</section>`;
   const faqLd = (items) => ({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items.map((x) => ({ '@type': 'Question', name: x.q, acceptedAnswer: { '@type': 'Answer', text: x.a } })) });
 
-  const CSS = `<style>.adm .tw{overflow-x:auto;margin:8px 0;border-radius:8px}.adm .at{width:100%;border-collapse:collapse;font-size:15px}.adm .at th,.adm .at td{border:1px solid #d1fae5;padding:8px 10px;text-align:left;vertical-align:top}.adm .at th{background:var(--l);color:var(--g)}.adm .at tbody tr:nth-child(even){background:#f7fdf9}.adm .cd{color:#047857;font-weight:600;white-space:nowrap}.adm .nt{font-size:13.5px;color:#475569;margin:6px 0 0}.adm .st{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:10px}.adm .st1{background:#dcfce7;color:#166534}.adm .st2{background:#fef9c3;color:#854d0e}.adm .st3{background:#fee2e2;color:#991b1b}.adm .tent{color:#b45309;font-weight:700;cursor:help;border:0}.adm .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.adm .chips a{border:1px solid #a7f3d0;background:var(--l);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:600}.adm .qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}.adm .qs div{background:#fff;border:1px solid #d1fae5;border-radius:8px;padding:6px 10px}.adm .qs small{display:block;color:#64748b;font-size:12px}.adm-btn{display:inline-block;padding:6px 14px;border:1.5px solid var(--g);border-radius:999px;font-size:14px;font-weight:600;margin:3px 6px 3px 0;background:#fff}.adm-btn.pri{background:var(--g);color:#fff}.adm .months{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}.adm .mo{border:1px solid #d1fae5;border-radius:10px;overflow:hidden}.adm .mo h3{margin:0;padding:6px 12px;background:var(--l);font-size:15px;color:var(--g)}.adm .mg{display:grid;grid-template-columns:repeat(7,1fr);padding:6px;gap:2px;text-align:center;font-size:13.5px;line-height:1.9}.adm .mg b{font-size:12px;color:#64748b}.adm .mg a{background:var(--g);color:#fff;font-weight:700;border-radius:50%}.adm h3.sec-t{margin:14px 0 4px;color:var(--g);font-size:17px}@media print{header,footer,aside,.noprint{display:none!important}.grid{display:block}}</style>`;
-  const JS = `<script>(function(){var N=new Intl.NumberFormat('bn-BD',{minimumIntegerDigits:2,useGrouping:false});function f(ms){var s=Math.floor((ms-Date.now())/1000);if(s<=0)return'পরীক্ষা শুরু / সম্পন্ন';var d=Math.floor(s/86400);s%=86400;return N.format(d)+' দিন '+N.format(Math.floor(s/3600))+' ঘণ্টা '+N.format(Math.floor(s%3600/60))+' মিনিট '+N.format(s%60)+' সেকেন্ড'}function t(){document.querySelectorAll('[data-t]').forEach(function(e){e.textContent=f(+e.dataset.t)})}t();setInterval(t,1000);var td=new Date(Date.now()+216e5).toISOString().slice(0,10);document.querySelectorAll('[data-st]').forEach(function(e){var s=e.dataset.as,x=e.dataset.ae,c=x&&x<td?3:(s&&s>td?2:1);e.className='st st'+c;e.textContent=['','চলছে','শুরু হবে','শেষ'][c]});document.querySelectorAll('[data-ce]').forEach(function(a){if(a.dataset.ce&&a.dataset.ce<td)a.style.display='none'})})()</script>`;
+  const CSS = `<style>
+.adm{overflow-wrap:break-word;word-break:normal;font-size:15px;line-height:1.6}.adm *{min-width:0}
+.adm .adm-h1{font-size:20px;line-height:1.5;margin:4px 0 10px;color:#0f172a}.adm .hero h1{font-size:19px;line-height:1.55}
+.adm-tabs{display:flex;gap:6px;overflow-x:auto;white-space:nowrap;margin:0 -14px 10px;padding:6px 14px;position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e2f3ea;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.adm-tabs::-webkit-scrollbar{display:none}
+.adm-tabs button{flex:none;font:inherit;font-size:14px;font-weight:600;line-height:1.5;padding:4px 15px;border-radius:999px;border:1.5px solid var(--g);background:#fff;color:var(--g);cursor:pointer}
+.adm-tabs button[aria-selected=true]{background:var(--g);color:#fff}
+.adm-js .adm-panel{display:none}.adm-js .adm-panel.on{display:block}
+.adm-card{border:1px solid #cfeadd;border-radius:12px;overflow:hidden;background:#fff;margin:0 0 12px}
+.adm-card>.ch{margin:0;padding:8px 12px;background:var(--g);color:#fff;font-size:15px;line-height:1.5}
+.adm-card .pad{padding:10px 12px}.adm-card .pad>p:first-child{margin-top:0}.adm-card .pad>p:last-child{margin-bottom:0}
+.adm .at{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13.5px;line-height:1.45}
+.adm .at th{background:var(--l);color:var(--g);font-size:12.5px;font-weight:700;padding:7px 6px;text-align:center;border-bottom:1px solid #cfeadd}
+.adm .at td{padding:8px 6px;border-top:1px solid #e6f5ec;text-align:center;vertical-align:middle;overflow-wrap:break-word;word-break:normal}
+.adm .at th:first-child,.adm .at td:first-child{text-align:left;padding-left:10px}
+.adm .at tr.mh th{background:#d1fae5;color:var(--g);text-align:left;padding:4px 10px;font-size:12.5px;border:0}
+.adm .at tr[id]{scroll-margin-top:56px}
+.adm .nm{display:block;font-weight:700;color:#0f172a;line-height:1.4}
+.adm .sub,.adm .tt{display:block;font-size:11.5px;color:#64748b;line-height:1.4}.adm .dd{display:block;font-weight:600;line-height:1.4}
+.adm .cd{color:#047857;font-weight:700;font-size:12.5px}.adm .cd i{font-style:normal;white-space:nowrap;display:inline-block}
+.adm .ap span{display:block;font-size:12.5px;line-height:1.5}.adm .al{display:block;font-size:12px;font-weight:600;margin-top:3px}
+.adm .st{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 9px;border-radius:10px}
+.adm .st1{background:#dcfce7;color:#166534}.adm .st2{background:#fef9c3;color:#854d0e}.adm .st3{background:#fee2e2;color:#991b1b}
+.adm .tent{color:#b45309;font-weight:700;cursor:help;border:0;text-decoration:none}
+.adm .nt{font-size:12.5px;color:#475569;margin:0;padding:8px 12px;line-height:1.55}
+.adm .chips{display:flex;flex-wrap:wrap;gap:6px}.adm .chips a{border:1px solid #a7f3d0;background:var(--l);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:600;line-height:1.6}
+.adm .months{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px;padding:10px}
+.adm .mo{border:1px solid #d1fae5;border-radius:10px;overflow:hidden}.adm .mo h3{margin:0;padding:5px 12px;background:var(--l);font-size:14.5px;color:var(--g)}
+.adm .mg{display:grid;grid-template-columns:repeat(7,1fr);padding:6px;gap:2px;text-align:center;font-size:13px}
+.adm .mg>*{display:flex;align-items:center;justify-content:center;height:32px}.adm .mg b{font-size:11.5px;color:#64748b;height:24px}
+.adm .mg a{background:var(--g);color:#fff;font-weight:700;border-radius:50%}
+.adm .acts{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border-top:1px solid #e6f5ec}
+.adm-btn{display:inline-block;padding:6px 14px;border:1.5px solid var(--g);border-radius:999px;font:inherit;font-size:14px;font-weight:600;line-height:1.5;margin:3px 6px 3px 0;background:#fff;color:var(--g);cursor:pointer;text-align:center}
+.adm-btn.pri{background:var(--g);color:#fff}.adm-btn[disabled]{opacity:.6;cursor:wait}.adm .acts .adm-btn{margin:0}
+.adm .kv{width:100%;border-collapse:collapse;font-size:14px;line-height:1.55}
+.adm .kv th{width:34%;text-align:left;background:#f4fbf7;color:#065f46;font-weight:600;padding:8px 12px;border-top:1px solid #e6f5ec;vertical-align:top}
+.adm .kv td{padding:8px 12px;border-top:1px solid #e6f5ec;vertical-align:top}.adm .kv tr:first-child th,.adm .kv tr:first-child td{border-top:0}
+.adm .sec-t{margin:0;padding:10px 12px 6px;color:var(--g);font-size:15px;border-top:1px solid #e6f5ec}.adm .sec-t:first-of-type{border-top:0}
+.adm .info{list-style:none;margin:0;padding:4px 12px}.adm .info li{padding:7px 0;border-bottom:1px solid #eef7f1;font-size:14px;line-height:1.7}.adm .info li:last-child{border:0}
+.adm .faq h2{font-size:18px}.adm .faq summary{font-size:15px}
+@media(max-width:520px){.adm .kv th,.adm .kv td{display:block;width:auto;border:0}.adm .kv th{padding:8px 12px 0;background:none;font-size:12px;color:#64748b}.adm .kv td{padding:0 12px 8px}.adm .kv tr{display:block;border-top:1px solid #e6f5ec}.adm .kv tr:first-child{border-top:0}.adm .kv tr:nth-child(even){background:#fafefb}}
+@media(min-width:700px){.adm .adm-h1{font-size:24px}.adm .at{font-size:14.5px}.adm .at td{padding:10px 8px}.adm .nm{font-size:15px}.adm .dd{font-size:14.5px}.adm .cd{font-size:13.5px}}
+@media print{header,footer,aside,.noprint,.adm-tabs{display:none!important}.grid{display:block}.adm-js .adm-panel{display:block!important}}
+</style>`;
+  const readClient = (f) => { try { return fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) { console.warn('[admission] missing client file', f); return ''; } };
+  const JS = `<script>${readClient('admission-client.js')}</script>`, PDFJS = `<script>${readClient('admission-pdf.js')}</script>`;
   const crumbs = (items) => `<nav class="meta noprint" style="margin-bottom:8px">${items.map((x, i) => (x[1] ? `<a href="${x[1]}">${esc(x[0])}</a>` : `<span>${esc(x[0])}</span>`)).join(' › ')}</nav>`;
 
   function monthGrid(up) {
@@ -65,7 +109,7 @@ module.exports = function ({ esc, w, layout, side, bc, U, S, clip = (t, n = 160)
       for (let d = 1; d <= dim; d++) { const k = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; g += days[k] ? `<a href="#d-${k}" title="${esc(days[k].join(', '))}">${bn(d)}</a>` : `<span>${bn(d)}</span>`; }
       out += `<div class="mo"><h3>${ymdBn(`${y}-${String(m + 1).padStart(2, '0')}-01`, { day: undefined })}</h3><div class="mg">${g}</div></div>`;
     }
-    return `<section class="box"><h2>ভর্তি পরীক্ষার ক্যালেন্ডার (মাসভিত্তিক)</h2><div class="months">${out}</div><p class="nt">গাঢ় সবুজ তারিখে ভর্তি পরীক্ষা আছে; তারিখে ক্লিক করলে সংশ্লিষ্ট পরীক্ষায় যাবে।</p></section>`;
+    return `<div class="months">${out}</div><p class="nt">গাঢ় সবুজ তারিখে ভর্তি পরীক্ষা আছে; তারিখে ট্যাপ করলে সময়সূচিতে যাবে।</p>`;
   }
 
   // ---------------- main page ----------------
@@ -73,8 +117,12 @@ module.exports = function ({ esc, w, layout, side, bc, U, S, clip = (t, n = 160)
   const tba = list.filter((e) => !has(e)), applyRows = list.filter((e) => e.apply_start || e.apply_end), ongoing = applyRows.filter((e) => astat(e) === 1);
   const applySorted = [...applyRows].sort((a, b) => astat(a) - astat(b) || String(a.apply_end || '9').localeCompare(String(b.apply_end || '9')));
   const first = upcoming[0], seenDay = new Set();
-  const upRows = upcoming.map((e) => { const k = e.exam_at.slice(0, 10), id = seenDay.has(k) ? '' : ` id="d-${k}"`; seenDay.add(k); return `<tr${id}><td><a href="${url(e)}">${esc(nm(e))}</a></td><td>${ymdBn(k, { weekday: 'long' })}, ${timeBn(e.exam_at)}${e.date_status === 'confirmed' ? '' : ' <abbr class="tent" title="কর্তৃপক্ষ সম্ভাব্য তারিখ জানিয়েছে">*</abbr>'}</td><td class="cd" data-t="${e.ms}">${ymdBn(k)}</td></tr>`; }).join('');
-  const apRows = applySorted.map((e) => { const c = astat(e); return `<tr><td><a href="${url(e)}">${esc(nm(e))}</a></td><td>${e.apply_start ? ymdBn(e.apply_start) : '—'}</td><td>${e.apply_end ? ymdBn(e.apply_end) : '—'}</td><td>${esc(T(e.apply_fee) || '—')}</td><td><span class="st st${c}" data-st data-as="${esc(e.apply_start || '')}" data-ae="${esc(e.apply_end || '')}">${['', 'চলছে', 'শুরু হবে', 'শেষ'][c]}</span> ${T(e.apply_url) ? `<a href="${esc(e.apply_url)}" target="_blank" rel="noopener noreferrer">আবেদন লিংক ↗</a>` : ''}</td></tr>`; }).join('');
+  const dS = (ymd) => ymdBn(ymd, String(ymd).slice(0, 4) === today.slice(0, 4) ? { year: undefined } : undefined);
+  const cdStatic = (ms) => { let s = Math.floor((ms - Date.now()) / 1000); if (s <= 0) return 'সম্পন্ন'; const d = Math.floor(s / 86400); s %= 86400; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return `<i>${bn(String(d).padStart(2, '0'))}দি ${bn(String(h).padStart(2, '0'))}ঘ</i> <i>${bn(String(m).padStart(2, '0'))}মি ${bn(String(s % 60).padStart(2, '0'))}সে</i>`; };
+  const mCount = {}; upcoming.forEach((e) => { const k = e.exam_at.slice(0, 7); mCount[k] = (mCount[k] || 0) + 1; });
+  let curM = '';
+  const upRows = upcoming.map((e) => { const k = e.exam_at.slice(0, 10), mk = k.slice(0, 7), id = seenDay.has(k) ? '' : ` id="d-${k}"`; seenDay.add(k); let hd = ''; if (mk !== curM) { curM = mk; hd = `<tr class="mh"><th colspan="3" scope="colgroup">${ymdBn(mk + '-01', { day: undefined })} · ${bn(mCount[mk])}টি পরীক্ষা</th></tr>`; } return `${hd}<tr${id}><td><a class="nm" href="${url(e)}">${esc(nm(e))}</a></td><td><span class="dd">${ymdBn(k, { year: undefined })}${e.date_status === 'confirmed' ? '' : ' <abbr class="tent" title="কর্তৃপক্ষ সম্ভাব্য তারিখ জানিয়েছে">*</abbr>'}</span><span class="tt">${timeBn(e.exam_at)}</span></td><td class="cd" data-t="${e.ms}">${cdStatic(e.ms)}</td></tr>`; }).join('');
+  const apRows = applySorted.map((e) => { const c = astat(e); return `<tr><td><a class="nm" href="${url(e)}">${esc(nm(e))}</a>${T(e.apply_fee) ? `<span class="sub">ফি: ${esc(e.apply_fee)}</span>` : ''}</td><td class="ap"><span>শুরু: ${e.apply_start ? dS(e.apply_start) : '—'}</span><span>শেষ: ${e.apply_end ? dS(e.apply_end) : '—'}</span></td><td><span class="st st${c}" data-st data-as="${esc(e.apply_start || '')}" data-ae="${esc(e.apply_end || '')}">${['', 'চলছে', 'শুরু হবে', 'শেষ'][c]}</span>${T(e.apply_url) ? `<a class="al" href="${esc(e.apply_url)}" target="_blank" rel="noopener noreferrer">আবেদন ↗</a>` : ''}</td></tr>`; }).join('');
   const groups = {}; list.forEach((e) => { const k = e.short_bn || e.university_bn; (groups[k] = groups[k] || []).push(e); });
   const gHtml = Object.entries(groups).map(([k, a]) => `<li><strong>${esc(k)}:</strong> ${a.map((e) => `<a href="${url(e)}">${esc(e.unit ? e.unit + ' ইউনিট' : 'বিস্তারিত')}</a>`).join(' · ')}</li>`).join('');
   const dTxt = (e) => `${ymdBn(e.exam_at.slice(0, 10))}, ${timeBn(e.exam_at)}`;
@@ -86,20 +134,30 @@ module.exports = function ({ esc, w, layout, side, bc, U, S, clip = (t, n = 160)
   const title = T(set.seo_title) || `ভর্তি পরীক্ষার ক্যালেন্ডার ${season}`;
   const desc = T(set.seo_description) || `${season} সেশনের সব বিশ্ববিদ্যালয়ের ভর্তি পরীক্ষার তারিখ, আবেদনের সময়সীমা ও মানবণ্টন।`;
 
+  const calJson = JSON.stringify({ meta: { title: `ভর্তি পরীক্ষার ক্যালেন্ডার ${season}`, host: `${U.replace(/^https?:\/\//, '')}/admission-calendar/`, upd: ymdBn(pageLast), slug: String(season).replace(/[০-৯]/g, (d) => BD.indexOf(d)) }, k: Object.entries(withDate.reduce((m, e) => { const sh = e.short_bn || ''; if (sh && sh !== e.university_bn) m[sh] = e.university_bn; return m; }, {})), tb: tba.map(nm), ex: withDate.map((e) => ({ d: e.exam_at.slice(0, 10), t: e.exam_at.slice(11, 16), n: nm(e), l: timeBn(e.exam_at), c: e.date_status === 'confirmed' ? 1 : 0 })) }).replace(/</g, '\\u003c');
   const mainBody = `${CSS}${crumbs([['হোম', '/'], ['ভর্তি ক্যালেন্ডার', '']])}<div class="grid"><div class="adm">
-  <div class="hero"><h1>ভর্তি পরীক্ষার ক্যালেন্ডার ${esc(season)}: তারিখ, আবেদন ও কাউন্টডাউন</h1><p>${esc(set.intro_bn || '')}</p>
-  <div class="noprint"><a class="adm-btn pri" href="/admission-calendar/calendar.ics" rel="nofollow">রিমাইন্ডার (.ics)</a><a class="adm-btn" href="#apply">আবেদনের সময়সীমা</a><a class="adm-btn" href="#faq">FAQ</a><a class="adm-btn" href="javascript:print()">প্রিন্ট / PDF</a>${T(set.telegram_url) ? `<a class="adm-btn" href="${esc(set.telegram_url)}" target="_blank" rel="noopener">টেলিগ্রাম আপডেট</a>` : ''}</div>
-  <div class="qs"><div><small>পরবর্তী পরীক্ষা</small><strong>${first ? esc(nm(first)) + ' — ' + ymdBn(first.exam_at.slice(0, 10), { year: undefined }) : '—'}</strong></div><div><small>আসন্ন পরীক্ষা</small><strong>${bn(upcoming.length)} টি</strong></div><div><small>আবেদন চলছে</small><strong>${bn(ongoing.length)} টি</strong></div><div><small>সর্বশেষ আপডেট</small><strong>${ymdBn(pageLast)}</strong></div></div></div>
-  ${ongoing.length ? `<section class="box"><h2>এখন আবেদন চলছে</h2><div class="chips">${ongoing.map((e) => `<a href="${url(e)}" data-ce="${esc(e.apply_end || '')}">${esc(nm(e))} · শেষ ${e.apply_end ? ymdBn(e.apply_end, { year: undefined }) : '—'}</a>`).join('')}</div></section>` : ''}
-  <section class="box"><h2>ভর্তি পরীক্ষার সময়সূচি ${esc(season)}</h2><div class="tw"><table class="at"><thead><tr><th>বিশ্ববিদ্যালয় / ইউনিট</th><th>পরীক্ষার তারিখ ও সময়</th><th>সময় বাকি</th></tr></thead><tbody>${upRows || '<tr><td colspan="3">কোনো আসন্ন পরীক্ষা নেই।</td></tr>'}</tbody></table></div><p class="nt">* চিহ্নিত তারিখ কর্তৃপক্ষ সম্ভাব্য তারিখ হিসেবে জানিয়েছে। সব সময় বাংলাদেশ সময় (GMT+6)।</p></section>
-  <section class="box" id="apply"><h2>আবেদনের সময়সীমা ও ফি</h2><div class="tw"><table class="at"><thead><tr><th>বিশ্ববিদ্যালয় / ইউনিট</th><th>আবেদন শুরু</th><th>আবেদনের শেষ</th><th>ফি</th><th>অবস্থা ও লিংক</th></tr></thead><tbody>${apRows || '<tr><td colspan="5">আবেদনের তথ্য শীঘ্রই যোগ হবে।</td></tr>'}</tbody></table></div></section>
-  ${monthGrid(upcoming)}
-  <section class="box"><h2>বিশ্ববিদ্যালয় অনুযায়ী বিস্তারিত (মানবণ্টন, কেন্দ্র, নেগেটিভ মার্কিং)</h2><ul style="columns:2 250px;list-style:none;padding:0;margin:0">${gHtml}</ul></section>
-  ${tba.length ? `<section class="box"><h2>তারিখ ঘোষণার অপেক্ষায়</h2><div class="chips">${tba.map((e) => `<a href="${url(e)}">${esc(nm(e))}</a>`).join('')}</div></section>` : ''}
+  <h1 class="adm-h1">ভর্তি পরীক্ষার ক্যালেন্ডার ${esc(season)}: তারিখ, আবেদন ও কাউন্টডাউন</h1>
+  <script>document.documentElement.classList.add('adm-js')</script>
+  <div class="adm-tabs noprint" role="tablist" aria-label="ক্যালেন্ডারের বিভাগ"><button type="button" role="tab" data-tab="time" aria-selected="true">সময়কাল</button><button type="button" role="tab" data-tab="apply" aria-selected="false">আবেদন</button><button type="button" role="tab" data-tab="cal" aria-selected="false">ক্যালেন্ডার</button><button type="button" role="tab" data-tab="info" aria-selected="false">তথ্য</button></div>
+  <section class="adm-panel on" data-panel="time" role="tabpanel">
+  <div class="adm-card"><h2 class="ch">ভর্তি পরীক্ষার সময়সূচি ${esc(season)}</h2><table class="at"><colgroup><col style="width:39%"><col style="width:28%"><col style="width:33%"></colgroup><thead><tr><th scope="col">বিশ্ববিদ্যালয় / ইউনিট</th><th scope="col">তারিখ ও সময়</th><th scope="col">সময় বাকি</th></tr></thead><tbody>${upRows || '<tr><td colspan="3">কোনো আসন্ন পরীক্ষা নেই।</td></tr>'}</tbody></table><p class="nt">* চিহ্নিত তারিখ কর্তৃপক্ষ সম্ভাব্য তারিখ হিসেবে জানিয়েছে। সব সময় বাংলাদেশ সময় (GMT+6)।</p></div>
+  ${tba.length ? `<div class="adm-card"><h2 class="ch">তারিখ ঘোষণার অপেক্ষায়</h2><div class="pad"><div class="chips">${tba.map((e) => `<a href="${url(e)}">${esc(nm(e))}</a>`).join('')}</div></div></div>` : ''}
+  ${past.length ? `<div class="adm-card"><h2 class="ch">অনুষ্ঠিত / সম্পন্ন পরীক্ষা</h2><div class="pad"><details><summary>${bn(past.length)}টি পরীক্ষা দেখুন</summary><ul>${past.map((e) => `<li><a href="${url(e)}">${esc(nm(e))}</a> — ${ymdBn(e.exam_at.slice(0, 10))}</li>`).join('')}</ul></details></div></div>` : ''}
+  </section>
+  <section class="adm-panel" data-panel="apply" role="tabpanel">
+  ${ongoing.length ? `<div class="adm-card"><h2 class="ch">এখন আবেদন চলছে</h2><div class="pad"><div class="chips">${ongoing.map((e) => `<a href="${url(e)}" data-ce="${esc(e.apply_end || '')}">${esc(nm(e))} · শেষ ${e.apply_end ? dS(e.apply_end) : '—'}</a>`).join('')}</div></div></div>` : ''}
+  <div class="adm-card"><h2 class="ch">আবেদনের সময়সীমা ও ফি</h2><table class="at"><colgroup><col style="width:38%"><col style="width:34%"><col style="width:28%"></colgroup><thead><tr><th scope="col">বিশ্ববিদ্যালয় / ইউনিট</th><th scope="col">আবেদনের সময়</th><th scope="col">অবস্থা</th></tr></thead><tbody>${apRows || '<tr><td colspan="3">আবেদনের তথ্য শীঘ্রই যোগ হবে।</td></tr>'}</tbody></table></div>
+  </section>
+  <section class="adm-panel" data-panel="cal" role="tabpanel">
+  <div class="adm-card"><h2 class="ch">ভর্তি পরীক্ষার ক্যালেন্ডার (মাসভিত্তিক)</h2>${monthGrid(upcoming) || '<p class="nt">কোনো আসন্ন পরীক্ষা নেই।</p>'}<div class="acts noprint"><button type="button" class="adm-btn pri" id="adm-pdf-btn">PDF ডাউনলোড (A4)</button><a class="adm-btn" href="/admission-calendar/calendar.ics" rel="nofollow">রিমাইন্ডার (.ics)</a></div></div>
+  </section>
+  <section class="adm-panel" data-panel="info" role="tabpanel">
+  <div class="adm-card"><h2 class="ch">বিশ্ববিদ্যালয় অনুযায়ী বিস্তারিত</h2><ul class="info">${gHtml}</ul><p class="nt">প্রতিটি লিংকে মানবণ্টন, পরীক্ষা কেন্দ্র ও নেগেটিভ মার্কিংয়ের তথ্য আছে।</p></div>
+  </section>
   <div id="faq">${faqHtml(faq)}</div>
-  ${past.length ? `<section class="box"><h2>অনুষ্ঠিত / সম্পন্ন পরীক্ষা</h2><details><summary>${bn(past.length)}টি পরীক্ষা দেখুন</summary><ul>${past.map((e) => `<li><a href="${url(e)}">${esc(nm(e))}</a> — ${ymdBn(e.exam_at.slice(0, 10))}</li>`).join('')}</ul></details></section>` : ''}
+  <p class="nt">${esc(set.intro_bn || '')}${set.intro_bn ? ' ' : ''}সর্বশেষ আপডেট: ${ymdBn(pageLast)}।${T(set.telegram_url) ? ` <a href="${esc(set.telegram_url)}" target="_blank" rel="noopener">টেলিগ্রামে আপডেট পান</a>।` : ''}</p>
   <p class="nt"><strong>সতর্কতা:</strong> তথ্য বিভিন্ন সূত্র থেকে সংকলিত। আবেদন বা পরীক্ষার আগে অফিসিয়াল সার্কুলার ও ওয়েবসাইট দেখে যাচাই করুন। ভুল পেলে <a href="/contact/">আমাদের জানান</a>।</p>
-  </div>${side()}</div>${JS}`;
+  </div>${side()}</div><script type="application/json" id="adm-cal">${calJson}</script>${JS}${PDFJS}`;
   w('admission-calendar/index.html', layout({ title: `${title} | ${S.name}`, desc, p: '/admission-calendar/', body: mainBody, schema: [
     bc([['হোম', '/'], ['ভর্তি ক্যালেন্ডার', '/admission-calendar/']]),
     { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description: desc, url: U + '/admission-calendar/', inLanguage: 'bn-BD', dateModified: pageLast, isPartOf: { '@type': 'WebSite', name: S.name, url: U },
@@ -127,12 +185,12 @@ module.exports = function ({ esc, w, layout, side, bc, U, S, clip = (t, n = 160)
     if (T(e.center_text)) f.push({ q: `${nm(e)} ভর্তি পরীক্ষার কেন্দ্র কোথায়?`, a: e.center_text + '।' });
     if (e.apply_end) f.push({ q: `${nm(e)} ভর্তির আবেদনের শেষ তারিখ কবে?`, a: `আবেদনের শেষ তারিখ ${ymdBn(e.apply_end)}${e.apply_start ? `; আবেদন শুরু ${ymdBn(e.apply_start)}` : ''}।` });
     const body = `${CSS}${crumbs([['হোম', '/'], ['ভর্তি ক্যালেন্ডার', '/admission-calendar/'], [nm(e), '']])}<div class="grid"><div class="adm">
-    <div class="hero"><p class="meta"><span class="tag">${esc(CATS[e.category] || 'ভর্তি')}</span> <span class="tag">${e.date_status === 'confirmed' ? 'তারিখ নিশ্চিত' : 'সম্ভাব্য তারিখ'}</span></p><h1>${esc(full(e))} ভর্তি পরীক্ষা ${esc(es)}</h1><p>পরীক্ষার তারিখ: <strong>${dt}</strong></p>${has(e) ? `<p class="cd">সময় বাকি: <span data-t="${e.ms}"></span></p>` : ''}
+    <div class="hero"><p class="meta"><span class="tag">${esc(CATS[e.category] || 'ভর্তি')}</span> <span class="tag">${e.date_status === 'confirmed' ? 'তারিখ নিশ্চিত' : 'সম্ভাব্য তারিখ'}</span></p><h1>${esc(full(e))} ভর্তি পরীক্ষা ${esc(es)}</h1><p>পরীক্ষার তারিখ: <strong>${dt}</strong></p>${has(e) ? `<p class="cd">সময় বাকি: <span data-t="${e.ms}" data-long></span></p>` : ''}
     <div class="noprint">${ext(e.apply_url, 'আবেদন লিংক')}${ext(e.circular_url, 'অফিসিয়াল সার্কুলার')}${ext(e.official_url, 'অফিসিয়াল ওয়েবসাইট')}<a class="adm-btn" href="/admission-calendar/">সব পরীক্ষার তালিকা</a></div></div>
-    <section class="box"><h2>এক নজরে</h2><div class="tw"><table class="at"><tbody>${row('পরীক্ষার তারিখ', dt)}${row('নম্বর ও সময়', esc(e.marks_text))}${row('পরীক্ষা কেন্দ্র', esc(e.center_text))}${row('সেকেন্ড টাইম', second(e))}${row('নেগেটিভ মার্কিং', esc(e.negative_marking))}${row('আবেদন শুরু', e.apply_start ? ymdBn(e.apply_start) : '')}${row('আবেদনের শেষ', e.apply_end ? ymdBn(e.apply_end) : '')}${row('আবেদন ফি', esc(e.apply_fee))}</tbody></table></div></section>
-    ${secs.length ? `<section class="box"><h2>বিষয়ভিত্তিক মানবণ্টন ও নিয়ম</h2>${secs.map((s) => `<h3 class="sec-t">${esc(s.t || '')}</h3><div class="tw"><table class="at"><tbody>${(s.rules || []).map((r) => `<tr><th>${esc(r.r || '')}</th><td>${esc(r.s || '')}</td></tr>`).join('')}</tbody></table></div>`).join('')}</section>` : ''}
-    ${T(e.notes_bn) ? `<section class="box"><h2>গুরুত্বপূর্ণ নোট</h2><p>${esc(e.notes_bn).replace(/\n/g, '<br>')}</p></section>` : ''}
-    ${sib.length ? `<section class="box"><h2>${esc(e.short_bn || e.university_bn)}-এর অন্যান্য ইউনিট</h2><div class="chips">${sib.map((x) => `<a href="${url(x)}">${esc(nm(x))}${has(x) ? ' · ' + ymdBn(x.exam_at.slice(0, 10), { year: undefined }) : ''}</a>`).join('')}</div></section>` : ''}
+    <section class="adm-card"><h2 class="ch">এক নজরে</h2><table class="kv"><tbody>${row('পরীক্ষার তারিখ', dt)}${row('নম্বর ও সময়', esc(e.marks_text))}${row('পরীক্ষা কেন্দ্র', esc(e.center_text))}${row('সেকেন্ড টাইম', second(e))}${row('নেগেটিভ মার্কিং', esc(e.negative_marking))}${row('আবেদন শুরু', e.apply_start ? ymdBn(e.apply_start) : '')}${row('আবেদনের শেষ', e.apply_end ? ymdBn(e.apply_end) : '')}${row('আবেদন ফি', esc(e.apply_fee))}</tbody></table></section>
+    ${secs.length ? `<section class="adm-card"><h2 class="ch">বিষয়ভিত্তিক মানবণ্টন ও নিয়ম</h2>${secs.map((s) => `<h3 class="sec-t">${esc(s.t || '')}</h3><table class="kv"><tbody>${(s.rules || []).map((r) => `<tr><th>${esc(r.r || '')}</th><td>${esc(r.s || '')}</td></tr>`).join('')}</tbody></table>`).join('')}</section>` : ''}
+    ${T(e.notes_bn) ? `<section class="adm-card"><h2 class="ch">গুরুত্বপূর্ণ নোট</h2><div class="pad"><p>${esc(e.notes_bn).replace(/\n/g, '<br>')}</p></div></section>` : ''}
+    ${sib.length ? `<section class="adm-card"><h2 class="ch">${esc(e.short_bn || e.university_bn)}-এর অন্যান্য ইউনিট</h2><div class="pad"><div class="chips">${sib.map((x) => `<a href="${url(x)}">${esc(nm(x))}${has(x) ? ' · ' + ymdBn(x.exam_at.slice(0, 10), { year: undefined }) : ''}</a>`).join('')}</div></div></section>` : ''}
     ${f.length ? faqHtml(f) : ''}
     <p class="nt"><strong>সতর্কতা:</strong> তথ্য সংকলিত; আবেদনের আগে অফিসিয়াল সার্কুলার দেখে নিন। <a href="/admission-calendar/">← সকল ভর্তি পরীক্ষার ক্যালেন্ডার</a></p>
     </div>${side()}</div>${JS}`;
