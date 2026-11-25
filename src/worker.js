@@ -193,6 +193,51 @@ async function hashIp(ip) {
   return Array.from(new Uint8Array(buf)).slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ---- Role permissions (strict, deny-by-default). super_admin can do everything. ---------------
+const ADMIN_ROLES = ['super_admin', 'editor', 'verifier', 'contributor'];
+const ADMIN_READ_ACCESS = [
+  'GET /overview', 'GET /institution-contacts', 'GET /institution-sources', 'GET /institutions',
+  'GET /results', 'GET /reviews', 'GET /posts', 'GET /posts/revisions'
+];
+const ADMIN_ROLE_PERMISSIONS = {
+  // Editor: all content work. NOT allowed: users, settings, delete results, import rollback.
+  editor: [
+    ...ADMIN_READ_ACCESS,
+    'POST /institutions', 'POST /institutions/bulk', 'POST /categories', 'POST /locations',
+    'POST /results', 'POST /reviews', 'POST /posts', 'POST /posts/sync-legacy', 'POST /import',
+    'GET /corrections', 'POST /corrections', 'GET /media', 'POST /media', 'GET /seo-audit'
+  ],
+  // Verifier: verification, review moderation, corrections, SEO audit.
+  verifier: [
+    ...ADMIN_READ_ACCESS,
+    'POST /institutions/bulk', 'POST /reviews', 'GET /corrections', 'POST /corrections', 'GET /seo-audit'
+  ],
+  // Contributor: read + media + posts (draft only; cannot touch a published post).
+  contributor: [
+    ...ADMIN_READ_ACCESS,
+    'POST /posts', 'GET /media', 'POST /media'
+  ]
+};
+
+async function isAdminRequestAllowed(admin, req, path, env) {
+  if (!admin || !ADMIN_ROLES.includes(admin.role)) return false;
+  if (admin.role === 'super_admin') return true;
+  const allowed = ADMIN_ROLE_PERMISSIONS[admin.role];
+  if (!allowed) return false;
+  const key = req.method + ' ' + path.replace(/^\/api\/admin/, '');
+  if (!allowed.includes(key)) return false;
+
+  if (admin.role === 'contributor' && key === 'POST /posts') {
+    let b = null;
+    try { b = await req.clone().json(); } catch { return false; }
+    if (!b || String(b.status || '') !== 'draft') return false;
+    const slug = slugify(b.slug || b.title_en || b.title_bn);
+    const existing = await env.DB.prepare(`SELECT status FROM posts WHERE slug = ?`).bind(slug).first();
+    if (existing && existing.status === 'published') return false;
+  }
+  return true;
+}
+
 // Rate limit check via D1 (Max N actions per IP hash in last 1 hour)
 async function isRateLimited(env, ipHash, tableName, maxPerHour = 10) {
   try {
@@ -1304,6 +1349,10 @@ async function handleAdminApi(req, env, path) {
   }
   const ip = req.headers.get('CF-Connecting-IP') || '';
 
+  if (!(await isAdminRequestAllowed(admin, req, path, env))) {
+    return jsonResponse({ error: 'এই কাজের জন্য আপনার রোলের অনুমতি নেই।' }, 403);
+  }
+
   // MODULE 1: Overview
   if (path === '/api/admin/overview' && req.method === 'GET') {
     const [
@@ -1341,9 +1390,9 @@ async function handleAdminApi(req, env, path) {
       },
       by_category: byCat.results || [],
       by_district: byDist.results || [],
-      recent_logs: recentLogs.results || [],
+      recent_logs: admin.role === 'super_admin' ? (recentLogs.results || []) : [],
       import_jobs: importJobsList.results || [],
-      settings: settingsList.results || [],
+      settings: admin.role === 'super_admin' ? (settingsList.results || []) : [],
       reference: {
         types: typesList.results || [],
         divisions: divsList.results || [],
@@ -2014,20 +2063,60 @@ async function handleAdminApi(req, env, path) {
     });
   }
 
-  // MODULE 19: Admin Users
+  // MODULE 19: Admin Users (super_admin only - enforced by isAdminRequestAllowed above)
   if (path === '/api/admin/users' && req.method === 'GET') {
-    const rows = await env.DB.prepare(`SELECT * FROM admin_users ORDER BY id ASC`).all();
-    return jsonResponse({ users: rows.results || [] });
+    const rows = await env.DB.prepare(`SELECT id, github_username, display_name, role, is_active, created_at FROM admin_users ORDER BY id ASC`).all();
+    return jsonResponse({ users: rows.results || [], roles: ADMIN_ROLES });
   }
 
   if (path === '/api/admin/users' && req.method === 'POST') {
-    if (admin.role !== 'super_admin') return jsonResponse({ error: 'শুধুমাত্র সুপার অ্যাডমিন ইউজার রোল পরিবর্তন করতে পারেন।' }, 403);
-    const b = await req.json();
-    await env.DB.prepare(`
-      INSERT INTO admin_users (github_username, display_name, role, is_active)
-      VALUES (?, ?, ?, 1)
-      ON CONFLICT(github_username) DO UPDATE SET role = excluded.role, display_name = excluded.display_name, is_active = excluded.is_active
-    `).bind(b.github_username.trim(), b.display_name.trim(), b.role || 'editor').run();
+    let b = null;
+    try { b = await req.json(); } catch { b = null; }
+    if (!b || typeof b !== 'object') return jsonResponse({ error: 'ভুল ডাটা পাঠানো হয়েছে।' }, 400);
+
+    const username = String(b.github_username || '').trim().replace(/^@/, '');
+    const displayName = String(b.display_name || '').trim();
+    const role = String(b.role || 'editor').trim();
+
+    if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(username)) {
+      return jsonResponse({ error: 'GitHub ইউজারনেম সঠিক নয়।' }, 400);
+    }
+    if (!displayName || displayName.length > 100) {
+      return jsonResponse({ error: 'নাম দিন (সর্বোচ্চ ১০০ অক্ষর)।' }, 400);
+    }
+    if (!ADMIN_ROLES.includes(role)) {
+      return jsonResponse({ error: 'ভুল রোল।' }, 400);
+    }
+
+    const existing = await env.DB.prepare(
+      `SELECT id, github_username, role, is_active FROM admin_users WHERE LOWER(github_username) = LOWER(?)`
+    ).bind(username).first();
+
+    let isActive;
+    if (b.is_active === undefined || b.is_active === null || b.is_active === '') {
+      isActive = existing ? (existing.is_active ? 1 : 0) : 1;
+    } else {
+      isActive = (b.is_active === true || b.is_active === 1 || b.is_active === '1' || b.is_active === 'true') ? 1 : 0;
+    }
+
+    // Lock-out protection: nobody can demote or deactivate their own account.
+    if (existing && existing.id === admin.id && (role !== 'super_admin' || isActive !== 1)) {
+      return jsonResponse({ error: 'নিজের রোল বা স্ট্যাটাস পরিবর্তন করা যাবে না।' }, 400);
+    }
+
+    if (existing) {
+      await env.DB.prepare(
+        `UPDATE admin_users SET display_name = ?, role = ?, is_active = ? WHERE id = ?`
+      ).bind(displayName, role, isActive, existing.id).run();
+      await logAudit(env, admin.id, 'UPDATE_ADMIN_USER', 'admin_users', existing.id,
+        { github_username: existing.github_username, from_role: existing.role, to_role: role, is_active: isActive }, ip);
+    } else {
+      const ins = await env.DB.prepare(
+        `INSERT INTO admin_users (github_username, display_name, role, is_active) VALUES (?, ?, ?, ?)`
+      ).bind(username, displayName, role, isActive).run();
+      await logAudit(env, admin.id, 'CREATE_ADMIN_USER', 'admin_users', ins?.meta?.last_row_id || username,
+        { github_username: username, role, is_active: isActive }, ip);
+    }
     return jsonResponse({ ok: true });
   }
 

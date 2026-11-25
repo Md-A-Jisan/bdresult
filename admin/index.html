@@ -499,13 +499,14 @@
       <section id="tab-m19" class="tab-pane hidden">
         <div class="panel">
           <h2>Admin Users & Role-Based Access Control (RBAC)</h2>
-          <form onsubmit="return saveAdminUser(event)" class="form-grid" style="margin-bottom:14px">
+          <form id="adminUserForm" onsubmit="return saveAdminUser(event)" class="form-grid" style="margin-bottom:14px">
             <div><label>GitHub Username *</label><input name="github_username" required></div>
             <div><label>Display Name *</label><input name="display_name" required></div>
             <div><label>Role</label><select name="role"><option value="editor">Editor</option><option value="verifier">Verifier</option><option value="contributor">Contributor</option><option value="super_admin">Super Admin</option></select></div>
+            <div><label>Status</label><select name="is_active"><option value="1">Active</option><option value="0">Inactive</option></select></div>
             <div style="align-self:end"><button class="btn" type="submit">ইউজার সেভ করুন</button></div>
           </form>
-          <table><thead><tr><th>ID</th><th>GitHub Username</th><th>Name</th><th>Role</th></tr></thead><tbody id="tbl-users"></tbody></table>
+          <table><thead><tr><th>ID</th><th>GitHub Username</th><th>Name</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbl-users"></tbody></table>
         </div>
       </section>
 
@@ -1117,7 +1118,29 @@
       return j;
     }
 
+    // Must match the permissions in src/worker.js (the server enforces them; this only hides menus)
+    const ROLE_TABS = {
+      editor: ['m1','m2','m3','m4','m5','m6','m7','m8','m9','m10','m11','m12','m13','m14','m15','m16','m17','m18'],
+      verifier: ['m1','m2','m9','m14','m15','m17'],
+      contributor: ['m1','m2','m10','m16']
+    };
+    let CURRENT_ROLE = '';
+    function canOpenTab(id) {
+      if (CURRENT_ROLE === 'super_admin') return true;
+      return (ROLE_TABS[CURRENT_ROLE] || []).includes(id);
+    }
+    function applyRoleAccess(role) {
+      CURRENT_ROLE = role;
+      document.querySelectorAll('aside .nav-btn').forEach(b => {
+        const oc = b.getAttribute('onclick') || '';
+        const m = oc.match(/showTab\('(m\d+)'/);
+        if (m) { b.style.display = canOpenTab(m[1]) ? '' : 'none'; return; }
+        b.style.display = (role === 'super_admin' || role === 'editor') ? '' : 'none';
+      });
+    }
+
     function showTab(id, btn) {
+      if (!canOpenTab(id)) return;
       document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
       document.getElementById('tab-' + id).classList.remove('hidden');
       if (btn) {
@@ -1199,6 +1222,7 @@
         const d = await api('/api/admin/overview');
         gate.style.display = 'none';
         st.textContent = `লগইনকৃত: ${d.admin.display_name} (@${d.admin.github_username} — ${d.admin.role})`;
+        applyRoleAccess(d.admin.role);
         st.style.color = '#064e3b';
 
         document.getElementById('k-total').textContent = d.stats.total_institutions;
@@ -1674,15 +1698,53 @@
       `).join('');
     }
 
+    let ADMIN_USERS = [];
+    function adminEsc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     async function loadUsers() {
-      const d = await api('/api/admin/users');
-      document.getElementById('tbl-users').innerHTML = d.users.map(u => `<tr><td>${u.id}</td><td>@${u.github_username}</td><td>${u.display_name}</td><td>${u.role}</td></tr>`).join('');
+      try {
+        const d = await api('/api/admin/users');
+        ADMIN_USERS = d.users || [];
+        document.getElementById('tbl-users').innerHTML = ADMIN_USERS.map((u, i) => `<tr>
+          <td>${adminEsc(u.id)}</td><td>@${adminEsc(u.github_username)}</td><td>${adminEsc(u.display_name)}</td><td>${adminEsc(u.role)}</td>
+          <td>${u.is_active ? 'Active' : 'Inactive'}</td>
+          <td><button class="btn" type="button" onclick="editAdminUser(${i})">Edit</button>
+              <button class="btn btn-danger" type="button" onclick="toggleAdminUser(${i})">${u.is_active ? 'Deactivate' : 'Activate'}</button></td>
+        </tr>`).join('');
+      } catch (err) {
+        alert('ইউজার লোড করতে সমস্যা: ' + err.message);
+      }
+    }
+
+    function editAdminUser(i) {
+      const u = ADMIN_USERS[i]; if (!u) return;
+      const f = document.getElementById('adminUserForm');
+      f.github_username.value = u.github_username;
+      f.display_name.value = u.display_name;
+      f.role.value = u.role;
+      f.is_active.value = u.is_active ? '1' : '0';
+      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    async function toggleAdminUser(i) {
+      const u = ADMIN_USERS[i]; if (!u) return;
+      const next = u.is_active ? 0 : 1;
+      if (!confirm((next ? 'অ্যাক্টিভ' : 'ডিঅ্যাক্টিভ') + ' করবেন? @' + u.github_username)) return;
+      try {
+        await api('/api/admin/users', 'POST', { github_username: u.github_username, display_name: u.display_name, role: u.role, is_active: next });
+        loadUsers();
+      } catch (err) { alert(err.message); }
     }
 
     async function saveAdminUser(e) {
       e.preventDefault();
-      await api('/api/admin/users', 'POST', Object.fromEntries(new FormData(e.target).entries()));
-      loadUsers();
+      try {
+        await api('/api/admin/users', 'POST', Object.fromEntries(new FormData(e.target).entries()));
+        e.target.reset();
+        loadUsers();
+      } catch (err) { alert(err.message); }
       return false;
     }
 
