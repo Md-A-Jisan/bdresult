@@ -62,11 +62,12 @@ function sanitizeRich(raw) {
   const rebuild = (slash, tag, attrs) => {
     tag = tag.toLowerCase();
     if (!RICH_TAGS.has(tag)) return '';
-    if (slash) return (tag === 'br' || tag === 'hr') ? '' : '</' + tag + '>';
+    if (slash) return (tag === 'br' || tag === 'hr') ? '' : (tag === 'table' ? '</table></div>' : '</' + tag + '>');
     const get = (name) => {
       const x = attrs.match(new RegExp('(?:^|\\s)' + name + '\\s*=\\s*(?:"([^"]*)"|\'([^\']*)\'|([^\\s"\'>]+))', 'i'));
       return x ? (x[1] ?? x[2] ?? x[3] ?? '') : null;
     };
+    if (tag === 'table') return '<div class="tbl-wrap"><table class="rich-tbl">'; // editor's inline table styles are dropped; site CSS styles it
     let out = '<' + tag;
     if (tag === 'a') {
       const href = decode(get('href') || '').trim();
@@ -369,6 +370,14 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     @media(hover:hover){.prof-sec:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--g),0 22px 36px -10px rgba(6,78,59,.5)}}
     @media(prefers-reduced-motion:reduce){.prof-sec{transition:none}.prof-sec:hover{transform:none}}
     .prof-sec>h2{margin:0 -20px 18px;padding:14px 20px;background:linear-gradient(180deg,#0e7a50 0%,#064e3b 100%);color:#fff;border:0;border-bottom:3px solid #022c22;font-size:20px;line-height:1.4;text-shadow:0 1px 0 rgba(0,0,0,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+    .rich-tbl{width:100%;border-collapse:collapse;font-size:15px;margin:0;word-break:normal;overflow-wrap:normal}
+    .rich-tbl th,.rich-tbl td{border:1px solid #a7f3d0!important;padding:8px 12px!important;vertical-align:middle;min-width:90px}
+    .rich-tbl th,.rich-tbl thead td{background:#ecfdf5;color:#064e3b;font-weight:700}
+    .rich-tbl tbody tr:nth-child(even) td{background:#f7fdf9}
+    .rich-tbl p{margin:0}
+    .post table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .post th,.post td{border:1px solid #a7f3d0;padding:8px 12px}
+    .post th{background:#ecfdf5;color:#064e3b}
     .tbl-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #a7f3d0;border-radius:10px;margin:10px 0;box-shadow:0 2px 6px rgba(6,78,59,.08)}
     .data-tbl{width:100%;border-collapse:collapse;font-size:14px;word-break:normal;overflow-wrap:normal}
     .data-tbl th,.data-tbl td{border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 12px;text-align:left;white-space:nowrap}
