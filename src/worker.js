@@ -299,31 +299,6 @@ const clipDesc = (t, n = 160) => {
   return (i > n * 0.6 ? c.slice(0, i) : c) + '…';
 };
 
-// Mobile-friendly tables: tag header-style tables so CSS can stack each row as a card (no sideways scroll).
-// Skips tables with colspan/rowspan, nested tables, and key-value tables (th + td in the first row).
-function mobileTables(html) {
-  const strip = (t) => t.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-  const escAttr = (t) => t.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-  return String(html || '').replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (tbl) => {
-    if ((tbl.match(/<table\b/gi) || []).length > 1 || /\b(colspan|rowspan)\s*=/i.test(tbl)) return tbl;
-    const rows = tbl.match(/<tr\b[\s\S]*?<\/tr>/gi) || [];
-    if (rows.length < 2) return tbl;
-    const cells = (r) => r.match(/<t[dh]\b[\s\S]*?<\/t[dh]>/gi) || [];
-    const head = cells(rows[0]);
-    const isRich = /class="rich-tbl"/.test(tbl);
-    const allTh = head.length > 1 && head.every((c) => /^<th\b/i.test(c));
-    if (head.length < 2 || !(allTh || isRich || /<thead\b/i.test(tbl))) return tbl;
-    const labels = head.map((c) => escAttr(strip(c)));
-    let out = tbl.replace(/^<table\b([^>]*)>/i, (m, a) => /class="/i.test(a) ? m.replace(/class="/i, 'class="rt-stack ') : '<table class="rt-stack"' + a + '>');
-    out = out.replace(rows[0], rows[0].replace(/^<tr\b/i, '<tr class="rt-head"'));
-    rows.slice(1).forEach((r) => {
-      let i = 0;
-      out = out.replace(r, r.replace(/<t([dh])\b/gi, (m, k) => '<t' + k + ' data-label="' + (labels[i++] || '') + '"'));
-    });
-    return out;
-  });
-}
-
 function renderPublicLayout({ title, desc, path, body, type = 'website', img, schema = [], noindex = false }) {
   const canonical = SITE_URL + path;
   const dd = clipDesc(desc);
@@ -403,16 +378,6 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
     .post table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
     .post th,.post td{border:1px solid #a7f3d0;padding:8px 12px}
     .post th{background:#ecfdf5;color:#064e3b}
-    @media(max-width:640px){
-      .tbl-wrap:has(.rt-stack){border:0;box-shadow:none;border-radius:0;overflow:visible}
-      .rt-stack,.rt-stack tbody,.rt-stack tr,.rt-stack td,.rt-stack th{display:block;width:100%!important;max-width:100%}
-      .rt-stack thead,.rt-stack .rt-head{display:none}
-      .rt-stack tr{border:1px solid #a7f3d0;border-radius:10px;margin:0 0 12px;overflow:hidden;background:#fff;box-shadow:0 2px 6px rgba(6,78,59,.08)}
-      .rt-stack td,.rt-stack th{border:0!important;border-bottom:1px solid #d1fae5!important;padding:8px 12px!important;white-space:normal!important;text-align:left!important;min-width:0;overflow-wrap:anywhere;background:transparent!important}
-      .rt-stack tr>:last-child{border-bottom:0!important}
-      .rt-stack td::before,.rt-stack th::before{content:attr(data-label);display:block;font-size:12px;font-weight:700;color:#064e3b;margin-bottom:2px}
-      .rt-stack [data-label=""]::before{display:none}
-    }
     .tbl-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #a7f3d0;border-radius:10px;margin:10px 0;box-shadow:0 2px 6px rgba(6,78,59,.08)}
     .data-tbl{width:100%;border-collapse:collapse;font-size:14px;word-break:normal;overflow-wrap:normal}
     .data-tbl th,.data-tbl td{border-bottom:1px solid #e2e8f0;border-right:1px solid #e2e8f0;padding:10px 12px;text-align:left;white-space:nowrap}
@@ -1251,7 +1216,7 @@ async function handleInstitutionProfile(req, env, slug) {
     title: seoTitle,
     desc: seoDesc,
     path: `/institution/${inst.slug}/`,
-    body: mobileTables(body),
+    body,
     schema,
     noindex: !isIndexable
   }), { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
@@ -1321,7 +1286,7 @@ async function handleDynamicDatabasePost(env, slug) {
     path: urlPath,
     type: 'article',
     img: post.featured_image,
-    body: mobileTables(body),
+    body,
     schema
   }), { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
