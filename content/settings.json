@@ -57,6 +57,11 @@
       "slug": "institution-review",
       "name": "ইনস্টিটিউশন রিভিউ",
       "desc": "শিক্ষাপ্রতিষ্ঠান সম্পর্কে বাস্তব পর্যালোচনা দেওয়া হয়"
+    },
+    {
+      "slug": "books",
+      "name": "বই",
+      "desc": "NCTB বই এর PDF ফ্রী তে ডাউনলোড করা যাই"
     }
   ],
   "email": "contact@bdresult.me",
