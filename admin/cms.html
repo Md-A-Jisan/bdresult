@@ -1,5 +1,48 @@
 <!doctype html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
 <title>bdresult.me — Content Manager (Decap)</title>
-<link href="/admin/config.yml" type="text/yaml" rel="cms-config-url"></head>
-<body><script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script></body></html>
+<link href="/admin/config.yml" type="text/yaml" rel="cms-config-url">
+<!-- Version PINNED on purpose. "decap-cms@^3.0.0" auto-upgraded to every new release and
+     silently changed the editor/preview behaviour. Upgrade only by editing the number below. -->
+</head>
+<body>
+<script src="https://unpkg.com/decap-cms@3.1.3/dist/decap-cms.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script>
+/* ---------- Live preview: exactly the same markdown/HTML engine as the real site (build.js) ---------- */
+(function () {
+  if (!window.CMS || !window.marked) { console.warn('CMS/marked not loaded – preview disabled'); return; }
+  var h = window.h, createClass = window.createClass;
+  window.marked.setOptions({ gfm: true, breaks: true });   // same options as build.js
+
+  // Same stylesheet the public site uses, so the preview looks like the live post.
+  CMS.registerPreviewStyle('/assets/style.css');
+  CMS.registerPreviewStyle('body{margin:0;padding:16px}', { raw: true });
+
+  function render(md) {
+    try { return window.marked.parse(String(md || '')); }
+    catch (e) { return '<pre style="color:#b91c1c">Preview error: ' + String(e && e.message || e) + '</pre>'; }
+  }
+
+  function make(kind) {
+    return createClass({
+      render: function () {
+        var e = this.props.entry;
+        var title = e.getIn(['data', 'title']) || '';
+        var body = e.getIn(['data', 'body']) || '';
+        var img = e.getIn(['data', 'image']);
+        var imgSrc = img ? this.props.getAsset(img) : null;
+        var cat = e.getIn(['data', 'category']);
+        var kids = [h('h1', {}, title)];
+        if (kind === 'post' && cat) kids.push(h('p', { className: 'meta' }, String(cat)));
+        if (imgSrc) kids.push(h('img', { src: imgSrc.toString(), alt: e.getIn(['data', 'image_alt']) || title }));
+        kids.push(h('div', { dangerouslySetInnerHTML: { __html: render(body) } }));
+        return h('div', { className: 'w' }, h('article', { className: 'post' }, kids));
+      }
+    });
+  }
+  CMS.registerPreviewTemplate('posts', make('post'));
+  CMS.registerPreviewTemplate('pages', make('page'));
+})();
+</script>
+</body></html>

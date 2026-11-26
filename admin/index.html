@@ -1159,8 +1159,8 @@
     }
 
     function openLegacyCms() {
-      const win = window.open('', '_blank');
-      win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Decap CMS</title></head><body><script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"><\/script></body></html>');
+      // Opens the pinned, configured CMS page (the old blank-window loader used an unpinned Decap and had no config)
+      window.open('/admin/cms.html#/collections/posts', '_blank');
     }
 
     function logoutAdmin() {

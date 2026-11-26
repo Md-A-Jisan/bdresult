@@ -44,7 +44,11 @@ collections:
         widget: list
         required: false
         fields: [{label: Question, name: q, widget: string}, {label: Answer, name: a, widget: text}]
-      - {label: Body, name: body, widget: markdown}
+      - label: "Body (HTML + Markdown দুটোই চলবে)"
+        name: body
+        widget: markdown
+        modes: [raw, rich_text]
+        hint: "ডিফল্ট Raw মোড: সরাসরি HTML বা Markdown লিখুন, প্রিভিউয়ে লাইভ দেখাবে। HTML ব্যবহার করলে Rich Text মোডে যাবেন না — ওখানে HTML মুছে/বদলে যেতে পারে।"
   - name: pages
     label: "Pages"
     folder: content/pages
@@ -57,7 +61,11 @@ collections:
       - {label: Meta Description, name: description, widget: text}
       - {label: "SEO Title (ঐচ্ছিক)", name: seo_title, widget: string, required: false}
       - {label: "Noindex", name: noindex, widget: boolean, default: false, required: false}
-      - {label: Body, name: body, widget: markdown}
+      - label: "Body (HTML + Markdown দুটোই চলবে)"
+        name: body
+        widget: markdown
+        modes: [raw, rich_text]
+        hint: "ডিফল্ট Raw মোড: সরাসরি HTML বা Markdown লিখুন, প্রিভিউয়ে লাইভ দেখাবে। HTML ব্যবহার করলে Rich Text মোডে যাবেন না — ওখানে HTML মুছে/বদলে যেতে পারে।"
   - name: settings
     label: "Settings & Ads"
     files:
