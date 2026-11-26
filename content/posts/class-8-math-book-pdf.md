@@ -3,7 +3,7 @@ title: Class 8 Math Book PDF – অষ্টম শ্রেণির গণি
 slug: class-8-math-book-pdf
 date: 2026-11-26T18:11:45.140Z
 updated: 2026-11-26T18:11:46.114Z
-category: syllabus
+category: books
 description: অষ্টম শ্রেণির NCTB গণিত বই PDF ডাউনলোডের লিংক, সাথে math guide
   class 8 নিয়ে দরকারি কিছু কথা। ফ্রি ডাউনলোড করুন এক ক্লিকে।
 image: /uploads/class-8-math-book-pdf-bdresult.me-.webp
