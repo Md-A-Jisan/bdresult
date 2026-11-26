@@ -3,7 +3,7 @@ title: Class 6 Math Book PDF – ষষ্ঠ শ্রেণির গণিত
 slug: class-6-math-book-pdf
 date: 2026-11-26T18:44:37.769Z
 updated: 2026-11-26T18:44:38.608Z
-category: syllabus
+category: books
 description: ষষ্ঠ শ্রেণির NCTB গণিত বই PDF ডাউনলোডের লিংক, সাথে math guide class
   6 নিয়ে দরকারি কিছু কথা। ফ্রি ডাউনলোড করুন এক ক্লিকে।
 image: /uploads/class-6-math-book-pdf-bdresult.me-.webp
