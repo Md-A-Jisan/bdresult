@@ -1273,6 +1273,9 @@
       const q = document.getElementById('instSearch').value;
       const status = document.getElementById('instStatusFilter').value;
       const d = await api(`/api/admin/institutions?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}`);
+      // Keep full records in memory; never inline them into onclick (rich HTML with &quot; / quotes broke the handler)
+      window.__instRows = {};
+      d.institutions.forEach(i => { window.__instRows[i.id] = i; });
       document.getElementById('tbl-inst-list').innerHTML = d.institutions.map(i => `
         <tr>
           <td><input type="checkbox" class="inst-chk" value="${i.id}"></td>
@@ -1283,7 +1286,7 @@
           <td>${i.completeness_score}%</td>
           <td><span class="pill ${i.verification_status === 'verified' ? 'pill-ok' : 'pill-warn'}">${i.verification_status}</span></td>
           <td>${i.is_published ? '✓ হ্যাঁ' : 'না'}</td>
-          <td><button class="btn btn-sec" onclick='editInst(${JSON.stringify(i).replace(/'/g,"&#39;")})'>Edit</button></td>
+          <td><button class="btn btn-sec" onclick="editInst(window.__instRows[${i.id}])">Edit</button></td>
         </tr>
       `).join('');
     }
