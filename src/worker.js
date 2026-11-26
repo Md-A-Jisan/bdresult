@@ -838,6 +838,8 @@ async function handleInstitutionProfile(req, env, slug) {
   const seoTitle = inst.seo_title || `${inst.name_bn} (${inst.name_en}) - ${inst.eiin ? `EIIN ${inst.eiin}, ` : ''}ভর্তি, রেজাল্ট ও ঠিকানা | ${SITE_NAME}`;
   const seoDesc = inst.seo_description || `${inst.name_bn} (${inst.name_en}), ${inst.upazila_bn}, ${inst.district_bn}-এর অফিশিয়াল EIIN নম্বর, বোর্ড পরীক্ষার ফলাফল, পাসের হার, ভর্তি তথ্য এবং যোগাযোগের বিস্তারিত প্রোফাইল।`;
 
+  // Universities have no SSC/HSC board results: hide that block unless real result rows exist
+  const hideResults = !results.length && /universit/i.test(inst.type_slug || '');
   const orgType = /madras|school/i.test(inst.type_slug || '') ? 'School'
     : /college|universit/i.test(inst.type_slug || '') ? 'CollegeOrUniversity'
     : 'EducationalOrganization';
@@ -929,7 +931,7 @@ async function handleInstitutionProfile(req, env, slug) {
       <a href="#overview">পরিচিতি</a>
       <a href="#academic">একাডেমিক তথ্য</a>
       <a href="#admission">ভর্তি তথ্য</a>
-      <a href="#results">বোর্ড ফলাফল</a>
+      ${hideResults ? '' : `<a href="#results">বোর্ড ফলাফল</a>`}
       <a href="#location">ঠিকানা ও যোগাযোগ</a>
       ${inst.history_bn ? `<a href="#history">ইতিহাস</a>` : ''}
       <a href="#reviews">বিশ্লেষণ ও রিভিউ</a>
@@ -969,7 +971,7 @@ async function handleInstitutionProfile(req, env, slug) {
         </section>
 
         <!-- E. RESULTS AND PERFORMANCE -->
-        <section id="results" class="prof-sec">
+        ${hideResults ? '' : `<section id="results" class="prof-sec">
           <h2>বোর্ড পরীক্ষার ফলাফল ও পরিসংখ্যান (Results & Performance)</h2>
           ${results.length ? `
             <p style="font-size:14px;color:#475569">পাসের হার = (উত্তীর্ণ শিক্ষার্থী ÷ পরীক্ষায় অংশগ্রহণকারী শিক্ষার্থী) × ১০০ এবং জিপিএ-৫ হার = (জিপিএ-৫ প্রাপ্ত শিক্ষার্থী ÷ অংশগ্রহণকারী শিক্ষার্থী) × ১০০ সূত্র অনুযায়ী হিসাবকৃত।</p>
@@ -997,7 +999,7 @@ async function handleInstitutionProfile(req, env, slug) {
             </div>
             <p style="font-size:13px;color:#64748b;margin-top:8px">সূত্র: ${esc(results[0].source_name)} (${results[0].verification_status === 'verified' ? 'যাচাইকৃত' : 'অযাচাইকৃত'})</p>
           ` : `<div class="box"><p>এই প্রতিষ্ঠানের বিগত বছরের বোর্ড ফলাফল এখনো যাচাইকৃত ডাটাবেসে যুক্ত করা হয়নি। কোনো অনুমানভিত্তিক ফলাফল bdresult.me-তে প্রকাশ করা হয় না।</p></div>`}
-        </section>
+        </section>`}
 
         <!-- F. LOCATION AND CONTACT -->
         <section id="location" class="prof-sec">
