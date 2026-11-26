@@ -52,6 +52,11 @@
       "slug": "books",
       "name": "বই",
       "desc": "NCTB বই এর PDF ফ্রী তে ডাউনলোড করা যাই"
+    },
+    {
+      "slug": "study-tips",
+      "name": "পড়াশোনার পরামর্শ",
+      "desc": "পড়াশোনা সংক্রান্ত যাবতীয় পরামর্শ দেওয়া হয়।"
     }
   ],
   "email": "contact@bdresult.me",
