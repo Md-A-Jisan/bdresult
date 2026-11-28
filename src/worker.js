@@ -336,8 +336,8 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/logo-512.png">
   <link rel="alternate" type="application/rss+xml" title="${SITE_NAME}" href="/rss.xml">
-  <link rel="stylesheet" href="/assets/style.css?v=20261128">
-  <link rel="stylesheet" href="/assets/site-header.css?v=20261128">
+  <link rel="stylesheet" href="/assets/style.css?v=20261128b">
+  <link rel="stylesheet" href="/assets/site-header.css?v=20261128b">
   <style>
     main{overflow-wrap:break-word;word-wrap:break-word;word-break:normal}
     .dir-filter{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:14px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
@@ -422,7 +422,7 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
       <p>© ${new Date().getFullYear()} ${SITE_NAME}.me — বাংলাদেশ শিক্ষা তথ্য ও শিক্ষাপ্রতিষ্ঠান ডিরেক্টরি</p>
     </div>
   </footer>
-<script src="/assets/site-header.js?v=20261128" defer></script>
+<script src="/assets/site-header.js?v=20261128b" defer></script>
   </body>
 </html>`;
 }

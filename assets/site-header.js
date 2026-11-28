@@ -11,14 +11,12 @@ if(best)best.setAttribute('aria-current','page');
 function closeAll(){h.classList.remove('open');more.classList.remove('open');bg.setAttribute('aria-expanded','false');bg.setAttribute('aria-label','মেনু খুলুন');mb.setAttribute('aria-expanded','false')}
 function layout(){
   all.forEach(function(a){links.appendChild(a)});
-  mb.classList.remove('has-cur');
   if(mq.matches){more.hidden=true;return}
   h.classList.remove('open');
   more.hidden=false;
   var i=all.length;
   while(links.scrollWidth>links.clientWidth+1&&i>1){drop.insertBefore(all[--i],drop.firstChild)}
   more.hidden=!drop.children.length;
-  if(best&&best.parentNode===drop)mb.classList.add('has-cur');
 }
 var t;function sched(){cancelAnimationFrame(t);t=requestAnimationFrame(layout)}
 layout();

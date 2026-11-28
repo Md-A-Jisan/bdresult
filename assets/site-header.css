@@ -1,7 +1,8 @@
 /* Shared header - every class is prefixed .sh so it can be dropped on any page */
 header.sh,header.sh *{box-sizing:border-box}
 header.sh{background:none!important;color:inherit}
-.sh{position:sticky;top:0;z-index:100;padding:10px 12px 0;pointer-events:none;font-family:"Noto Sans Bengali",system-ui,sans-serif;line-height:1.4}
+header.sh,header.sh *{font-family:system-ui,"Segoe UI","Nirmala UI","Hind Siliguri",Arial,sans-serif!important;font-style:normal;letter-spacing:0;text-transform:none}
+.sh{position:sticky;top:0;z-index:100;padding:10px 12px 0;pointer-events:none;font-size:15px;line-height:1.4;-webkit-text-size-adjust:100%}
 .sh-bar{pointer-events:auto;position:relative;max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:8px;background:#064e3b;color:#fff;border-radius:20px;padding:8px 10px;box-shadow:0 12px 28px -12px rgba(2,44,34,.6),0 2px 6px rgba(2,44,34,.25)}
 .sh a,.sh a:visited{color:#fff;text-decoration:none}
 .sh-logo{display:flex;align-items:center;gap:10px;flex:none;padding:2px 4px 2px 2px}
@@ -11,7 +12,7 @@ header.sh{background:none!important;color:inherit}
 .sh-links{display:flex;align-items:center;gap:2px;flex:1;min-width:0;overflow:hidden;white-space:nowrap}
 .sh-a,.sh a.sh-a{flex:none;display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:12px;font-size:15px;font-weight:600;color:#d1fae5;background:transparent;border:0;font-family:inherit;cursor:pointer;transition:background .15s,color .15s}
 .sh a.sh-a:hover,.sh-morebtn:hover,.sh-more.open .sh-morebtn{background:rgba(255,255,255,.14);color:#fff}
-.sh a.sh-a[aria-current="page"],.sh-morebtn.has-cur{background:#ecfdf5;color:#064e3b}
+.sh a.sh-a[aria-current="page"]{background:#ecfdf5;color:#064e3b}
 .sh a.sh-a[aria-current="page"]:hover{background:#ecfdf5;color:#064e3b}
 .sh-a:focus-visible,.sh-burger:focus-visible{outline:2px solid #6ee7b7;outline-offset:2px}
 .sh-more{position:static;flex:none}
