@@ -3,6 +3,9 @@
 // File: src/worker.js
 // ============================================================================
 
+import siteHeader from '../site-header.js';
+import SETTINGS from '../content/settings.json';
+
 const SITE_URL = 'https://bdresult.me';
 const SITE_NAME = 'bdresult';
 
@@ -334,6 +337,7 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
   <link rel="apple-touch-icon" href="/logo-512.png">
   <link rel="alternate" type="application/rss+xml" title="${SITE_NAME}" href="/rss.xml">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/site-header.css">
   <style>
     main{overflow-wrap:break-word;word-wrap:break-word;word-break:normal}
     .dir-filter{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:14px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
@@ -410,26 +414,7 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
   ${SITE_CFG && SITE_CFG.gaHtml ? SITE_CFG.gaHtml : ''}
 </head>
 <body>
-  <header>
-    <div class="w hd">
-      <a class="logo" href="/">${SITE_NAME}<small>.me</small></a>
-      <form action="/institutions/" method="GET" style="flex:1;max-width:320px;margin-left:auto">
-        <input id="q" name="q" type="search" placeholder="নাম বা EIIN দিয়ে খুঁজুন..." aria-label="Search">
-      </form>
-    </div>
-    <nav class="w" aria-label="প্রধান মেনু">
-      <a href="/">হোম</a>
-      <a href="/admission-calendar/">ভর্তি ক্যালেন্ডার</a>
-      <a href="/institutions/">সকল প্রতিষ্ঠান</a>
-      <a href="/institutions/schools/">স্কুল</a>
-      <a href="/institutions/colleges/">কলেজ</a>
-      <a href="/institutions/madrasas/">মাদ্রাসা</a>
-      <a href="/institutions/technical/">কারিগরি</a>
-      <a href="/institutions/universities/">বিশ্ববিদ্যালয়</a>
-      <a href="/results/compare/">ফলাফল তুলনা ও পরিসংখ্যান</a>
-      <a href="/emis/">EMIS টুল</a>
-    </nav>
-  </header>
+  ${siteHeader({ name: SITE_NAME, cats: SETTINGS.categories })}
   <main class="w" id="main">${body}</main>
   <footer>
     <div class="w">
@@ -437,7 +422,8 @@ function renderPublicLayout({ title, desc, path, body, type = 'website', img, sc
       <p>© ${new Date().getFullYear()} ${SITE_NAME}.me — বাংলাদেশ শিক্ষা তথ্য ও শিক্ষাপ্রতিষ্ঠান ডিরেক্টরি</p>
     </div>
   </footer>
-</body>
+<script src="/assets/site-header.js" defer></script>
+  </body>
 </html>`;
 }
 
