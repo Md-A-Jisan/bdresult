@@ -14,6 +14,7 @@ function navItems(cats) {
     ...(cats || []).map((c) => [c.name, '/category/' + c.slug + '/']),
     ['SSC GPA ক্যালকুলেটর', '/ssc-gpa-calculator/'],
     ['EMIS টুল', '/emis/'],
+    ['বাংলা টাইপিং টেস্ট', '/bangla-typing-test/'],
   ];
 }
 

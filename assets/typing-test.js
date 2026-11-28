@@ -1,8 +1,9 @@
 (function(){
 /* ---- phonetic (Avro-style) converter ---- */
-var V={'rri':['ঋ','ৃ'],'oi':['ঐ','ৈ'],'OI':['ঐ','ৈ'],'ou':['ঔ','ৌ'],'OU':['ঔ','ৌ'],'aa':['আ','া'],'ii':['ঈ','ী'],'ee':['ঈ','ী'],'uu':['ঊ','ূ'],'oo':['ঊ','ূ'],'a':['আ','া'],'i':['ই','ি'],'I':['ঈ','ী'],'u':['উ','ু'],'U':['ঊ','ূ'],'e':['এ','ে'],'o':['অ',''],'O':['ও','ো']};
-var C={'kkh':'ক্ষ','GG':'জ্ঞ','ngk':'ঙ্ক','ngg':'ঙ্গ','t``':'ৎ','kh':'খ','gh':'ঘ','Ng':'ঙ','ch':'ছ','jh':'ঝ','NG':'ঞ','Th':'ঠ','Dh':'ঢ','th':'থ','dh':'ধ','ph':'ফ','bh':'ভ','sh':'শ','Sh':'ষ','Rh':'ঢ়','k':'ক','g':'গ','c':'চ','j':'জ','T':'ট','D':'ড','N':'ণ','t':'ত','d':'দ','n':'ন','p':'প','f':'ফ','b':'ব','v':'ভ','m':'ম','z':'য','r':'র','l':'ল','S':'শ','s':'স','h':'হ','R':'ড়','y':'য়','Y':'য়','q':'ক','x':'ক্স'};
-var S={'ng':'ং','^':'ঁ'},DG='০১২৩৪৫৬৭৮৯';
+var V={'rri':['ঋ','ৃ'],'oi':['ঐ','ৈ'],'OI':['ঐ','ৈ'],'ou':['ঔ','ৌ'],'OU':['ঔ','ৌ'],'aa':['আ','া'],'ii':['ঈ','ী'],'ee':['ঈ','ী'],'uu':['ঊ','ূ'],'oo':['উ','ু'],'a':['আ','া'],'i':['ই','ি'],'I':['ঈ','ী'],'u':['উ','ু'],'U':['ঊ','ূ'],'e':['এ','ে'],'o':['অ',''],'O':['ও','ো']};
+var C={'kkh':'ক্ষ','GG':'জ্ঞ','ngk':'ঙ্ক','ngg':'ঙ্গ','t``':'ৎ','chh':'ছ','kh':'খ','gh':'ঘ','Ng':'ঙ','ch':'ছ','jh':'ঝ','NG':'ঞ','Th':'ঠ','Dh':'ঢ','th':'থ','dh':'ধ','ph':'ফ','bh':'ভ','sh':'শ','Sh':'ষ','Rh':'ঢ়','k':'ক','g':'গ','c':'চ','j':'জ','T':'ট','D':'ড','N':'ণ','t':'ত','d':'দ','n':'ন','p':'প','f':'ফ','b':'ব','v':'ভ','m':'ম','z':'য','r':'র','l':'ল','S':'শ','s':'স','h':'হ','R':'ড়','Y':'য়','q':'ক','x':'ক্স'};
+var SP={'y':1,'Z':1,'w':1};/* y, Z = য-ফলা after a consonant; w = ব-ফলা (ও when alone) */
+var S={'ng':'ং','^':'ঁ',':':'ঃ','$':'৳'},DG='০১২৩৪৫৬৭৮৯';
 function conv(r){
   var out='',st=0,i=0;/* st: 0 other, 1 after consonant, 2 after vowel */
   while(i<r.length){
@@ -10,11 +11,16 @@ function conv(r){
     for(L=3;L>=1;L--){s=r.substr(i,L);if(s.length<L)continue;
       if(S[s]!=null){kind='s';val=S[s]}else if(V[s]){kind='v';val=V[s]}else if(C[s]){kind='c';val=C[s]}
       if(kind){len=L;break}}
+    if(!kind&&SP[ch]){
+      if(st===1){out+=(ch==='w'?'্ব':'্য');st=3}
+      else if(ch==='y'){out+=(out===''?'ইয়':'য়');st=1}
+      else{out+=(ch==='w'?'ও':'য');st=2}
+      i++;continue}
     if(!kind){
       if(ch==='`'){st=0}else if(ch>='0'&&ch<='9'){out+=DG.charAt(+ch);st=0}else{out+=ch;st=0}
       i++;continue}
     if(kind==='s'){out+=val;st=0}
-    else if(kind==='v'){out+=(st===1?val[1]:val[0]);st=2}
+    else if(kind==='v'){if(s==='a'&&st===2){out+='য়া'}else{out+=(st===1||st===3?val[1]:val[0])}st=2}
     else{out+=(st===1?'্':'')+val;st=1}
     i+=len}
   return out}
@@ -47,7 +53,8 @@ function render(){
   words.forEach(function(w,i){var s=document.createElement('span');s.className='w';s.id='w'+i;s.textContent=w;tgt.appendChild(s);tgt.appendChild(document.createTextNode(' '))});
   tgt.scrollTop=0;mark()}
 function mark(){var c=$('w'+idx);if(!c)return;c.className='w cur';
-  if(c.offsetTop+c.offsetHeight>tgt.scrollTop+tgt.clientHeight-6||c.offsetTop<tgt.scrollTop)tgt.scrollTop=Math.max(0,c.offsetTop-6)}
+  var lh=parseFloat(getComputedStyle(tgt).lineHeight)||36,row=Math.floor(c.offsetTop/lh);
+  tgt.scrollTop=Math.max(0,row-1)*lh}
 function fmt(s){s=Math.max(0,Math.ceil(s));return bn(Math.floor(s/60))+':'+bn(('0'+(s%60)).slice(-2))}
 function elapsed(){return started?(Date.now()-t0)/1000:0}
 function stats(){
