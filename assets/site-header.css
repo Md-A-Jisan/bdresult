@@ -1,10 +1,10 @@
 /* Shared header - every class is prefixed .sh so it can be dropped on any page */
-.sh,.sh *{box-sizing:border-box}
+header.sh,header.sh *{box-sizing:border-box}
+header.sh{background:none!important;color:inherit}
 .sh{position:sticky;top:0;z-index:100;padding:10px 12px 0;pointer-events:none;font-family:"Noto Sans Bengali",system-ui,sans-serif;line-height:1.4}
 .sh-bar{pointer-events:auto;position:relative;max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:8px;background:#064e3b;color:#fff;border-radius:20px;padding:8px 10px;box-shadow:0 12px 28px -12px rgba(2,44,34,.6),0 2px 6px rgba(2,44,34,.25)}
 .sh a,.sh a:visited{color:#fff;text-decoration:none}
 .sh-logo{display:flex;align-items:center;gap:10px;flex:none;padding:2px 4px 2px 2px}
-.sh-mark{width:38px;height:38px;border-radius:12px;background:#ecfdf5;color:#064e3b;display:grid;place-items:center;flex:none}
 .sh-name{font-size:20px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
 .sh-name small{color:#6ee7b7;font-size:14px;font-weight:600}
 .sh-sep{width:1px;height:28px;background:rgba(255,255,255,.22);flex:none;margin:0 2px}

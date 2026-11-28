@@ -68,7 +68,7 @@ w('api-static-posts.json',JSON.stringify(posts.map(p=>({slug:p.slug,title:p.titl
 cp('static',D);cp('admin',D+'/admin');cp('assets',D+'/assets');
 // put the shared header on static tool pages copied from /static (e.g. /emis/)
 const SH=siteHeader({name:S.name,cats});
-tools.filter(u=>u.endsWith('/')).forEach(u=>{const f=path.join(D,u,'index.html');if(!fs.existsSync(f))return;let h=fs.readFileSync(f,'utf8');if(h.includes('class="sh"'))return;h=h.replace('</head>','<link rel="stylesheet" href="/assets/site-header.css"></head>').replace(/<body[^>]*>/,x=>x+SH+'<div style="height:14px"></div>').replace('</body>','<script src="/assets/site-header.js" defer></script></body>');fs.writeFileSync(f,h)});
+tools.filter(u=>u.endsWith('/')).forEach(u=>{const f=path.join(D,u,'index.html');if(!fs.existsSync(f))return;let h=fs.readFileSync(f,'utf8');if(h.includes('class="sh"'))return;h=h.replace('</head>','<link rel="stylesheet" href="/assets/site-header.css"><style>body{padding-top:0!important}@media(min-width:821px){.sh{margin-left:-24px;margin-right:-24px}}</style></head>').replace(/<body[^>]*>/,x=>x+SH+'<div style="height:14px"></div>').replace('</body>','<script src="/assets/site-header.js" defer></script></body>');fs.writeFileSync(f,h)});
 w('robots.txt',ROBOTS); // static/robots.txt থাকলেও এটিই চূড়ান্ত
 fs.writeFileSync(D+'/favicon.svg','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#064e3b"/><text x="16" y="23" font-size="18" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">bd</text></svg>');
 console.log('Built',posts.length,'posts,',pages.length,'pages');
