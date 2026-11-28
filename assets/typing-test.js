@@ -16,6 +16,7 @@ function conv(r){
       else if(ch==='y'){out+=(out===''?'ইয়':'য়');st=1}
       else{out+=(ch==='w'?'ও':'য');st=2}
       i++;continue}
+    if(!kind&&ch>='A'&&ch<='Z'){r=r.slice(0,i)+ch.toLowerCase()+r.slice(i+1);continue}/* unused capitals act like small letters (as in Avro) */
     if(!kind){
       if(ch==='`'){st=0}else if(ch>='0'&&ch<='9'){out+=DG.charAt(+ch);st=0}else{out+=ch;st=0}
       i++;continue}
@@ -33,7 +34,7 @@ var D=JSON.parse(dataEl.textContent);
 var tgt=$('tt-target'),ta=$('tt-input'),timeSel=$('tt-time'),srcSel=$('tt-src'),res=$('tt-res'),
     timeEl=$('tt-left'),wpmEl=$('tt-wpm'),accEl=$('tt-acc'),bestEl=$('tt-best');
 var kb=document.getElementsByName('tt-kb');
-var words=[],pids=[],idx=0,ok=0,bad=0,chars=0,started=false,done=false,t0=0,total=300,tick=null,lock='',raw='',base='';
+var words=[],pids=[],idx=0,ok=0,bad=0,chars=0,started=false,done=false,t0=0,total=300,tick=null,lock='',raw='',base='',commits=[],lastVal='';
 function bn(n){return String(n).replace(/\d/g,function(d){return DG.charAt(+d)})}
 function mode(){for(var i=0;i<kb.length;i++)if(kb[i].checked)return kb[i].value;return'native'}
 function norm(s){return String(s).normalize('NFC').replace(/[\u200c\u200d]/g,'').trim()}
@@ -68,9 +69,15 @@ function commit(t){
   var w=words[idx];if(w===undefined)return;
   var good=norm(t)===norm(w),el=$('w'+idx);
   if(good){ok++;chars+=w.length+1}else bad++;
+  commits.push({len:lock.length,good:good,n:w.length+1});
   el.className='w '+(good?'ok':'bad');idx++;
   if(idx>=words.length){finish();return}
   mark()}
+function uncommit(){
+  var c=commits.pop();if(!c)return;
+  if(c.good){ok--;chars-=c.n}else bad--;
+  var el=$('w'+(idx-1));if(el)el.className='w';
+  idx--}
 function finish(){
   if(done)return;done=true;clearInterval(tick);
   var e=Math.max(5,Math.min(elapsed(),total)),m=e/60,wpm=Math.round(ok/m),acc=ok+bad?Math.round(ok*100/(ok+bad)):0,cpm=Math.round(chars/m);
@@ -80,7 +87,7 @@ function finish(){
   bestEl.textContent=best?bn(best):'-';
   ta.disabled=true;res.hidden=false;stats();res.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function reset(fresh,focus){
-  clearInterval(tick);started=done=false;ok=bad=chars=idx=0;lock=raw=base='';ta.disabled=false;ta.value='';res.hidden=true;
+  clearInterval(tick);started=done=false;ok=bad=chars=idx=0;lock=raw=base=lastVal='';commits=[];ta.disabled=false;ta.value='';res.hidden=true;
   if(fresh||!words.length)pick();render();total=(+timeSel.value)*60;stats();wpmEl.textContent=bn(0);
   try{bestEl.textContent=localStorage.getItem('bdtt_best')?bn(localStorage.getItem('bdtt_best')):'-'}catch(e){}
   if(focus)ta.focus()}
@@ -89,12 +96,19 @@ function live(){
   var part=norm(ta.value.slice(lock.length)),w=norm(words[idx]);
   c.className='w cur'+(part&&w.indexOf(part)!==0?' err':'')}
 function sync(){
+  if(done)return;
   var text=ta.value;
-  if(text.length<lock.length||text.indexOf(lock)!==0){text=ta.value=lock;base=lock;raw=''}
-  if(!started&&text.length&&!done)start();
+  if(text.length<lastVal.length&&lastVal.indexOf(text)===0){
+    /* deleting from the end: step back into earlier words and let the user fix them */
+    var re=false;
+    while(commits.length&&commits[commits.length-1].len>text.length){uncommit();re=true}
+    if(re||text.length<lock.length)lock=text.slice(0,commits.length?commits[commits.length-1].len:0);
+    if(re)mark();
+  }else if(text.indexOf(lock)!==0){text=ta.value=lastVal;base=text;raw='';return}
+  if(!started&&text.length)start();
   var rest=text.slice(lock.length),m;
   while(!done&&(m=rest.search(/\s/))>=0){var t=rest.slice(0,m);lock+=rest.slice(0,m+1);rest=rest.slice(m+1);if(t)commit(t)}
-  live()}
+  lastVal=ta.value;live()}
 function put(v){ta.value=v;ta.setSelectionRange(v.length,v.length)}
 var BR=/[\s,;?!()"'‘’“”\-–—.:\/]/;
 ta.addEventListener('beforeinput',function(e){
@@ -108,7 +122,7 @@ ta.addEventListener('beforeinput',function(e){
   else if(t==='insertLineBreak'){e.preventDefault();base+=conv(raw)+'\n';raw='';put(base);sync()}
   else if(t==='deleteContentBackward'){
     e.preventDefault();
-    if(raw)raw=raw.slice(0,-1);else base=base.slice(0,-1);
+    if(raw)raw=raw.slice(0,-1);else{base=base.slice(0,-1);if(base.slice(-1)==='্')base=base.slice(0,-1)}
     put(base+conv(raw));sync()}
 });
 ta.addEventListener('input',function(){base=ta.value;raw='';sync()});
